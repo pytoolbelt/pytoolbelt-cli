@@ -11,9 +11,9 @@ from rich.console import Console
 from rich.table import Table
 from pathlib import Path
 from typing import Optional, Generator, List
-from pytoolbelt.terminal.core.utils import get_jinja_env
-from pytoolbelt.terminal.environment.config import ProjectTree, DEFAULT_PYTHON_VERSION
-from pytoolbelt.terminal.core.error_handler.exceptions import MetaDataError, InterpreterNotFound, ToolNotFound, \
+from pytoolbelt.core.bases import BaseTemplater
+from pytoolbelt.environment.config import ProjectTree, DEFAULT_PYTHON_VERSION
+from pytoolbelt.core.error_handler.exceptions import MetaDataError, InterpreterNotFound, ToolNotFound, \
     ToolExists, ToolDownloadError
 
 
@@ -200,11 +200,11 @@ class ToolBuilder:
         )
 
 
-class ToolTemplater:
+class ToolTemplater(BaseTemplater):
 
     def __init__(self, tool: Tool) -> None:
+        super().__init__()
         self.tool = tool
-        self.jinja = get_jinja_env()
 
     def template(self) -> None:
         self._template_entrypoint_file()

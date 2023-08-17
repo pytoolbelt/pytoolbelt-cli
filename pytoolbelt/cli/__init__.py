@@ -1,6 +1,6 @@
-from pytoolbelt.terminal.cli.base import PyToolBeltCommand
-from pytoolbelt.terminal.core.error_handler import handle_errors
-from pytoolbelt.terminal.environment.config import DEFAULT_PYTHON_VERSION
+from pytoolbelt.cli.base import PyToolBeltCommand
+from pytoolbelt.core.error_handler import handle_errors
+from pytoolbelt.environment.config import DEFAULT_PYTHON_VERSION
 
 __version__ = "0.0.0"
 

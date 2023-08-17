@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Optional
-from pytoolbelt.terminal.environment.config import ProjectTree
-from .tool import Tool, ToolInfo
-from .pyenv import PyEnv
+from pytoolbelt.environment.config import ProjectTree
+from pytoolbelt.core.bases import BaseTemplater
+from pytoolbelt.core.tool import Tool, ToolInfo
+from pytoolbelt.core.pyenv import PyEnv
 
 
 class PyToolBeltProject:
@@ -26,12 +27,21 @@ class PyToolBeltProject:
     def tools_path(self) -> Path:
         return ProjectTree.TOOLS_DIRECTORY
 
+    @property
+    def config_file_path(self) -> Path:
+        return ProjectTree.CONFIG_FILE
+
     def initialize(self) -> None:
         self.root.mkdir(exist_ok=True)
         self.environments_path.mkdir(exist_ok=True)
         self.environment_index_path.mkdir(exist_ok=True)
         self.bin_path.mkdir(exist_ok=True)
         self.tools_path.mkdir(exist_ok=True)
+
+        if not self.config_file_path.exists():
+            self.config_file_path.touch()
+
+        self.new_project_templater().template()
 
     def new_tool(self, name: str) -> "Tool":
         return Tool(name, self.tools_path)
@@ -44,6 +54,10 @@ class PyToolBeltProject:
     def new_pyenv(name: str, python_version: str) -> "PyEnv":
         return PyEnv(name, python_version)
 
+    def new_project_templater(self) -> "ProjectTemplater":
+        return ProjectTemplater(self)
+
+    # TODO: Everything below here is a WIP. It doesn't belong in this file.
     def download_venv_definition(self, name: str, python_version: str) -> None:
         pyenv = self.new_pyenv(name, python_version)
         pyenv_downloader = pyenv.get_downloader()
@@ -69,3 +83,18 @@ class PyToolBeltProject:
                 name=tool_metadata_config.interpreter,
                 python_version=tool_metadata_config.python_version
             )
+
+
+class ProjectTemplater(BaseTemplater):
+
+    def __init__(self, project: PyToolBeltProject) -> None:
+        super().__init__()
+        self.project = project
+
+    def template(self) -> None:
+        self._template_config_file()
+
+    def _template_config_file(self) -> None:
+        config_template = self.jinja.get_template("config.yml.template")
+        content = config_template.render()
+        self.project.config_file_path.write_text(content)

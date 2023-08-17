@@ -1,12 +1,11 @@
 import yaml
-import json
 import subprocess
 import requests
 import shutil
 from pathlib import Path
-from pytoolbelt.terminal.environment.config import ProjectTree, PYTOOBELT_HOST
-from pytoolbelt.terminal.core.error_handler.exceptions import PythonEnvBuildError, PyEnvExistsError, MetaDataError
-from pytoolbelt.terminal.core.utils import get_jinja_env
+from pytoolbelt.environment.config import ProjectTree, PYTOOBELT_HOST
+from pytoolbelt.core.error_handler.exceptions import PythonEnvBuildError, PyEnvExistsError, MetaDataError
+from pytoolbelt.core.bases import BaseTemplater
 
 
 class PyEnv:
@@ -190,11 +189,11 @@ class PythonEnvBuilder:
             raise PythonEnvBuildError(f"Failed to install requirements for python environment {self.pyenv.name}")
 
 
-class PyEnvTemplater:
+class PyEnvTemplater(BaseTemplater):
 
     def __init__(self, pyenv: PyEnv) -> None:
+        super().__init__()
         self.pyenv = pyenv
-        self.jinja = get_jinja_env()
 
     def template(self) -> None:
         self._template_pyenv_metadata_file()

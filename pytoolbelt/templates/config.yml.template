@@ -1,0 +1,10 @@
+directories:
+    tools: ~/pytoolbelt/tools
+    env_meta: ~/pytoolbelt/pyenvs
+    bin: ~/.pytoolbelt/bin
+    environments: ~/.pytoolbelt/environments
+
+
+hosts:
+    default: https://pytoolbelt.com
+    local: http://localhost:8000

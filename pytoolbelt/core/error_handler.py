@@ -1,6 +1,6 @@
 import functools
 from typing import Optional
-from pytoolbelt.terminal.environment.variables import PYTOOLBELT_DEBUG
+from pytoolbelt.environment.variables import PYTOOLBELT_DEBUG
 from . import exceptions
 
 

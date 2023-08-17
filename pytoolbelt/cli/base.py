@@ -1,7 +1,7 @@
 from ramjam.cli import Command
-from pytoolbelt.terminal.core.project import PyToolBeltProject
-from pytoolbelt.terminal.core.error_handler.exceptions import PyToolBeltProjectNotFound
-from pytoolbelt.terminal.core.error_handler import ErrorHandler
+from pytoolbelt.core.project import PyToolBeltProject
+from pytoolbelt.core.error_handler.exceptions import PyToolBeltProjectNotFound
+from pytoolbelt.core.error_handler import ErrorHandler
 
 
 class PyToolBeltCommand(Command):

@@ -1,5 +1,5 @@
 from ramjam.utils import parse_args
-from pytoolbelt.terminal import cli
+from pytoolbelt import cli
 
 
 def main() -> int:
