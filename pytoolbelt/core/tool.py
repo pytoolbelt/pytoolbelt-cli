@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Optional, Generator, List
 from pytoolbelt.core.bases import BaseTemplater
 from pytoolbelt.environment.config import ProjectTree, DEFAULT_PYTHON_VERSION
-from pytoolbelt.core.error_handler.exceptions import MetaDataError, InterpreterNotFound, ToolNotFound, \
+from pytoolbelt.core.exceptions import MetaDataError, InterpreterNotFound, ToolNotFound, \
     ToolExists, ToolDownloadError
 
 

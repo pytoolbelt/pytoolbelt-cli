@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional
-from pytoolbelt.environment.config import ProjectTree
+from pytoolbelt.environment.config import ProjectTree, CONFIG_FILE_PATH
 from pytoolbelt.core.bases import BaseTemplater
 from pytoolbelt.core.tool import Tool, ToolInfo
 from pytoolbelt.core.pyenv import PyEnv
@@ -9,15 +9,19 @@ from pytoolbelt.core.pyenv import PyEnv
 class PyToolBeltProject:
 
     def __init__(self, root: Optional[Path] = None) -> None:
-        self.root = root or ProjectTree.ROOT_DIRECTORY
+        self.cli_root = root or ProjectTree.CLI_ROOT_DIRECTORY
+        self.user_root = ProjectTree.USER_ROOT_DIRECTORY
+
+    def project_exists(self) -> bool:
+        return self.cli_root.exists() and self.user_root.exists()
 
     @property
     def environments_path(self) -> Path:
         return ProjectTree.ENVIRONMENTS_DIRECTORY
 
     @property
-    def environment_index_path(self) -> Path:
-        return ProjectTree.ENVIRONMENTS_METADATA_DIRECTORY
+    def pyenvs_path(self) -> Path:
+        return ProjectTree.PYENVS_DIRECTORY
 
     @property
     def bin_path(self) -> Path:
@@ -29,12 +33,13 @@ class PyToolBeltProject:
 
     @property
     def config_file_path(self) -> Path:
-        return ProjectTree.CONFIG_FILE
+        return CONFIG_FILE_PATH
 
     def initialize(self) -> None:
-        self.root.mkdir(exist_ok=True)
+        self.cli_root.mkdir(exist_ok=True)
+        self.user_root.mkdir(exist_ok=True)
         self.environments_path.mkdir(exist_ok=True)
-        self.environment_index_path.mkdir(exist_ok=True)
+        self.pyenvs_path.mkdir(exist_ok=True)
         self.bin_path.mkdir(exist_ok=True)
         self.tools_path.mkdir(exist_ok=True)
 

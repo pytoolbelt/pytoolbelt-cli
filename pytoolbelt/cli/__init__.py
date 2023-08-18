@@ -16,7 +16,7 @@ class Init(PyToolBeltCommand):
     @handle_errors
     def __call__(self) -> None:
         self.project.initialize()
-        print(f"PyToolBelt :: Initialized project at {self.project.root}")
+        print(f"PyToolBelt :: Initialized project at {self.project.cli_root}")
 
 
 class Tool(PyToolBeltCommand):

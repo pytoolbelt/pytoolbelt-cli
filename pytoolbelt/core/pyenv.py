@@ -4,7 +4,7 @@ import requests
 import shutil
 from pathlib import Path
 from pytoolbelt.environment.config import ProjectTree, PYTOOBELT_HOST
-from pytoolbelt.core.error_handler.exceptions import PythonEnvBuildError, PyEnvExistsError, MetaDataError
+from pytoolbelt.core.exceptions import PythonEnvBuildError, PyEnvExistsError, MetaDataError
 from pytoolbelt.core.bases import BaseTemplater
 
 
@@ -16,7 +16,7 @@ class PyEnv:
 
     @property
     def metadata_path(self) -> Path:
-        return ProjectTree.ENVIRONMENTS_METADATA_DIRECTORY / self.python_version
+        return ProjectTree.PYENVS_DIRECTORY / self.python_version
 
     def get_metadata(self) -> "PyEnvMetaData":
         return PyEnvMetaData(self)
