@@ -4,9 +4,6 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-
-DEFAULT_PYTHON_VERSION = "3.11"
-PYTOOBELT_HOST = "http://localhost:8000"
 CONFIG_FILE_PATH = Path.home() / ".pytoolbelt-cli" / "config.yml"
 
 
@@ -40,9 +37,29 @@ class Config:
         except KeyError:
             return Path.home() / ".pytoolbelt-cli"
 
+    @property
+    def default_python_version(self) -> str:
+        try:
+            return self.config["python"]["default"]
+        except KeyError:
+            return "3.11"
+
+    @property
+    def pytoolbelt_host(self) -> str:
+        try:
+            return self.config["hosts"]["main"]
+        except KeyError:
+            return "http://localhost:8000"
+
+
+_config = Config()
+
+
+DEFAULT_PYTHON_VERSION = _config.default_python_version
+PYTOOBELT_HOST = _config.pytoolbelt_host
+
 
 class ProjectTree:
-    _config = Config()
     CLI_ROOT_DIRECTORY = _config.cli_root_directory
     USER_ROOT_DIRECTORY = _config.user_root_directory
     TOOLS_DIRECTORY = _config.user_root_directory / "tools"
