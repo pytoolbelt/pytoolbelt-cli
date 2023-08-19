@@ -378,10 +378,19 @@ class ToolFormatter:
         self.isort_format()
         self.black_format()
 
+    @property
+    def black_path(self) -> Path:
+        return ProjectTree.ENVIRONMENTS_DIRECTORY / DEFAULT_PYTHON_VERSION / "qa" / "venv/bin/black"
+
+    @property
+    def isort_path(self) -> Path:
+        return ProjectTree.ENVIRONMENTS_DIRECTORY / DEFAULT_PYTHON_VERSION / "qa" / "venv/bin/isort"
+
+
     def black_check(self) -> None:
         subprocess.run(
             [
-                "black",
+                self.black_path.as_posix(),
                 "--line-length",
                 self.line_length,
                 "--skip-string-normalization",
@@ -394,7 +403,7 @@ class ToolFormatter:
     def black_format(self) -> None:
         subprocess.run(
             [
-                "black",
+                self.black_path.as_posix(),
                 "--line-length",
                 self.line_length,
                 "--skip-string-normalization",
@@ -406,7 +415,7 @@ class ToolFormatter:
     def isort_check(self) -> None:
         subprocess.run(
             [
-                "isort",
+                self.isort_path.as_posix(),
                 "--profile","black",
                 "--check",
                 self.tool.tool_root.as_posix(),
@@ -417,7 +426,7 @@ class ToolFormatter:
     def isort_format(self) -> None:
         subprocess.run(
             [
-                "isort",
+                self.isort_path.as_posix(),
                 "--profile","black",
                 self.tool.tool_root.as_posix(),
             ],

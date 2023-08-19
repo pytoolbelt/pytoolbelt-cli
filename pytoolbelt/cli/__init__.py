@@ -113,7 +113,6 @@ class Tool(PyToolBeltCommand):
         tool_builder.build(install=self.cli_args.install)
 
         print(f"PyToolBelt :: Built tool {name} at {tool.tool_root}")
-
         return 0
 
     def install(self, name: str) -> int:
