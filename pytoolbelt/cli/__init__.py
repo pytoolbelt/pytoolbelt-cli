@@ -55,11 +55,6 @@ class Tool(PyToolBeltCommand):
             "default": None
         },
 
-        ("--build", "-b"): {
-            "help": "Build a tool",
-            "default": None
-        },
-
         ("--install", "-i"): {
             "help": "Build and install a tool. If the tool exists locally, it will be installed, if not, the tools will be downloaded from www.pytoolbelt.com",
             "default": False
@@ -131,50 +126,9 @@ class Tool(PyToolBeltCommand):
         print(f"PyToolBelt :: Created tool {name} at {tool.tool_root}")
         return 0
 
-    def build(self, name: str) -> int:
-
-        tool = self.project.new_tool(name)
-
-        tool_metadata = tool.get_metadata()
-        tool_metadata.exists()
-
-        tool_builder = tool.get_builder()
-        tool_builder.build(install=self.cli_args.install)
-
-        print(f"PyToolBelt :: Built tool {name} at {tool.tool_root}")
-        return 0
-
     def install(self, name: str) -> int:
-        tool = self.project.new_tool(name)
-
-        if tool.tool_root.exists():
-
-            self.project.ensure_venv(name=tool.name)
-
-            tool_builder = tool.get_builder()
-            tool_builder.build(install=True)
-
-            print(f"PyToolBelt :: Installed tool {name} at {tool.tool_root}")
-            return 0
-
-        else:
-            print(f"PyToolBelt :: Tool {name} does not exist locally, downloading from www.pytoolbelt.com")
-            tool_downloader = tool.get_downloader()
-            tool_downloader.download()
-
-            tool_packager = tool.get_packager()
-            tool_packager.unpack()
-
-            self.project.ensure_venv(name=tool.name)
-
-            tool_builder = tool.get_builder()
-            tool_builder.build(install=True)
-
-            tool_packager.purge()
-            tool.purge()
-
-            print(f"PyToolBelt :: Installed tool {name} at {tool.tool_root}")
-            return 0
+        # TODO: re-write this using the new installer class :) it's much cleaner
+        pass
 
     def remove(self, name: str) -> int:
 
