@@ -1,8 +1,11 @@
 from pathlib import Path
 from typing import Optional
+from rich.console import Console
+from rich.table import Table
 from pytoolbelt.environment.config import ProjectTree, CONFIG_FILE_PATH
 from pytoolbelt.core.bases import BaseTemplater
 from pytoolbelt.core.tool import Tool, ToolInfo
+from pytoolbelt.core.installer import Installer
 from pytoolbelt.core.pyenv import PyEnv
 
 
@@ -35,59 +38,48 @@ class PyToolBeltProject:
     def config_file_path(self) -> Path:
         return CONFIG_FILE_PATH
 
-    def initialize(self) -> None:
-        self.cli_root.mkdir(exist_ok=True)
-        self.user_root.mkdir(exist_ok=True)
-        self.environments_path.mkdir(exist_ok=True)
-        self.pyenvs_path.mkdir(exist_ok=True)
-        self.bin_path.mkdir(exist_ok=True)
-        self.tools_path.mkdir(exist_ok=True)
-
-        if not self.config_file_path.exists():
-            self.config_file_path.touch()
-
-        self.new_project_templater().template()
-
-    def new_tool(self, name: str) -> "Tool":
-        return Tool(name, self.tools_path)
+    @staticmethod
+    def get_installer(tool: Tool) -> "Installer":
+        return Installer(tool)
 
     @staticmethod
-    def new_tool_info() -> "ToolInfo":
+    def get_tool_info() -> "ToolInfo":
         return ToolInfo()
 
     @staticmethod
     def new_pyenv(name: str, python_version: str) -> "PyEnv":
         return PyEnv(name, python_version)
 
-    def new_project_templater(self) -> "ProjectTemplater":
+    def get_project_info(self) -> "ProjectInfo":
+        return ProjectInfo(self)
+
+    def new_tool(self, name: str) -> "Tool":
+        return Tool(name, self.tools_path)
+
+    def get_initializer(self) -> "ProjectInitializer":
+        return ProjectInitializer(self)
+
+    def get_project_templater(self) -> "ProjectTemplater":
         return ProjectTemplater(self)
 
-    # TODO: Everything below here is a WIP. It doesn't belong in this file.
-    def download_venv_definition(self, name: str, python_version: str) -> None:
-        pyenv = self.new_pyenv(name, python_version)
-        pyenv_downloader = pyenv.get_downloader()
-        pyenv_downloader.download()
 
-    def build_venv(self, name: str, python_version: str) -> None:
-        pyenv = self.new_pyenv(name, python_version)
-        pyenv_builder = pyenv.get_builder()
-        pyenv_builder.build()
+class ProjectInitializer:
 
-    def ensure_venv(self, name) -> None:
-        tool = self.new_tool(name)
-        tool_metadata = tool.get_metadata()
-        tool_metadata_config = tool_metadata.get_metadata_config()
-        tool_metadata_config.load(missing_venv_ok=True)
+    def __init__(self, project: PyToolBeltProject) -> None:
+        self.project = project
 
-        if not tool_metadata_config.interpreter_path.exists():
-            self.download_venv_definition(
-                name=tool_metadata_config.interpreter,
-                python_version=tool_metadata_config.python_version
-            )
-            self.build_venv(
-                name=tool_metadata_config.interpreter,
-                python_version=tool_metadata_config.python_version
-            )
+    def initialize(self) -> None:
+        self.project.cli_root.mkdir(exist_ok=True)
+        self.project.user_root.mkdir(exist_ok=True)
+        self.project.environments_path.mkdir(exist_ok=True)
+        self.project.pyenvs_path.mkdir(exist_ok=True)
+        self.project.bin_path.mkdir(exist_ok=True)
+        self.project.tools_path.mkdir(exist_ok=True)
+
+        if not self.project.config_file_path.exists():
+            self.project.config_file_path.touch()
+
+        self.project.get_project_templater().template()
 
 
 class ProjectTemplater(BaseTemplater):
@@ -103,3 +95,26 @@ class ProjectTemplater(BaseTemplater):
         config_template = self.jinja.get_template("config.yml.template")
         content = config_template.render()
         self.project.config_file_path.write_text(content)
+
+
+class ProjectInfo:
+
+    def __init__(self, project: PyToolBeltProject) -> None:
+        self.project = project
+
+    def display(self) -> None:
+        console = Console()
+        table = Table()
+
+        table.add_column("Name")
+        table.add_column("Path")
+        table.add_column("Description")
+
+        table.add_row("PyToolBelt Root", self.project.cli_root.as_posix(), "Root directory for the pytoolbelt cli")
+        table.add_row("Bin", self.project.bin_path.as_posix(), "Directory for installed tools")
+        table.add_row("Environments", self.project.environments_path.as_posix(), "Directory for virtual environments")
+        table.add_row("Project Root", self.project.user_root.as_posix(), "Root directory for the pytoolbelt project")
+        table.add_row("Tools", self.project.tools_path.as_posix(), "Directory for tool source code")
+        table.add_row("PyEnvs", self.project.pyenvs_path.as_posix(), "Directory for venv definitions")
+
+        console.print(table)

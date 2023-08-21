@@ -11,12 +11,41 @@ class Version(PyToolBeltCommand):
         print(f"PyToolBelt :: Version {__version__} :: A tool for installing and managing tools written in python.")
 
 
-class Init(PyToolBeltCommand):
+class Project(PyToolBeltCommand):
+
+    args = {
+        ("--init", "-i"): {
+            "help": "Initialize a new project",
+            "action": "store_true",
+            "default": False
+        },
+
+        ("--show", "-s"): {
+            "help": "Show project configuration",
+            "action": "store_true",
+            "default": False
+        }
+    }
 
     @handle_errors
-    def __call__(self) -> None:
-        self.project.initialize()
+    def __call__(self) -> int:
+
+        if self.cli_args.init:
+            return self.init()
+
+        if self.cli_args.show:
+            return self.show()
+
+    def init(self) -> int:
+        project_initializer = self.project.get_initializer()
+        project_initializer.initialize()
         print(f"PyToolBelt :: Initialized project at {self.project.cli_root}")
+        return 0
+
+    def show(self) -> int:
+        project_info = self.project.get_project_info()
+        project_info.display()
+        return 0
 
 
 class Tool(PyToolBeltCommand):
@@ -160,7 +189,7 @@ class Tool(PyToolBeltCommand):
 
     def show(self) -> int:
         print("PyToolBelt :: Listing all tools")
-        tool_info = self.project.new_tool_info()
+        tool_info = self.project.get_tool_info()
         tool_info.display()
         return 0
 

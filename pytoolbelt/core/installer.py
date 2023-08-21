@@ -1,3 +1,4 @@
+import zipapp
 from pytoolbelt.core.tool import Tool
 from pytoolbelt.core.pyenv import PyEnv
 
@@ -25,6 +26,16 @@ class Installer:
             self._build_pyenv()
 
         self._build_tool()
+
+    def _build_tool(self) -> None:
+        metadata_config = self.tool.get_metadata().get_metadata_config()
+        metadata_config.load()
+
+        zipapp.create_archive(
+            source=self.tool.src_directory,
+            target=self.tool.executable_path,
+            interpreter=metadata_config.interpreter_path.as_posix(),
+        )
 
     def _tool_exists_locally(self) -> bool:
         return self.tool.tool_root.exists()
@@ -59,10 +70,6 @@ class Installer:
     def _unpack_tool(self) -> None:
         tool_packager = self.tool.get_packager()
         tool_packager.unpack()
-
-    def _build_tool(self) -> None:
-        tool_builder = self.tool.get_builder()
-        tool_builder.build(install=True)
 
     def _clean_up(self) -> None:
         self.tool.get_packager().purge()

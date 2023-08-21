@@ -1,6 +1,5 @@
 import requests
 import yaml
-import zipapp
 import zipfile
 import shutil
 import zipimport
@@ -89,6 +88,10 @@ class Tool:
     def tool_meta(self) -> Path:
         return self.tool_root / f"meta.yml"
 
+    @property
+    def executable_path(self) -> Path:
+        return ProjectTree.BIN_DIRECTORY / self.name
+
     def purge(self) -> None:
         shutil.rmtree(self.tool_root)
 
@@ -170,34 +173,6 @@ class ToolMetaData:
 
     def get_metadata_config(self) -> ToolMetaDataConfig:
         return ToolMetaDataConfig(self.tool.tool_meta)
-
-
-class ToolBuilder:
-    def __init__(self, tool: Tool) -> None:
-        self.tool = tool
-
-    @property
-    def executable_path(self) -> Path:
-        return ProjectTree.BIN_DIRECTORY / self.tool.name
-
-    @property
-    def tool_root_executable_path(self) -> Path:
-        return self.tool.tool_root / self.tool.name
-
-    def build(self, install: Optional[bool] = False) -> None:
-        metadata_config = self.tool.get_metadata().get_metadata_config()
-        metadata_config.load()
-
-        if self.tool_root_executable_path.exists():
-            self.tool_root_executable_path.unlink()
-
-        target = self.executable_path if install else self.tool_root_executable_path
-
-        zipapp.create_archive(
-            source=self.tool.src_directory,
-            target=target,
-            interpreter=metadata_config.interpreter_path.as_posix(),
-        )
 
 
 class ToolTemplater(BaseTemplater):
