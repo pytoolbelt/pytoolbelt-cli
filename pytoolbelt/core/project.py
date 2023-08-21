@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional
 from rich.console import Console
 from rich.table import Table
-from pytoolbelt.environment.config import ProjectTree, CONFIG_FILE_PATH
+from pytoolbelt.environment.config import ProjectTree, CONFIG_FILE_PATH, DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.bases import BaseTemplater
 from pytoolbelt.core.tool import Tool, ToolInfo
 from pytoolbelt.core.installer import Installer
@@ -33,6 +33,10 @@ class PyToolBeltProject:
     @property
     def tools_path(self) -> Path:
         return ProjectTree.TOOLS_DIRECTORY
+
+    @property
+    def temp_path(self) -> Path:
+        return ProjectTree.TEMP_DIRECTORY
 
     @property
     def config_file_path(self) -> Path:
@@ -81,6 +85,11 @@ class ProjectInitializer:
 
         self.project.get_project_templater().template()
 
+        for name in "base", "qa":
+            pyenv = self.project.new_pyenv(name, DEFAULT_PYTHON_VERSION)
+            pyenv_builder = pyenv.get_builder()
+            pyenv_builder.build()
+
 
 class ProjectTemplater(BaseTemplater):
 
@@ -90,11 +99,18 @@ class ProjectTemplater(BaseTemplater):
 
     def template(self) -> None:
         self._template_config_file()
+        self._template_standard_pyenvs()
 
     def _template_config_file(self) -> None:
         config_template = self.jinja.get_template("config.yml.template")
         content = config_template.render()
         self.project.config_file_path.write_text(content)
+
+    def _template_standard_pyenvs(self) -> None:
+        for name in "base", "qa":
+            pyenv = self.project.new_pyenv(name, DEFAULT_PYTHON_VERSION)
+            pyenv_templater = pyenv.get_templater()
+            pyenv_templater.template(name)
 
 
 class ProjectInfo:
@@ -116,5 +132,5 @@ class ProjectInfo:
         table.add_row("Project Root", self.project.user_root.as_posix(), "Root directory for the pytoolbelt project")
         table.add_row("Tools", self.project.tools_path.as_posix(), "Directory for tool source code")
         table.add_row("PyEnvs", self.project.pyenvs_path.as_posix(), "Directory for venv definitions")
-
+        table.add_row("Temp", self.project.temp_path.as_posix(), "Directory for temporary files")
         console.print(table)

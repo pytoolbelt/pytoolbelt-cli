@@ -98,9 +98,6 @@ class Tool:
     def get_metadata(self) -> "ToolMetaData":
         return ToolMetaData(self)
 
-    def get_builder(self) -> "ToolBuilder":
-        return ToolBuilder(self)
-
     def get_templater(self) -> "ToolTemplater":
         return ToolTemplater(self)
 

@@ -66,3 +66,4 @@ class ProjectTree:
     PYENVS_DIRECTORY = _config.user_root_directory / "pyenvs"
     BIN_DIRECTORY = _config.cli_root_directory / "bin"
     ENVIRONMENTS_DIRECTORY = _config.cli_root_directory / "environments"
+    TEMP_DIRECTORY = _config.cli_root_directory / "temp"

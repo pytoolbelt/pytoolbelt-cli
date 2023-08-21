@@ -1,3 +1,5 @@
+from typing import Optional
+
 import yaml
 import subprocess
 import requests
@@ -21,8 +23,8 @@ class PyEnv:
     def get_metadata(self) -> "PyEnvMetaData":
         return PyEnvMetaData(self)
 
-    def get_builder(self) -> "PythonEnvBuilder":
-        return PythonEnvBuilder(self)
+    def get_builder(self) -> "PyEnvBuilder":
+        return PyEnvBuilder(self)
 
     def get_downloader(self) -> "PyEnvDownloader":
         return PyEnvDownloader(self)
@@ -149,7 +151,7 @@ class PyEnvUploader:
         print(response.text)
 
 
-class PythonEnvBuilder:
+class PyEnvBuilder:
 
     def __init__(self, pyenv: PyEnv) -> None:
         self.pyenv = pyenv
@@ -195,10 +197,14 @@ class PyEnvTemplater(BaseTemplater):
         super().__init__()
         self.pyenv = pyenv
 
-    def template(self) -> None:
-        self._template_pyenv_metadata_file()
+    def template(self, name: Optional[str] = "pyenv") -> None:
+        self._template_pyenv_metadata_file(name)
 
-    def _template_pyenv_metadata_file(self) -> None:
-        template = self.jinja.get_template("pyenv.meta.yml.template")
+    def _template_pyenv_metadata_file(self, name: str) -> None:
+        template = self.jinja.get_template(f"{name}.meta.yml.template")
         content = template.render(pyenv=self.pyenv)
-        self.pyenv.get_metadata().env_meta_file.write_text(content)
+
+        metadata = self.pyenv.get_metadata()
+        metadata.env_meta_file.parent.mkdir(exist_ok=True, parents=True)
+        metadata.env_meta_file.touch(exist_ok=True)
+        metadata.env_meta_file.write_text(content)
