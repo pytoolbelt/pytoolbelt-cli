@@ -1,0 +1,35 @@
+Tool Command
+
+tool --new <tool name>
+    creates a new tool in the ~/.pytoolbox/tools directory. If the tool raise_if_exists, then a message is printed
+    and pytoolbelt exits.
+
+
+tool --build <tool name>
+    builds the tool with the given name searching the local tool directory only.
+    if it does not exist, the tool will exit, prompting the user to try to install it from
+    the remote repository.
+
+
+tool --install <tool name>
+    builds and installs the tool with the given name searching the local tool directory first. If
+    the tool raise_if_exists locally, the build file will be removed after the tool has been installed.
+    if the tool does not exist, pytoolbelt will attempt to install it from the remote repository.
+    the tool will be downloaded to the local temp directory, unpacked, and installed. After installation,
+    the tool will be moved to the local tool directory and the temp directory will be cleaned up.
+
+
+tool --remove <tool name>
+    removes the tool with the given name from the local bin directory. If the tool does not exist,
+    pytoolbelt will exit with a message explaining that the tool does not exist.
+
+
+tool --pack <tool name>
+    packs the tool with the given name into a zip file and places it in the local tool directory.
+    if the tool does not exist, pytoolbelt will exit, prompting the user to try to install it from
+    the remote repository.
+
+
+tool --publish <tool name>
+    packs the tool and publishes it to the remote repository. If the tool does not exist, pytoolbelt
+    will exit with a message explaining that the tool does not exist.

@@ -1,0 +1,8 @@
+env-meta:
+    name: {{pyenv.name}}
+    python_version: "{{pyenv.python_version}}"
+    pyenv_id: {{pyenv.generate_id()}}
+    description: a short description of the environment.
+    requirements:
+      - a list of requirements
+      - that will be passed to pip install

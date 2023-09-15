@@ -1,0 +1,17 @@
+import info
+from argparse import Namespace
+from pytoolbelt.toolkit.decorators import entrypoint
+
+@entrypoint(command="hello", help_msg="Says hello to the world!")
+def hello(cli_args: Namespace) -> int:
+    name = input("What is your name? ")
+    print(f"{name} Says Hello World!")
+    return 0
+
+def main() -> int:
+    return entrypoint.execute(info.__version__)
+
+
+if __name__ == "__main__":
+    exit_code = main()
+    exit(exit_code)
