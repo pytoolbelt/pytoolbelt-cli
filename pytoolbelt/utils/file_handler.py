@@ -1,6 +1,23 @@
 import shutil
 import yaml
 from pathlib import Path
+from pytoolbelt.models.pyenv import PythonVersionEnum
+
+
+class NoAliasDumper(yaml.Dumper):
+    def ignore_aliases(self, data):
+        return True
+
+    def increase_indent(self, flow=False, indentless=False):
+        return super(NoAliasDumper, self).increase_indent(flow, False)
+
+
+# Add this after the NoAliasDumper definition
+def enum_representer(dumper, data):
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data.value)
+
+
+NoAliasDumper.add_representer(PythonVersionEnum, enum_representer)
 
 
 def create_directory(path: Path, parents: bool = False) -> None:
@@ -43,4 +60,4 @@ def delete_file_if_exists(path: Path) -> None:
 
 def write_yml_file(path: Path, content: dict) -> None:
     with path.open("w") as file:
-        yaml.dump(content, file)
+        yaml.dump(content, file, Dumper=NoAliasDumper, sort_keys=False)

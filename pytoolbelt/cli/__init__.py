@@ -1,7 +1,8 @@
 from pytoolbelt.bases import PyToolBeltCommand
 from pytoolbelt.core.error_handlers import handle_cli_errors
-from pytoolbelt.environment.config import DEFAULT_PYTHON_VERSION, STANDARD_PYENVS
+from pytoolbelt.environment.config import DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.pyenv import PyEnv
+from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
 
 __version__ = "0.0.0"
 
@@ -56,6 +57,11 @@ class Pyenv(PyToolBeltCommand):
             "default": None
         },
 
+        ("--destroy", "-d"): {
+            "help": "Destroy an environment definition",
+            "default": None
+        },
+
         ("--build", "-b"): {
             "help": "Build a venv",
         },
@@ -85,11 +91,14 @@ class Pyenv(PyToolBeltCommand):
         if self.cli_args.new:
             return self.new(self.cli_args.new, self.cli_args.python_version)
 
+        if self.cli_args.destroy:
+            return self.destroy(self.cli_args.destroy, self.cli_args.python_version)
+
         if self.cli_args.fetch:
             return self.fetch(self.cli_args.fetch)
 
         if self.cli_args.build:
-            return self.build(self.cli_args.build, self.cli_args.python_version)
+            return self.build(self.cli_args.build)
 
         if self.cli_args.rebuild:
             return self.rebuild(self.cli_args.rebuild, self.cli_args.python_version)
@@ -97,31 +106,40 @@ class Pyenv(PyToolBeltCommand):
         if self.cli_args.publish:
             return self.publish(self.cli_args.publish, self.cli_args.python_version)
 
-    def new(self, name: str, python_version: str) -> int:
-        pyenv = self.project.new_pyenv(name, python_version)
+    @staticmethod
+    def new(name: str, python_version: str) -> int:
+        pyenv = PyEnv(name, python_version)
 
-        metadata = pyenv.get_metadata()
-        metadata.raise_if_exists()
+        creator = pyenv.get_creator()
+        creator.create()
 
-        initializer = pyenv.get_initializer()
-        initializer.initialize()
-
-        templater = pyenv.get_templater()
-        templater.template()
+        writer = pyenv.get_writer()
+        writer.write()
 
         print(f"PyToolBelt :: Created environment metadata {name} for python version {python_version}")
         return 0
 
-    def build(self, name: str, python_version: str) -> int:
-        pyenv = self.project.new_pyenv(name, python_version)
+    @staticmethod
+    def destroy(name: str, python_version: str) -> int:
+        pyenv = PyEnv(name, python_version)
 
-        initializer = pyenv.get_initializer()
-        initializer.initialize()
+        destroyer = pyenv.get_destroyer()
+        destroyer.destroy()
+
+        print(f"PyToolBelt :: Destroyed environment metadata {name}")
+        return 0
+
+    @staticmethod
+    def build(name: str) -> int:
+        pyenv = PyEnv.from_name(name)
 
         builder = pyenv.get_builder()
         builder.build()
 
-        print(f"PyToolBelt :: Built environment {name} for python version {python_version}")
+        paths = pyenv.get_paths()
+        pyenv_model = PyEnvModelFactory.from_path(paths.pyenv_definition_file)
+
+        print(f"PyToolBelt :: Built environment {name} for python version {pyenv_model.python_version}")
         return 0
 
     def fetch(self, pyenv_id: str) -> int:

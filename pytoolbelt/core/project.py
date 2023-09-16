@@ -12,7 +12,7 @@ from pytoolbelt.environment.config import ProjectTree, CONFIG_FILE_PATH, DEFAULT
 from pytoolbelt.core.tool import Tool, ToolInfo
 from pytoolbelt.core.installer import Installer
 from pytoolbelt.core.pyenv import PyEnv
-from pytoolbelt.bases import BaseTemplater, BaseInitializer
+from pytoolbelt.bases import BaseTemplater, BaseCreator
 from pytoolbelt.utils import file_handler
 
 
@@ -58,14 +58,6 @@ class PyToolBeltProject:
         return ToolInfo()
 
     @staticmethod
-    def new_pyenv(name: str, python_version: str) -> "PyEnv":
-        return PyEnv(name, python_version)
-
-    @staticmethod
-    def new_pyenv_from_id(pyenv_id: str) -> "PyEnv":
-        return PyEnv.from_id(pyenv_id)
-
-    @staticmethod
     def new_tool(name: str) -> "Tool":
         return Tool(name)
 
@@ -81,7 +73,8 @@ class PyToolBeltProject:
     def get_templater(self) -> "ProjectTemplater":
         return ProjectTemplater(self)
 
-class ProjectInitializer(BaseInitializer):
+
+class ProjectInitializer(BaseCreator):
 
     def __init__(self, project: PyToolBeltProject) -> None:
         super().__init__()

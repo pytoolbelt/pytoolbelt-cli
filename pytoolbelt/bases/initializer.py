@@ -4,9 +4,10 @@ from abc import abstractmethod
 from pytoolbelt.utils import file_handler
 
 
-class BaseInitializer:
+class BaseCreator:
 
-    def initialize(self) -> None:
+    def create(self) -> None:
+        self._exists()
         self._create_directories()
         self._create_files()
 
@@ -18,6 +19,10 @@ class BaseInitializer:
     @property
     @abstractmethod
     def directories(self) -> List[Path]:
+        pass
+
+    @abstractmethod
+    def _exists(self) -> None:
         pass
 
     def _create_directories(self) -> None:
