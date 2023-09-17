@@ -11,7 +11,9 @@ class PyToolBeltCommand(Command):
         super().__init__(*args, **kwargs)
         self.project = PyToolBeltProject()
         self.error_handler = ErrorHandler()
+        self.validate_project()
 
     def validate_project(self) -> None:
-        if not self.project.cli_root.raise_if_exists():
-            raise PyToolBeltProjectNotFound(f"PyToolBelt project not initialized at {self.project.cli_root}. Run `pytoolbelt init` to initialize a project.")
+        project_paths = self.project.get_project_paths()
+        if not project_paths.cli_root.exists() or not project_paths.user_root.exists():
+            raise PyToolBeltProjectNotFound(f"PyToolBelt project not initialized at Run `pytoolbelt project --init` to initialize a project.")

@@ -1,8 +1,6 @@
 from typing import Optional
-
 from abc import ABC, abstractmethod
-
-from pytoolbelt.environment.config import PYTOOBELT_HOST
+from pytoolbelt.environment.variables import PYTOOBELT_HOST
 
 
 class BaseRemoteManager(ABC):

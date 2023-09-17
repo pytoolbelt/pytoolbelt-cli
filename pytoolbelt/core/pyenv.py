@@ -1,8 +1,8 @@
 import subprocess
 from pathlib import Path
 from typing import List
+from pytoolbelt.core.project import ProjectPaths
 from pytoolbelt.bases.initializer import BaseCreator
-from pytoolbelt.environment.config import ProjectTree
 from pytoolbelt.core.exceptions import PyEnvExistsError
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
 from pytoolbelt.utils import file_handler
@@ -14,10 +14,12 @@ class PyEnv:
     def __init__(self, name: str, python_version: str) -> None:
         self._name = name
         self._python_version = python_version
+        self._project_paths = ProjectPaths()
 
     @classmethod
     def from_name(cls, name: str) -> "PyEnv":
-        pyenv_model = PyEnvModelFactory.from_path(ProjectTree.PYENVS_DIRECTORY / f"{name}.yml")
+        project_paths = ProjectPaths()
+        pyenv_model = PyEnvModelFactory.from_path(project_paths.pyenvs / f"{name}.yml")
         return cls(pyenv_model.name, pyenv_model.python_version)
 
     @property
@@ -27,6 +29,10 @@ class PyEnv:
     @property
     def python_version(self) -> str:
         return self._python_version
+
+    @property
+    def project_paths(self) -> ProjectPaths:
+        return self._project_paths
 
     def get_paths(self) -> "PyEnvPaths":
         return PyEnvPaths(self)
@@ -51,7 +57,7 @@ class PyEnvPaths:
 
     @property
     def pyenv_definitions_directory(self) -> Path:
-        return ProjectTree.PYENVS_DIRECTORY
+        return self.pyenv.project_paths.pyenvs
 
     @property
     def pyenv_definition_file(self) -> Path:
@@ -59,7 +65,7 @@ class PyEnvPaths:
 
     @property
     def interpreter_install_path(self) -> Path:
-        return ProjectTree.ENVIRONMENTS_DIRECTORY / self.pyenv.name
+        return self.pyenv.project_paths.environments / self.pyenv.name
 
     @property
     def pip_path(self) -> Path:
@@ -140,12 +146,6 @@ class PyEnvBuilder:
 
         if pyenv_model.requirements:
             self.install_requirements(pyenv_model.requirements)
-
-    def rebuild(self) -> None:
-        paths = self.pyenv.get_paths()
-        if file_handler.check_exists(paths.interpreter_install_path):
-            file_handler.delete_directory(paths.interpreter_install_path)
-        self.build()
 
     def install_requirements(self, requirements: List[str]) -> None:
         paths = self.pyenv.get_paths()

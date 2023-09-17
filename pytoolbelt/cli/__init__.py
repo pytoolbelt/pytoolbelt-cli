@@ -1,6 +1,6 @@
 from pytoolbelt.bases import PyToolBeltCommand
 from pytoolbelt.core.error_handlers import handle_cli_errors
-from pytoolbelt.environment.config import DEFAULT_PYTHON_VERSION
+from pytoolbelt.environment.variables import PYTOOLBELT_DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.pyenv import PyEnv
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
 
@@ -14,6 +14,7 @@ class Version(PyToolBeltCommand):
 
 
 class Project(PyToolBeltCommand):
+
     args = {
         ("--init", "-i"): {
             "help": "Initialize a new project",
@@ -66,13 +67,9 @@ class Pyenv(PyToolBeltCommand):
             "help": "Build a venv",
         },
 
-        ("--rebuild", "-r"): {
-            "help": "Rebuild a venv",
-        },
-
         ("--python-version", "-pv"): {
             "help": "Python version to use for the venv",
-            "default": DEFAULT_PYTHON_VERSION
+            "default": PYTOOLBELT_DEFAULT_PYTHON_VERSION
         },
 
         ("--fetch", "-f"): {
@@ -99,9 +96,6 @@ class Pyenv(PyToolBeltCommand):
 
         if self.cli_args.build:
             return self.build(self.cli_args.build)
-
-        if self.cli_args.rebuild:
-            return self.rebuild(self.cli_args.rebuild, self.cli_args.python_version)
 
         if self.cli_args.publish:
             return self.publish(self.cli_args.publish, self.cli_args.python_version)
@@ -148,14 +142,6 @@ class Pyenv(PyToolBeltCommand):
         pyenv_remote_manager.download()
 
         print(f"PyToolBelt :: Fetched environment {pyenv_id}")
-        return 0
-
-    def rebuild(self, name: str, python_version: str) -> int:
-        pyenv = self.project.new_pyenv(name, python_version)
-        env_builder = pyenv.get_builder()
-        env_builder.rebuild()
-
-        print(f"PyToolBelt :: Rebuilt environment {name} for python version {python_version}")
         return 0
 
     def publish(self, name: str, python_version: str) -> int:

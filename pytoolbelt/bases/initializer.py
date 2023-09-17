@@ -21,7 +21,6 @@ class BaseCreator:
     def directories(self) -> List[Path]:
         pass
 
-    @abstractmethod
     def _exists(self) -> None:
         pass
 
