@@ -38,6 +38,9 @@ def handle_cli_errors(func):
         except OSError as e:
             return args[0].error_handler.handle(e, f"PyToolBelt :: Unable to perform action :: Unknown error")
 
+        except exceptions.PyToolBeltProjectNotFound as e:
+            return args[0].error_handler.handle(e, e.args[0])
+
         except exceptions.ToolNotFound as e:
             return args[0].error_handler.handle(e, e.args[0])
 

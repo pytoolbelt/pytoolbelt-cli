@@ -2,7 +2,9 @@ from pytoolbelt.bases import PyToolBeltCommand
 from pytoolbelt.core.error_handlers import handle_cli_errors
 from pytoolbelt.environment.variables import PYTOOLBELT_DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.pyenv import PyEnv
+from pytoolbelt.core.tool import Tool
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
+
 
 __version__ = "0.0.0"
 
@@ -14,16 +16,9 @@ class Version(PyToolBeltCommand):
 
 
 class Project(PyToolBeltCommand):
-
     args = {
         ("--init", "-i"): {
             "help": "Initialize a new project",
-            "action": "store_true",
-            "default": False
-        },
-
-        ("--show", "-s"): {
-            "help": "Show project configuration",
             "action": "store_true",
             "default": False
         }
@@ -31,22 +26,13 @@ class Project(PyToolBeltCommand):
 
     @handle_cli_errors
     def __call__(self) -> int:
-
         if self.cli_args.init:
             return self.init()
-
-        if self.cli_args.show:
-            return self.show()
 
     def init(self) -> int:
         project_builder = self.project.get_project_builder()
         project_builder.build()
         print(f"PyToolBelt :: Initialized project at {self.project.cli_root}")
-        return 0
-
-    def show(self) -> int:
-        project_info = self.project.get_project_info()
-        project_info.display()
         return 0
 
 
@@ -67,7 +53,7 @@ class Pyenv(PyToolBeltCommand):
             "help": "Build a venv",
         },
 
-        ("--python-version", "-pv"): {
+        ("--python-version",): {
             "help": "Python version to use for the venv",
             "default": PYTOOLBELT_DEFAULT_PYTHON_VERSION
         },
@@ -137,18 +123,10 @@ class Pyenv(PyToolBeltCommand):
         return 0
 
     def fetch(self, pyenv_id: str) -> int:
-        pyenv = self.project.new_pyenv_from_id(pyenv_id)
-        pyenv_remote_manager = pyenv.get_pyenv_remote_manager()
-        pyenv_remote_manager.download()
-
         print(f"PyToolBelt :: Fetched environment {pyenv_id}")
         return 0
 
     def publish(self, name: str, python_version: str) -> int:
-        pyenv = self.project.new_pyenv(name, python_version)
-        pyenv_remote_manager = pyenv.get_pyenv_remote_manager()
-        pyenv_remote_manager.upload()
-
         print(f"PyToolBelt :: Published environment {name} for python version {python_version}")
         return 0
 

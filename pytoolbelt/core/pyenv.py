@@ -1,11 +1,13 @@
 import subprocess
+import shutil
 from pathlib import Path
 from typing import List
 from pytoolbelt.core.project import ProjectPaths
-from pytoolbelt.bases.initializer import BaseCreator
+from pytoolbelt.bases.creator import BaseCreator
 from pytoolbelt.core.exceptions import PyEnvExistsError
-from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
-from pytoolbelt.utils import file_handler
+from pytoolbelt.models.pyenv import PyEnvModel
+from pytoolbelt.model_utils.pyenv import PyEnvModelFactory, PyEnvModelHasher
+from pytoolbelt.utils.file_handler import FileHandler
 from pytoolbelt.core.exceptions import PythonEnvBuildError
 
 
@@ -65,7 +67,11 @@ class PyEnvPaths:
 
     @property
     def interpreter_install_path(self) -> Path:
-        return self.pyenv.project_paths.environments / self.pyenv.name
+        return self.pyenv.project_paths.environments / self.pyenv.name / "venv"
+
+    @property
+    def pyenv_metadata_file(self) -> Path:
+        return self.interpreter_install_path.parent / f"{self.pyenv.name}.yml"
 
     @property
     def pip_path(self) -> Path:
@@ -105,10 +111,11 @@ class PyEnvWriter:
         pyenv_model = PyEnvModelFactory.new(self.pyenv.name, self.pyenv.python_version)
         paths = self.pyenv.get_paths()
 
-        file_handler.write_yml_file(
-            path=paths.pyenv_definition_file,
-            content=pyenv_model.model_dump()
-        )
+        file_handler = FileHandler(paths.pyenv_definition_file)
+
+        content = pyenv_model.model_dump()
+        content.pop("md5_hash")
+        file_handler.write_yml_file(content=content)
 
 
 class PyEnvDestroyer:
@@ -119,8 +126,11 @@ class PyEnvDestroyer:
     def destroy(self) -> None:
         paths = self.pyenv.get_paths()
 
-        file_handler.delete_file_if_exists(paths.pyenv_definition_file)
-        file_handler.delete_directory(paths.interpreter_install_path)
+        file_handler = FileHandler(paths.pyenv_definition_file)
+        file_handler.delete_file_if_exists()
+
+        file_handler.path = paths.interpreter_install_path
+        file_handler.delete_directory()
 
 
 class PyEnvBuilder:
@@ -145,10 +155,11 @@ class PyEnvBuilder:
             raise PythonEnvBuildError(f"Failed to build python environment {self.pyenv.name}")
 
         if pyenv_model.requirements:
-            self.install_requirements(pyenv_model.requirements)
+            self.install_requirements(paths, pyenv_model.requirements)
 
-    def install_requirements(self, requirements: List[str]) -> None:
-        paths = self.pyenv.get_paths()
+        self.copy_metadata(paths, pyenv_model)
+
+    def install_requirements(self, paths: PyEnvPaths, requirements: List[str]) -> None:
 
         command = [
             paths.pip_path.as_posix(),
@@ -160,3 +171,12 @@ class PyEnvBuilder:
 
         if result.returncode != 0:
             raise PythonEnvBuildError(f"Failed to install requirements for python environment {self.pyenv.name}")
+
+    @staticmethod
+    def copy_metadata(paths: PyEnvPaths, pyenv_model: PyEnvModel) -> None:
+
+        hasher = PyEnvModelHasher(pyenv_model)
+        pyenv_model = hasher.hash()
+
+        file_handler = FileHandler(paths.pyenv_metadata_file)
+        file_handler.write_yml_file(content=pyenv_model.model_dump())

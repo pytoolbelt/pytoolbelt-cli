@@ -1,7 +1,7 @@
 from typing import List
 from pathlib import Path
 from pytoolbelt.environment.variables import PYTOOLBELT_CLI_DIRECTORY, PYTOOLBELT_USER_DIRECTORY
-from pytoolbelt.bases.initializer import BaseCreator
+from pytoolbelt.bases.creator import BaseCreator
 
 
 class PyToolBeltProject:

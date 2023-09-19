@@ -1,4 +1,3 @@
-import requests
 import yaml
 import zipfile
 import zipimport
@@ -15,7 +14,7 @@ from pytoolbelt.environment.config import ProjectTree, DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.exceptions import MetaDataError, InterpreterNotFound, ToolExists, ToolDownloadError
 
 
-class Tool:
+class PyToolBoxTool:
 
     def __init__(self, name: str) -> None:
         self.name = name

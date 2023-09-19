@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 from abc import abstractmethod
-from pytoolbelt.utils import file_handler
+from pytoolbelt.utils.file_handler import FileHandler
 
 
 class BaseCreator:
@@ -26,8 +26,10 @@ class BaseCreator:
 
     def _create_directories(self) -> None:
         for path in self.directories:
-            file_handler.create_directory(path, parents=True)
+            file_handler = FileHandler(path)
+            file_handler.create_directory(parents=True)
 
     def _create_files(self) -> None:
         for path in self.files:
-            file_handler.create_file_if_not_exists(path)
+            file_handler = FileHandler(path)
+            file_handler.create_file_if_not_exists()
