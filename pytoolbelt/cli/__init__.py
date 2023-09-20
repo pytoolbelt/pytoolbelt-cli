@@ -2,7 +2,7 @@ from pytoolbelt.bases import PyToolBeltCommand
 from pytoolbelt.core.error_handlers import handle_cli_errors
 from pytoolbelt.environment.variables import PYTOOLBELT_DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.pyenv import PyEnv
-from pytoolbelt.core.tool import Tool
+from pytoolbelt.core.tool import Tool as PYTBTool
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
 
 
@@ -30,9 +30,9 @@ class Project(PyToolBeltCommand):
             return self.init()
 
     def init(self) -> int:
-        project_builder = self.project.get_project_builder()
-        project_builder.build()
-        print(f"PyToolBelt :: Initialized project at {self.project.cli_root}")
+        creator = self.project.get_project_creator()
+        creator.create()
+        print("PyToolBelt :: Initialized pytoolbelt project!")
         return 0
 
 
@@ -138,6 +138,16 @@ class Tool(PyToolBeltCommand):
             "default": None
         },
 
+        ("--zip", "-z"): {
+            "help": "Create a zip file for a tool",
+            "default": None
+        },
+
+        ("--clean", "-c"): {
+            "help": "Clean up a tool's zip archives and packages",
+            "default": None
+        },
+
         ("--install", "-i"): {
             "help": "Build and install a tool. If the tool raise_if_exists locally, it will be installed, if not, the tools will be downloaded from www.pytoolbelt.com",
             "default": False
@@ -177,37 +187,56 @@ class Tool(PyToolBeltCommand):
         if self.cli_args.new:
             return self.new(self.cli_args.new)
 
-        if self.cli_args.install:
-            return self.install(self.cli_args.install)
+        if self.cli_args.zip:
+            return self.zip(self.cli_args.zip)
 
-        if self.cli_args.remove:
-            return self.remove(self.cli_args.remove)
+        if self.cli_args.clean:
+            return self.clean(self.cli_args.clean)
 
-        if self.cli_args.show:
-            return self.show()
+        # if self.cli_args.install:
+        #     return self.install(self.cli_args.install)
+        #
+        # if self.cli_args.remove:
+        #     return self.remove(self.cli_args.remove)
+        #
+        # if self.cli_args.show:
+        #     return self.show()
+        #
+        # if self.cli_args.publish:
+        #     return self.publish(self.cli_args.publish)
+        #
+        # if self.cli_args.format:
+        #     return self.format(self.cli_args.format)
+        #
+        # if self.cli_args.test:
+        #     return self.test(self.cli_args.test)
 
-        if self.cli_args.publish:
-            return self.publish(self.cli_args.publish)
+    @staticmethod
+    def new(name: str) -> int:
+        tool = PYTBTool(name)
 
-        if self.cli_args.format:
-            return self.format(self.cli_args.format)
+        creator = tool.get_creator()
+        creator.create()
 
-        if self.cli_args.test:
-            return self.test(self.cli_args.test)
+        writer = tool.get_writer()
+        writer.write()
+        print(f"PyToolBelt :: Created tool {name}.")
+        return 0
 
-    def new(self, name: str) -> int:
-        tool = self.project.new_tool(name)
-        metadata = tool.get_metadata()
+    @staticmethod
+    def zip(name: str) -> int:
+        tool = PYTBTool(name)
+        zipper = tool.get_zipper()
+        zipper.zip()
+        print(f"PyToolBelt :: Created zip archive for tool {name}")
+        return 0
 
-        metadata.raise_if_exists()
-
-        initializer = tool.get_initializer()
-        initializer.initialize()
-
-        tool_templater = tool.get_templater()
-        tool_templater.template()
-
-        print(f"PyToolBelt :: Created tool {name} at {metadata.tool_root}")
+    @staticmethod
+    def clean(name: str) -> int:
+        tool = PYTBTool(name)
+        cleaner = tool.get_cleaner()
+        cleaner.clean()
+        print(f"PyToolBelt :: Cleaned up zip archives for tool {name}")
         return 0
 
     def install(self, name: str) -> int:

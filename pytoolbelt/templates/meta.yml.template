@@ -1,3 +1,0 @@
-tool-meta:
-    python_version: "{{python_version}}"
-    interpreter: base

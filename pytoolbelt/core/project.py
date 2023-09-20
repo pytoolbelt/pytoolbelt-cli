@@ -10,6 +10,10 @@ class PyToolBeltProject:
     def get_project_paths() -> "ProjectPaths":
         return ProjectPaths()
 
+    @staticmethod
+    def get_project_creator() -> "ProjectCreator":
+        return ProjectCreator(PyToolBeltProject())
+
 
 class ProjectPaths:
 
@@ -37,6 +41,14 @@ class ProjectPaths:
     def bin(self) -> Path:
         return self.cli_root / "bin"
 
+    @property
+    def temp(self) -> Path:
+        return self.cli_root / "temp"
+
+    @property
+    def zip_archives(self) -> Path:
+        return self.cli_root / "zip_archives"
+
 
 class ProjectCreator(BaseCreator):
 
@@ -57,5 +69,7 @@ class ProjectCreator(BaseCreator):
             self.paths.pyenvs,
             self.paths.tools,
             self.paths.environments,
-            self.paths.bin
+            self.paths.bin,
+            self.paths.temp,
+            self.paths.zip_archives
         ]

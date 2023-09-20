@@ -8,7 +8,7 @@ class PyToolBeltProjectNotFound(PyToolBeltException):
     pass
 
 
-class ToolExists(PyToolBeltException):
+class ToolExistsError(PyToolBeltException):
     """Raised when a tool already raise_if_exists."""
     pass
 

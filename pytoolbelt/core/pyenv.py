@@ -1,5 +1,4 @@
 import subprocess
-import shutil
 from pathlib import Path
 from typing import List
 from pytoolbelt.core.project import ProjectPaths

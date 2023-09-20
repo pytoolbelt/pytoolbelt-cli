@@ -50,10 +50,7 @@ def handle_cli_errors(func):
         except exceptions.InterpreterNotFound as e:
             return args[0].error_handler.handle(e, e.args[0])
 
-        except exceptions.PyToolBeltProjectNotFound as e:
-            return args[0].error_handler.handle(e, e.args[0])
-
-        except exceptions.ToolExists as e:
+        except exceptions.ToolExistsError as e:
             return args[0].error_handler.handle(e, e.args[0])
 
         except exceptions.PythonEnvBuildError as e:
