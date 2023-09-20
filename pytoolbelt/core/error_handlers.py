@@ -59,6 +59,9 @@ def handle_cli_errors(func):
         except exceptions.PyEnvExistsError as e:
             return args[0].error_handler.handle(e, e.args[0])
 
+        except exceptions.CommandError as e:
+            return args[0].error_handler.handle(e, e.args[0])
+
     return wrapper
 
 

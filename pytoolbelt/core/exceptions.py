@@ -3,6 +3,11 @@ class PyToolBeltException(Exception):
     pass
 
 
+class CommandError(PyToolBeltException):
+    """Raised when there is an error with command arguments."""
+    pass
+
+
 class PyToolBeltProjectNotFound(PyToolBeltException):
     """Raised when a PyToolBelt project is not found."""
     pass

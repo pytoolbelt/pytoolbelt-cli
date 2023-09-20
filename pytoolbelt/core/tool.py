@@ -1,9 +1,11 @@
 import zipfile
+import zipapp
 from pytoolbelt.model_utils.tool import ToolMetaDataModelFactory
 from pytoolbelt.core.project import ProjectPaths
 from pytoolbelt.bases.creator import BaseCreator
 from pytoolbelt.core.exceptions import ToolExistsError
 from pytoolbelt.utils.file_handler import FileHandler
+from pytoolbelt.models.tool import ToolMetaDataModel
 from pathlib import Path
 from typing import List, Iterator
 
@@ -39,6 +41,9 @@ class Tool:
 
     def get_cleaner(self) -> "ToolCleaner":
         return ToolCleaner(self)
+
+    def get_installer(self) -> "ToolInstaller":
+        return ToolInstaller(self)
 
 
 class ToolPaths:
@@ -86,6 +91,9 @@ class ToolPaths:
         for file in self.tool_root_directory.glob("**/*"):
             if file.is_file() and not file.suffix == ".zip":
                 yield file
+
+    def get_interpreter_path(self, name: str) -> Path:
+        return self.tool.project_paths.environments / name / "venv" / "bin" / "python"
 
 
 class ToolCreator(BaseCreator):
@@ -176,3 +184,45 @@ class ToolCleaner:
 
         file_handler.path = self.paths.temp_zipfile
         file_handler.delete_file_if_exists()
+
+
+class ToolInstaller:
+
+    def __init__(self, tool: Tool) -> None:
+        self.tool = tool
+        self.paths = self.tool.get_paths()
+
+    def install(self, editable: bool) -> None:
+
+        tool_model = ToolMetaDataModelFactory.from_path(self.paths.tool_metadata_file)
+
+        if editable:
+            self._install_editable(tool_model)
+        else:
+            self._install_zipapp(tool_model)
+
+    def _install_editable(self, tool_model: ToolMetaDataModel) -> None:
+        self._create_executable_file()
+        self._set_executable_file_permissions()
+        self._write_executable_file(tool_model)
+
+    def _create_executable_file(self) -> None:
+        file_handler = FileHandler(self.paths.executable_file)
+        file_handler.create_file_if_not_exists()
+
+    def _set_executable_file_permissions(self) -> None:
+        self.paths.executable_file.chmod(0o755)
+
+    def _write_executable_file(self, tool_model: ToolMetaDataModel) -> None:
+        interpreter_path = self.paths.get_interpreter_path(tool_model.pyenv_name)
+        tool_path = self.paths.entrypoint_file.parent
+        content = f"{interpreter_path} {tool_path}"
+        file_handler = FileHandler(self.paths.executable_file)
+        file_handler.write_file(content=content)
+
+    def _install_zipapp(self, tool_model: ToolMetaDataModel) -> None:
+        zipapp.create_archive(
+            source=self.paths.src_directory,
+            target=self.paths.executable_file,
+            interpreter=self.paths.get_interpreter_path(tool_model.pyenv_name).as_posix(),
+        )

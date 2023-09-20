@@ -4,6 +4,7 @@ from pytoolbelt.environment.variables import PYTOOLBELT_DEFAULT_PYTHON_VERSION
 from pytoolbelt.core.pyenv import PyEnv
 from pytoolbelt.core.tool import Tool as PYTBTool
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
+from pytoolbelt.core.exceptions import CommandError
 
 
 __version__ = "0.0.0"
@@ -153,7 +154,13 @@ class Tool(PyToolBeltCommand):
             "default": False
         },
 
-        ("--remove", "-r"): {
+        ("--editable", "-e"): {
+            "help": "Install a tool in editable mode",
+            "action": "store_true",
+            "default": False
+        },
+
+        ("--uninstall", "-u"): {
             "help": "Uninstall a tool from the project's bin directory, keeping the tool definition if it raise_if_exists",
             "default": None
 
@@ -184,6 +191,8 @@ class Tool(PyToolBeltCommand):
     @handle_cli_errors
     def __call__(self) -> int:
 
+        self._validate_flags()
+
         if self.cli_args.new:
             return self.new(self.cli_args.new)
 
@@ -192,6 +201,9 @@ class Tool(PyToolBeltCommand):
 
         if self.cli_args.clean:
             return self.clean(self.cli_args.clean)
+
+        if self.cli_args.install:
+            return self.install(self.cli_args.install, self.cli_args.editable)
 
         # if self.cli_args.install:
         #     return self.install(self.cli_args.install)
@@ -210,6 +222,10 @@ class Tool(PyToolBeltCommand):
         #
         # if self.cli_args.test:
         #     return self.test(self.cli_args.test)
+
+    def _validate_flags(self) -> None:
+        if self.cli_args.editable and not self.cli_args.install:
+            raise CommandError("Cannot use --editable without --install")
 
     @staticmethod
     def new(name: str) -> int:
@@ -239,10 +255,11 @@ class Tool(PyToolBeltCommand):
         print(f"PyToolBelt :: Cleaned up zip archives for tool {name}")
         return 0
 
-    def install(self, name: str) -> int:
-        tool = self.project.new_tool(name)
-        installer = self.project.get_installer(tool)
-        installer.install()
+    @staticmethod
+    def install(name: str, editable: bool) -> int:
+        tool = PYTBTool(name)
+        installer = tool.get_installer()
+        installer.install(editable)
         return 0
 
     def remove(self, name: str) -> int:
