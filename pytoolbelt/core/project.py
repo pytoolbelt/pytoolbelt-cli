@@ -49,6 +49,18 @@ class ProjectPaths:
     def zip_archives(self) -> Path:
         return self.cli_root / "zip_archives"
 
+    @property
+    def code_quality_interpreter_path(self) -> Path:
+        return self.environments / "code_quality" / "venv" / "bin"
+
+    @property
+    def black_executable_path(self) -> Path:
+        return self.code_quality_interpreter_path / "black"
+
+    @property
+    def isort_executable_path(self) -> Path:
+        return self.code_quality_interpreter_path / "isort"
+
 
 class ProjectCreator(BaseCreator):
 

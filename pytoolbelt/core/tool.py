@@ -1,3 +1,4 @@
+import subprocess
 import zipfile
 import zipapp
 from pytoolbelt.model_utils.tool import ToolMetaDataModelFactory
@@ -44,6 +45,9 @@ class Tool:
 
     def get_installer(self) -> "ToolInstaller":
         return ToolInstaller(self)
+
+    def get_formatter(self) -> "ToolFormatter":
+        return ToolFormatter(self)
 
 
 class ToolPaths:
@@ -225,4 +229,66 @@ class ToolInstaller:
             source=self.paths.src_directory,
             target=self.paths.executable_file,
             interpreter=self.paths.get_interpreter_path(tool_model.pyenv_name).as_posix(),
+        )
+
+
+class ToolFormatter:
+    def __init__(self, tool: Tool) -> None:
+        self.line_length = "120"
+        self.tool = tool
+        self.paths = self.tool.get_paths()
+
+    def check(self) -> None:
+        self.black_check()
+        self.isort_check()
+
+    def format(self) -> None:
+        self.isort_format()
+        self.black_format()
+
+    def black_check(self) -> None:
+
+        subprocess.run(
+            [
+                self.tool.project_paths.black_executable_path.as_posix(),
+                "--line-length",
+                self.line_length,
+                "--skip-string-normalization",
+                "--check",
+                self.paths.tool_root_directory.as_posix(),
+            ],
+            check=True,
+        )
+
+    def black_format(self) -> None:
+        subprocess.run(
+            [
+                self.tool.project_paths.black_executable_path.as_posix(),
+                "--line-length",
+                self.line_length,
+                "--skip-string-normalization",
+                self.paths.tool_root_directory.as_posix(),
+            ],
+            check=True,
+        )
+
+    def isort_check(self) -> None:
+        subprocess.run(
+            [
+                self.tool.project_paths.isort_executable_path.as_posix(),
+                "--profile","black",
+                "--check",
+                self.paths.tool_root_directory.as_posix(),
+            ],
+            check=True,
+        )
+
+    def isort_format(self) -> None:
+        subprocess.run(
+            [
+                self.tool.project_paths.isort_executable_path.as_posix(),
+                "--profile", "black",
+                self.paths.tool_root_directory.as_posix(),
+            ],
+            check=True,
         )

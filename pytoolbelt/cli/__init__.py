@@ -6,7 +6,6 @@ from pytoolbelt.core.tool import Tool as PYTBTool
 from pytoolbelt.model_utils.pyenv import PyEnvModelFactory
 from pytoolbelt.core.exceptions import CommandError
 
-
 __version__ = "0.0.0"
 
 
@@ -160,6 +159,11 @@ class Tool(PyToolBeltCommand):
             "default": False
         },
 
+        ("--quality", "-q"): {
+            "help": "Run code quality checks on a tool",
+            "default": None
+        },
+
         ("--uninstall", "-u"): {
             "help": "Uninstall a tool from the project's bin directory, keeping the tool definition if it raise_if_exists",
             "default": None
@@ -174,11 +178,6 @@ class Tool(PyToolBeltCommand):
 
         ("--publish", "-p"): {
             "help": "Upload a tool to a remote repository",
-            "default": None
-        },
-
-        ("--format", "-f"): {
-            "help": "Format a tool's code using black",
             "default": None
         },
 
@@ -205,23 +204,26 @@ class Tool(PyToolBeltCommand):
         if self.cli_args.install:
             return self.install(self.cli_args.install, self.cli_args.editable)
 
-        # if self.cli_args.install:
-        #     return self.install(self.cli_args.install)
-        #
-        # if self.cli_args.remove:
-        #     return self.remove(self.cli_args.remove)
-        #
-        # if self.cli_args.show:
-        #     return self.show()
-        #
-        # if self.cli_args.publish:
-        #     return self.publish(self.cli_args.publish)
-        #
-        # if self.cli_args.format:
-        #     return self.format(self.cli_args.format)
-        #
-        # if self.cli_args.test:
-        #     return self.test(self.cli_args.test)
+        if self.cli_args.quality:
+            return self.quality(self.cli_args.quality)
+
+    # if self.cli_args.install:
+    #     return self.install(self.cli_args.install)
+    #
+    # if self.cli_args.remove:
+    #     return self.remove(self.cli_args.remove)
+    #
+    # if self.cli_args.show:
+    #     return self.show()
+    #
+    # if self.cli_args.publish:
+    #     return self.publish(self.cli_args.publish)
+    #
+    # if self.cli_args.format:
+    #     return self.format(self.cli_args.format)
+    #
+    # if self.cli_args.test:
+    #     return self.test(self.cli_args.test)
 
     def _validate_flags(self) -> None:
         if self.cli_args.editable and not self.cli_args.install:
@@ -260,6 +262,17 @@ class Tool(PyToolBeltCommand):
         tool = PYTBTool(name)
         installer = tool.get_installer()
         installer.install(editable)
+        return 0
+
+    @staticmethod
+    def uninstall(name: str) -> int:
+        pass
+
+    @staticmethod
+    def quality(name: str) -> int:
+        tool = PYTBTool(name)
+        formatter = tool.get_formatter()
+        formatter.format()
         return 0
 
     def remove(self, name: str) -> int:
