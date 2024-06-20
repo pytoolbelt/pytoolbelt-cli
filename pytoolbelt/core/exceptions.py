@@ -1,0 +1,2 @@
+class PythonEnvBuildError(Exception):
+    pass

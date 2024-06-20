@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytoolbelt"
+version = "0.0.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+	"setuptools==63.1.0",
+	"build==0.8.0",
+	"python-semantic-release==7.29.4",
+	"pytest==7.1.2",
+	"black==22.6.0"
+]
+
+[project.scripts]
+pytoolbelt = "pytoolbelt.__main__:main"
+
+[tool.semantic_release]
+version_variable = "pytoolbelt/cli/version.py:__version__"
+version_toml = "pyproject.toml:project.version"
+version_pattern = "README.md:VERSION {version}"
+upload_to_pypi = false
+
+[tool.black]
+line_length = 120
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
