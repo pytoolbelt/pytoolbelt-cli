@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import List
-
+import yaml
+import os
 from pytoolbelt.bases.basepaths import BasePaths
 from pytoolbelt.bases.basetemplater import BaseTemplater
 from pytoolbelt.core.ptvenv import VenvDefPaths
 from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.core.repos_config import Repos
+from pytoolbelt.core.pytoolbelt_config import RepoConfigs
 
 
 class ProjectPaths(BasePaths):
@@ -40,6 +41,10 @@ class ProjectPaths(BasePaths):
     @property
     def git_dir(self) -> Path:
         return self.root_path / ".git"
+
+    def get_pytoolbelt_config(self) -> RepoConfigs:
+        raw_data = self.pytoolbelt_config.read_text()
+        return RepoConfigs.from_yml(raw_data)
 
 
 class ProjectTemplater(BaseTemplater):

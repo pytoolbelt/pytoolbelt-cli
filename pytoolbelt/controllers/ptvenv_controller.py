@@ -2,11 +2,13 @@ from dataclasses import dataclass
 from pytoolbelt.controllers.parameters import ControllerParameters
 from pytoolbelt.controllers.arg_validation import ValidateName
 from pytoolbelt.core import ptvenv as vd
+from pytoolbelt.core.project import ProjectPaths
 
 
 @dataclass
 class VenvDefControllerParameters(ControllerParameters):
     bump: str
+    repo_config: str
 
 
 class VenvDefContext:
@@ -19,9 +21,12 @@ def debug(context: VenvDefContext) -> int:
     paths.set_highest_version()
     paths.raise_if_venvdef_not_found()
 
+    project_paths = ProjectPaths()
+    config = project_paths.get_pytoolbelt_config()
+    repo_config = config.get_repo_config(context.params.repo_config)
+    print(repo_config)
     venvdef = paths.get_venvdef()
     venvdef.generate_hash()
-    print(venvdef.ptvenv_hash)
 
     return 0
 
@@ -58,10 +63,6 @@ ACTIONS = {
     "new": {
         "func": new,
         "help": "Create a new venvdef",
-    },
-    "build": {
-        "func": build,
-        "help": "Build a pytoolbelt venv from a venvdef file",
         "flags": {
             "--bump": {
                 "help": "Version of the venvdef",
@@ -69,11 +70,22 @@ ACTIONS = {
                 "default": "patch",
                 "choices": ["major", "minor", "patch", "prerelease"],
             },
+    },
+    "build": {
+        "func": build,
+        "help": "Build a pytoolbelt venv from a venvdef file",
+
 
         }
     },
     "debug": {
         "func": debug,
         "help": "Debug a venvdef file",
+        "flags": {
+            "--repo-config": {
+                "help": "Repo name",
+                "default": "default",
+            }
+        }
     },
 }
