@@ -27,11 +27,11 @@ class VenvDef(BaseModel):
 
 class VenvDefPaths(BasePaths):
 
-    venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "venvdef"
+    venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "ptvenv"
 
     def __init__(self, name: str, version: Optional[Version] = None):
         self._version = version or Version.parse("0.0.0")
-        super().__init__(root_path=PYTOOLBELT_PROJECT_ROOT, name=name)
+        super().__init__(root_path=PYTOOLBELT_PROJECT_ROOT, name=name, kind="ptvenv")
 
     @property
     def version(self) -> Version:
@@ -47,7 +47,7 @@ class VenvDefPaths(BasePaths):
 
     @property
     def venv_def_file(self) -> Path:
-        return self.venv_def_dir / f"{self.name}-{self.version}.yml"
+        return self.venv_def_dir / f"{self.version}.yml"
 
     @property
     def new_directories(self) -> List[Path]:
@@ -65,11 +65,31 @@ class VenvDefPaths(BasePaths):
     def pip_executable_path(self) -> Path:
         return self.install_path / "bin" / "pip"
 
+    @property
+    def release_tag(self) -> str:
+        return f"{self.kind}-{self.name}-{str(self.version)}"
+
+    def versions(self) -> List[Version]:
+        versions = []
+        for file in self.venv_def_dir.glob("*.yml"):
+            try:
+                version = Version.parse(file.stem)
+            except ValueError:
+                continue
+            else:
+                versions.append(version)
+        versions.sort(reverse=True)
+        return versions
+
     def set_highest_version(self) -> None:
-        for file in self.venv_def_dir.glob(f"{self.name}-*.yml"):
-            version = Version.parse(file.stem.split("-")[-1])
-            if version > self._version:
-                self._version = version
+        for file in self.venv_def_dir.glob(f"*.yml"):
+            try:
+                version = Version.parse(file.stem)
+            except ValueError:
+                continue
+            else:
+                if version > self._version:
+                    self._version = version
 
     @staticmethod
     def get_venv_def_path(name: str, version: Version) -> Path:

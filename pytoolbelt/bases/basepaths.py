@@ -5,9 +5,10 @@ from abc import ABC, abstractmethod
 
 class BasePaths(ABC):
 
-    def __init__(self, root_path: Path, name: str) -> None:
+    def __init__(self, root_path: Path, name: str, kind: str) -> None:
         self._root_path = root_path
         self._name = name
+        self._kind = kind
 
     @property
     @abstractmethod
@@ -26,6 +27,10 @@ class BasePaths(ABC):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def kind(self) -> str:
+        return self._kind
 
     def create_new_directories(self) -> None:
         for directory in self.new_directories:
