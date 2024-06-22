@@ -1,18 +1,23 @@
 from git import Repo
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from pytoolbelt.core.exceptions import NotOnReleaseBranchError, UncommittedChangesError, UnableToReleaseError
 from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.pytoolbelt_config import RepoConfig
 from git.refs import TagReference
 from semver import Version
+import tempfile
 
 
 class GitCommands:
 
-    def __init__(self, repo_config: RepoConfig, root_path: Optional[Path] = PYTOOLBELT_PROJECT_ROOT) -> None:
-        self.repo = Repo(root_path)
+    def __init__(self, repo_config: RepoConfig, root_path: Optional[Path] = None, repo: Optional[Repo] = None) -> None:
+        self.repo = repo or Repo(root_path or PYTOOLBELT_PROJECT_ROOT)
         self.repo_config = repo_config
+
+    @classmethod
+    def from_repo(cls, repo: Repo, repo_config: RepoConfig) -> "GitCommands":
+        return cls(repo_config, repo=repo)
 
     def get_current_branch(self) -> str:
         return self.repo.active_branch.name
@@ -76,12 +81,14 @@ class GitCommands:
         return [TagReference.from_path(self.repo, tag) for tag in tags]
 
     @staticmethod
-    def group_versions(tag_refs: List[TagReference]) -> dict:
+    def group_versions(tag_refs: List[TagReference], target_name: Optional[str] = None) -> dict:
         result = {}
 
         for tag_ref in tag_refs:
             try:
                 prefix, name, version = tag_ref.name.split('-', 2)
+                if target_name and name != target_name:
+                    continue
             except ValueError:
                 continue
 
@@ -117,3 +124,8 @@ class GitCommands:
                         tags_to_push.append(f"{prefix}-{name}-{version}")
 
         return [TagReference.from_path(self.repo, f"refs/tags/{tag}") for tag in tags_to_push]
+
+    @staticmethod
+    def clone_repo_to_temp_dir(url: str, tmp_dir: str) -> Tuple[Repo, Path]:
+        repo = Repo.clone_from(url=url, to_path=tmp_dir)
+        return repo, Path(tmp_dir)

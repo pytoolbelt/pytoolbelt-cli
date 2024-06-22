@@ -1,7 +1,5 @@
 from pathlib import Path
 from typing import List
-import yaml
-import os
 from pytoolbelt.bases.basepaths import BasePaths
 from pytoolbelt.bases.basetemplater import BaseTemplater
 from pytoolbelt.core.ptvenv import VenvDefPaths

@@ -27,11 +27,11 @@ class VenvDef(BaseModel):
 
 class VenvDefPaths(BasePaths):
 
-    venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "ptvenv"
+    # venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "ptvenv"
 
-    def __init__(self, name: str, version: Optional[Version] = None):
+    def __init__(self, name: str, root_path: Optional[Path] = None, version: Optional[Version] = None):
         self._version = version or Version.parse("0.0.0")
-        super().__init__(root_path=PYTOOLBELT_PROJECT_ROOT, name=name, kind="ptvenv")
+        super().__init__(root_path=root_path or PYTOOLBELT_PROJECT_ROOT, name=name, kind="ptvenv")
 
     @property
     def version(self) -> Version:
@@ -40,6 +40,10 @@ class VenvDefPaths(BasePaths):
     @version.setter
     def version(self, version: Version) -> None:
         self._version = version
+
+    @property
+    def venv_def_root_dir(self) -> Path:
+        return self.root_path / "ptvenv"
 
     @property
     def venv_def_dir(self) -> Path:

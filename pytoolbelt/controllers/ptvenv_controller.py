@@ -1,9 +1,11 @@
+import tempfile
 from dataclasses import dataclass
 from pytoolbelt.controllers.parameters import ControllerParameters
 from pytoolbelt.controllers.arg_validation import ValidateName
 from pytoolbelt.core import ptvenv as vd
 from pytoolbelt.core.project import ProjectPaths
 from pytoolbelt.core.git_commands import GitCommands
+from pathlib import Path
 
 
 @dataclass
@@ -85,6 +87,44 @@ def releases(context: VenvDefContext) -> int:
     return 0
 
 
+def fetch(context: VenvDefContext) -> int:
+    project_paths = ProjectPaths()
+    config = project_paths.get_pytoolbelt_config()
+    repo_config = config.get_repo_config(context.params.repo_config)
+
+    with tempfile.TemporaryDirectory() as tmp_repo:
+        repo, tmp_path = GitCommands.clone_repo_to_temp_dir(repo_config.url, tmp_repo)
+        git_commands = GitCommands.from_repo(repo, repo_config)
+
+        local_tags = git_commands.get_local_tags()
+        local_tags = git_commands.group_versions(local_tags, context.params.name)
+
+        # tags are already sorted by version number. so we can just grab the first one
+        # as long as it's not a prerelease version
+        target_version = None
+
+        if context.params.version == "latest":
+            for version in local_tags["ptvenv"][context.params.name]["versions"]:
+                if not version.prerelease:
+                    target_version = version
+                    break
+        else:
+            target_version = vd.Version.parse(context.params.version)
+
+        tmp_vd_paths = vd.VenvDefPaths(root_path=tmp_path, name=context.params.name, version=target_version)
+        local_vd_paths = vd.VenvDefPaths(name=context.params.name, version=target_version)
+
+        # check out the tag before we read the contents of the venvdef file
+        git_commands.repo.git.checkout(local_vd_paths.release_tag)
+
+        tmp_content = tmp_vd_paths.venv_def_file.read_text()
+        local_vd_paths.venv_def_dir.mkdir(exist_ok=True, parents=True)
+        local_vd_paths.venv_def_file.touch(exist_ok=True)
+        local_vd_paths.venv_def_file.write_text(tmp_content)
+
+    return 0
+
+
 def build(context: VenvDefContext) -> int:
     paths = vd.VenvDefPaths(name=context.params.name)
     paths.set_highest_version()
@@ -129,10 +169,37 @@ ACTIONS = {
     "build": {
         "func": build,
         "help": "Build a pytoolbelt venv from a venvdef file",
+        "flags": {
+            "--name": {
+                "help": "Name of the venvdef",
+                "required": True,
+                "action": ValidateName,
+            }
+        },
     },
     "releases": {
         "func": releases,
         "help": "List all ptvenv releases in the local git repository",
+    },
+    "fetch": {
+        "func": fetch,
+        "help": "Fetch a ptvenv release for a configured repository",
+        "flags": {
+            "--repo-config": {
+                "help": "Repo name",
+                "default": "default",
+            },
+
+            "--version": {
+                "help": "Version of the ptvenv release",
+                "default": "latest",
+            },
+            "--name": {
+                "help": "Name of the ptvenv definition to fetch",
+                "required": True,
+                "action": ValidateName,
+            }
+        }
     },
     "release": {
         "func": release,
