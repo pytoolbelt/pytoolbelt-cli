@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 from pytoolbelt.bases.basepaths import BasePaths
 from pytoolbelt.bases.basetemplater import BaseTemplater
-from pytoolbelt.core.ptvenv import VenvDefPaths
+from pytoolbelt.core.ptvenv import PtVenvPaths
 from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.pytoolbelt_config import RepoConfigs
 
@@ -14,7 +14,7 @@ class ProjectPaths(BasePaths):
 
     @property
     def venv_def_root_dir(self) -> Path:
-        return VenvDefPaths.venv_def_root_dir
+        return PtVenvPaths.venv_def_root_dir
 
     @property
     def tool_def_root_dir(self) -> Path:
@@ -40,22 +40,22 @@ class ProjectPaths(BasePaths):
     def git_dir(self) -> Path:
         return self.root_path / ".git"
 
-    def ptvenv_defs(self) -> List[VenvDefPaths]:
-        return [VenvDefPaths(d.name) for d in self.venv_def_root_dir.iterdir() if d.is_dir()]
+    def ptvenv_defs(self) -> List[PtVenvPaths]:
+        return [PtVenvPaths(d.name) for d in self.venv_def_root_dir.iterdir() if d.is_dir()]
 
     def get_pytoolbelt_config(self) -> RepoConfigs:
         raw_data = self.pytoolbelt_config.read_text()
         return RepoConfigs.from_yml(raw_data)
 
-    def get_ptvenv_defs_to_tag(self, local_tags: dict) -> List[VenvDefPaths]:
+    def get_ptvenv_defs_to_tag(self, local_tags: dict) -> List[PtVenvPaths]:
         to_tag = []
         for ptvenv_def in self.ptvenv_defs():
             for version in ptvenv_def.versions():
                 try:
                     if version not in local_tags["ptvenv"][ptvenv_def.name]["versions"]:
-                        to_tag.append(VenvDefPaths(ptvenv_def.name, version))
+                        to_tag.append(PtVenvPaths(ptvenv_def.name, version))
                 except KeyError:
-                    to_tag.append(VenvDefPaths(ptvenv_def.name, version))
+                    to_tag.append(PtVenvPaths(ptvenv_def.name, version))
         return to_tag
 
 

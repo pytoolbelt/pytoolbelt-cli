@@ -25,7 +25,7 @@ class VenvDef(BaseModel):
         self.ptvenv_hash = self.get_sha256()
 
 
-class VenvDefPaths(BasePaths):
+class PtVenvPaths(BasePaths):
 
     # venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "ptvenv"
 
@@ -113,7 +113,7 @@ class VenvDefPaths(BasePaths):
 
 
 class VenvDefTemplater(BaseTemplater):
-    def __init__(self, paths: VenvDefPaths):
+    def __init__(self, paths: PtVenvPaths):
         super().__init__()
         self.paths = paths
 
@@ -124,7 +124,7 @@ class VenvDefTemplater(BaseTemplater):
 
 
 class VenvBuilder:
-    def __init__(self, paths: VenvDefPaths):
+    def __init__(self, paths: PtVenvPaths):
         self.paths = paths
         self.venvdef = paths.get_venvdef()
 

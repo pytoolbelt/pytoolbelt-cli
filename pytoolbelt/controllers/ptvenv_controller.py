@@ -111,8 +111,8 @@ def fetch(context: VenvDefContext) -> int:
         else:
             target_version = vd.Version.parse(context.params.version)
 
-        tmp_vd_paths = vd.VenvDefPaths(root_path=tmp_path, name=context.params.name, version=target_version)
-        local_vd_paths = vd.VenvDefPaths(name=context.params.name, version=target_version)
+        tmp_vd_paths = vd.PtVenvPaths(root_path=tmp_path, name=context.params.name, version=target_version)
+        local_vd_paths = vd.PtVenvPaths(name=context.params.name, version=target_version)
 
         # check out the tag before we read the contents of the venvdef file
         git_commands.repo.git.checkout(local_vd_paths.release_tag)
@@ -126,7 +126,7 @@ def fetch(context: VenvDefContext) -> int:
 
 
 def build(context: VenvDefContext) -> int:
-    paths = vd.VenvDefPaths(name=context.params.name)
+    paths = vd.PtVenvPaths(name=context.params.name)
     paths.set_highest_version()
     paths.raise_if_venvdef_not_found()
 
@@ -136,7 +136,7 @@ def build(context: VenvDefContext) -> int:
 
 
 def new(context: VenvDefContext) -> int:
-    paths = vd.VenvDefPaths(name=context.params.name)
+    paths = vd.PtVenvPaths(name=context.params.name)
     paths.create_new_directories()
     paths.set_highest_version()
     paths.version = paths.version.next_version(context.params.bump)
