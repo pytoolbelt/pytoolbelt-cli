@@ -66,6 +66,10 @@ class PtVenvPaths(BasePaths):
         return PYTOOLBELT_VENV_DIR / self.name / str(self.version) / "venv"
 
     @property
+    def executable_path(self) -> Path:
+        return self.install_path / "bin" / "python"
+
+    @property
     def pip_executable_path(self) -> Path:
         return self.install_path / "bin" / "pip"
 
@@ -112,7 +116,7 @@ class PtVenvPaths(BasePaths):
             raise FileNotFoundError(f"VenvDef file not found: {self.venv_def_file}")
 
 
-class VenvDefTemplater(BaseTemplater):
+class PtVenvTemplater(BaseTemplater):
     def __init__(self, paths: PtVenvPaths):
         super().__init__()
         self.paths = paths
@@ -123,7 +127,7 @@ class VenvDefTemplater(BaseTemplater):
             f.write(template)
 
 
-class VenvBuilder:
+class PtVenvBuilder:
     def __init__(self, paths: PtVenvPaths):
         self.paths = paths
         self.venvdef = paths.get_venvdef()

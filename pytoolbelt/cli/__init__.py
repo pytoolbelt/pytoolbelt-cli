@@ -1,5 +1,6 @@
 import argparse
-from pytoolbelt.cli import tool, ptvenv, project
+from pytoolbelt.cli import tool, ptvenv, project, add_path
+
 
 __version__ = "0.0.0"
 
@@ -17,5 +18,8 @@ def parse_args():
 
     for command in commands:
         command.configure_parser(sub_parsers)
+
+    add_path_parser = sub_parsers.add_parser("add-path", help="Add ~/.pytoolbelt/tools to the system PATH")
+    add_path_parser.set_defaults(func=add_path.add_path)
 
     return parser.parse_args()

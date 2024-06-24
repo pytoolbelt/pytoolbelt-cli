@@ -130,7 +130,7 @@ def build(context: VenvDefContext) -> int:
     paths.set_highest_version()
     paths.raise_if_venvdef_not_found()
 
-    venv_builder = vd.VenvBuilder(paths)
+    venv_builder = vd.PtVenvBuilder(paths)
     venv_builder.build()
     return 0
 
@@ -140,7 +140,7 @@ def new(context: VenvDefContext) -> int:
     paths.create_new_directories()
     paths.set_highest_version()
     paths.version = paths.version.next_version(context.params.bump)
-    templater = vd.VenvDefTemplater(paths)
+    templater = vd.PtVenvTemplater(paths)
     templater.template_new_venvdef_file()
     return 0
 
