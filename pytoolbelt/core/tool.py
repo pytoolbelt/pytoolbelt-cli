@@ -25,9 +25,15 @@ class ToolConfig(BaseModel):
 
 class ToolPaths(BasePaths):
 
-    def __init__(self, name: str, root_path: Optional[Path] = None, version: Optional[Version] = None) -> None:
-        self._version = version or Version.parse("0.0.0")
+    def __init__(self, name: str, root_path: Optional[Path] = None, version: Optional[Version] = None, load_version: Optional[bool] = False) -> None:
         super().__init__(root_path=root_path or PYTOOLBELT_PROJECT_ROOT, name=name, kind="tool")
+        if version and load_version:
+            raise ValueError("Cannot specify both version and load_version")
+
+        self._version = version or Version.parse("0.0.0")
+
+        if load_version:
+            self.load_version_from_config()
 
     @property
     def version(self) -> Version:
@@ -114,6 +120,9 @@ class ToolPaths(BasePaths):
                 ptvenv=ptvenv
             )
 
+    def load_version_from_config(self) -> None:
+        config = self.get_tool_config()
+        self.version = Version.parse(config.version)
 
 
 class ToolTemplater(BaseTemplater):
@@ -141,6 +150,4 @@ class ToolInstaller:
                 target=target,
                 interpreter=interpreter
             )
-        print(f"Permissions before chmod: {oct(self.paths.install_path.stat().st_mode)}")
         self.paths.install_path.chmod(0o755)
-        print(f"Permissions after chmod: {oct(self.paths.install_path.stat().st_mode)}")

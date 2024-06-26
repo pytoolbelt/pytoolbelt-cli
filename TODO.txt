@@ -1,0 +1,28 @@
+
+add parsing of conventional commits
+make pytoolbelt config globally available in the home directory
+make all root dir paths relative to the pytoolbelt config
+make all Path objects constants in the environment.config file
+
+ptvenv
+- improve all naming of ptvenv in the code base. remove all venv_def refs
+- allow a range of python versions to be specified in the ptvenv file.
+- think of a potentially better way to name the ptvenv files. always load the version from the config
+
+tools:
+
+
+commands:
+
+pytoolbelt:
+    ptvenv:
+         new: --name str
+       build: --name str (for this to work, must have ptvenv yml in the ptvenv dir)
+       fetch: --name str --repo-config str --build bool --fork bool
+    releases: --name optional str --repo-config optional str
+
+    tool:
+         new: --name str
+     install: --name str (for this to work, must have ptvenv yml in the ptvenv dir)
+       fetch: --name str --repo-config str --build bool --fork bool
+    releases: --name optional str --repo-config optional str
