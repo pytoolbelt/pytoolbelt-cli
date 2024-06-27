@@ -1,9 +1,7 @@
-from pytoolbelt.controllers.bases.baseparameters import BaseControllerParameters
-from pytoolbelt.controllers.bases.basecontext import BaseContext
-from pytoolbelt.core import project
+from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.controllers.bases.base_context import BaseContext
+from pytoolbelt.core.project import Project
 from dataclasses import dataclass
-from pytoolbelt.core.git_commands import GitCommands
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
 @dataclass
@@ -16,15 +14,9 @@ class ProjectContext(BaseContext[ProjectParameters]):
         super().__init__(params=params)
 
 
-def init(context: ProjectContext) -> int:
-
-    paths = project.ProjectPaths()
-    paths.create()
-
-    templater = project.ProjectTemplater(paths)
-    templater.template_new_project_files(context.params.overwrite)
-
-    GitCommands.init_if_not_exists(PYTOOLBELT_PROJECT_ROOT)
+def init(ctx: ProjectContext) -> int:
+    project = Project()
+    project.create(overwrite=ctx.params.overwrite)
     return 0
 
 

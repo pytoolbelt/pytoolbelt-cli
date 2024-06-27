@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pytoolbelt.controllers.parameters import ControllerParameters
 from pytoolbelt.controllers.arg_validation import ParseNameVersion
 from pytoolbelt.core import ptvenv as vd
-from pytoolbelt.core.project import ProjectPaths
+from pytoolbelt.core.project.project import ProjectPaths
 from pytoolbelt.core.git_commands import GitCommands
 
 

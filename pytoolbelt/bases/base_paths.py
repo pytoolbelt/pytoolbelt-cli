@@ -6,10 +6,8 @@ from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_PT
 
 class BasePaths(ABC):
 
-    def __init__(self, root_path: Path, name: str, kind: str) -> None:
+    def __init__(self, root_path: Path) -> None:
         self._root_path = root_path
-        self._name = name
-        self._kind = kind
 
     @property
     @abstractmethod
@@ -22,28 +20,8 @@ class BasePaths(ABC):
         pass
 
     @property
-    def project_root(self) -> Path:
-        return PYTOOLBELT_PROJECT_ROOT
-
-    @property
-    def ptvenvs_root(self) -> Path:
-        return PYTOOLBELT_PTVENV_ROOT
-
-    @property
-    def tools_root(self) -> Path:
-        return PYTOOLBELT_TOOLS_ROOT
-
-    @property
     def root_path(self) -> Path:
         return self._root_path
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def kind(self) -> str:
-        return self._kind
 
     @staticmethod
     def dir_empty(directory: Path) -> bool:

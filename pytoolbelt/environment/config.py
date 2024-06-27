@@ -15,8 +15,8 @@ PYTOOLBELT_DEFAULT_CONFIG_FILE = PYTOOLBELT_PROJECT_ROOT / "pytoolbelt.yml"
 PYTOOLBELT_DEFAULT_ENV_FILE = PYTOOLBELT_PROJECT_ROOT / ".env"
 
 # environment paths used for installation
-PYTOOLBELT_VENV_DIR = Path.home() / ".pytoolbelt" / "environments"
-PYTOOLBELT_TOOLS_DIR = Path.home() / ".pytoolbelt" / "tools"
+PYTOOLBELT_VENV_INSTALL_DIR = Path.home() / ".pytoolbelt" / "environments"
+PYTOOLBELT_TOOLS_INSTALL_DIR = Path.home() / ".pytoolbelt" / "tools"
 
 # used to set the path to the project config file
 # default is the current directory's pytoolbelt.yml file

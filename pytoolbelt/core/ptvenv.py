@@ -6,7 +6,7 @@ from semver import Version
 from pydantic import BaseModel
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_VENV_DIR
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_VENV_INSTALL_DIR
 from pytoolbelt.core.exceptions import PythonEnvBuildError
 from pytoolbelt.core.data_classes.name_version import NameVersion
 
@@ -55,7 +55,7 @@ class PtVenvPaths(BasePaths):
 
     @property
     def install_path(self) -> Path:
-        return PYTOOLBELT_VENV_DIR / self.name / str(self.version) / "venv"
+        return PYTOOLBELT_VENV_INSTALL_DIR / self.name / str(self.version) / "venv"
 
     @property
     def executable_path(self) -> Path:
