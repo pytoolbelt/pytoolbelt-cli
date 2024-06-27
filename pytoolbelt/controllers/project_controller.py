@@ -2,7 +2,7 @@ from pytoolbelt.controllers.bases.baseparameters import BaseControllerParameters
 from pytoolbelt.controllers.bases.basecontext import BaseContext
 from pytoolbelt.core import project
 from dataclasses import dataclass
-from git import Repo
+from pytoolbelt.core.git_commands import GitCommands
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
@@ -20,11 +20,11 @@ def init(context: ProjectContext) -> int:
 
     paths = project.ProjectPaths()
     paths.create()
+
     templater = project.ProjectTemplater(paths)
     templater.template_new_project_files(context.params.overwrite)
 
-    if not paths.git_dir.exists():
-        Repo.init(PYTOOLBELT_PROJECT_ROOT)
+    GitCommands.init_if_not_exists(PYTOOLBELT_PROJECT_ROOT)
     return 0
 
 

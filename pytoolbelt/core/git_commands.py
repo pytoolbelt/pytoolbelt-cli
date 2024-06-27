@@ -19,6 +19,11 @@ class GitCommands:
     def from_repo(cls, repo: Repo, repo_config: RepoConfig) -> "GitCommands":
         return cls(repo_config, repo=repo)
 
+    @staticmethod
+    def init_if_not_exists(root_path: Path) -> None:
+        if not root_path.joinpath(".git").exists():
+            Repo.init(root_path)
+
     def get_current_branch(self) -> str:
         return self.repo.active_branch.name
 
