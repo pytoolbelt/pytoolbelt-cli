@@ -20,3 +20,7 @@ class UnableToReleaseError(Exception):
 
 class LocalAndRemoteHeadAreDifferentError(Exception):
     pass
+
+
+class CliArgumentError(Exception):
+    pass

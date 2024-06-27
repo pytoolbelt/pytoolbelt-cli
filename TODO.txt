@@ -26,3 +26,8 @@ pytoolbelt:
      install: --name str (for this to work, must have ptvenv yml in the ptvenv dir)
        fetch: --name str --repo-config str --build bool --fork bool
     releases: --name optional str --repo-config optional str
+
+
+
+
+pytoolbelt ptvenv new --name myenv --python 3.8  --bump minor

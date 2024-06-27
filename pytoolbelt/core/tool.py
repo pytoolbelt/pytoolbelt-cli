@@ -5,7 +5,7 @@ import yaml
 from pytoolbelt.bases.basepaths import BasePaths
 from pathlib import Path
 from typing import Optional, List
-from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from semver import Version
 from pytoolbelt.bases.basetemplater import BaseTemplater
 from pydantic import BaseModel

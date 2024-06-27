@@ -2,7 +2,7 @@ from pytoolbelt.controllers.parameters import BaseControllerParameters
 from pytoolbelt.core import project as p
 from dataclasses import dataclass
 from git import Repo
-from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
 @dataclass

@@ -1,11 +1,10 @@
 import tempfile
 from dataclasses import dataclass
 from pytoolbelt.controllers.parameters import ControllerParameters
-from pytoolbelt.controllers.arg_validation import ValidateName
+from pytoolbelt.controllers.arg_validation import ParseNameVersion
 from pytoolbelt.core import ptvenv as vd
 from pytoolbelt.core.project import ProjectPaths
 from pytoolbelt.core.git_commands import GitCommands
-from pathlib import Path
 
 
 @dataclass
@@ -136,6 +135,7 @@ def build(context: VenvDefContext) -> int:
 
 
 def new(context: VenvDefContext) -> int:
+    import pdb; pdb.set_trace()
     paths = vd.PtVenvPaths(name=context.params.name)
     paths.create_new_directories()
     paths.set_highest_version()
@@ -162,7 +162,8 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the venvdef",
                 "required": True,
-                "action": ValidateName,
+                "action": ParseNameVersion,
+                "nargs": "+"
             }
         },
     },
@@ -173,7 +174,8 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the venvdef",
                 "required": True,
-                "action": ValidateName,
+                "action": ParseNameVersion,
+                "nargs": "+"
             }
         },
     },
@@ -197,7 +199,7 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the ptvenv definition to fetch",
                 "required": True,
-                "action": ValidateName,
+                "action": ParseNameVersion,
             }
         }
     },

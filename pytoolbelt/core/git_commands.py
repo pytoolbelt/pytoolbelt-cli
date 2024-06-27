@@ -2,7 +2,7 @@ from git import Repo
 from pathlib import Path
 from typing import Optional, List, Tuple
 from pytoolbelt.core.exceptions import NotOnReleaseBranchError, UncommittedChangesError, UnableToReleaseError
-from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.pytoolbelt_config import RepoConfig
 from git.refs import TagReference
 from semver import Version

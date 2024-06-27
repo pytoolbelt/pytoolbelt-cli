@@ -2,7 +2,7 @@ import os
 from argparse import Namespace
 from typing import Optional
 from pathlib import Path
-from pytoolbelt.environment.variables import PYTOOLBELT_TOOLS_DIR
+from pytoolbelt.environment.config import PYTOOLBELT_TOOLS_DIR
 
 
 def add_path(cliargs: Namespace, directory: Optional[Path] = PYTOOLBELT_TOOLS_DIR):

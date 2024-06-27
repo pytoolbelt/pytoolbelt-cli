@@ -7,7 +7,7 @@ from semver import Version
 from pydantic import BaseModel
 from pytoolbelt.bases.basepaths import BasePaths
 from pytoolbelt.bases.basetemplater import BaseTemplater
-from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_VENV_DIR
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_VENV_DIR
 from pytoolbelt.core.exceptions import PythonEnvBuildError
 
 

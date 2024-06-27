@@ -4,8 +4,7 @@ from pytoolbelt.bases.basepaths import BasePaths
 from pytoolbelt.bases.basetemplater import BaseTemplater
 from pytoolbelt.core.ptvenv import PtVenvPaths
 from pytoolbelt.core.tool import ToolPaths
-from pytoolbelt.environment.variables import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.environment.config import PYTOOLBELT_TOOLS_ROOT, PYTOOLBELT_PTVENV_ROOT
+from pytoolbelt.environment.config import PYTOOLBELT_TOOLS_ROOT, PYTOOLBELT_PTVENV_ROOT, PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.pytoolbelt_config import RepoConfigs
 
 
