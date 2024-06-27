@@ -32,6 +32,10 @@ class BasePaths(ABC):
     def kind(self) -> str:
         return self._kind
 
+    @staticmethod
+    def dir_empty(directory: Path) -> bool:
+        return not any(directory.iterdir())
+
     def create_new_directories(self) -> None:
         for directory in self.new_directories:
             directory.mkdir(parents=True, exist_ok=True)

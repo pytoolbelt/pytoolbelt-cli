@@ -14,20 +14,28 @@ class ProjectPaths(BasePaths):
         super().__init__(root_path=PYTOOLBELT_PROJECT_ROOT, name="project", kind="project")
 
     @property
-    def venv_def_root_dir(self) -> Path:
+    def ptvenvs_root(self) -> Path:
         return PYTOOLBELT_PTVENV_ROOT
 
     @property
-    def tool_def_root_dir(self) -> Path:
+    def tools_root(self) -> Path:
         return PYTOOLBELT_TOOLS_ROOT
 
     @property
     def new_directories(self) -> List[Path]:
-        return [self.venv_def_root_dir]
+        return [self.ptvenvs_root, self.tools_root]
 
     @property
     def new_files(self) -> List[Path]:
-        return [self.gitignore, self.pytoolbelt_config]
+        new_files = [self.gitignore, self.pytoolbelt_config]
+
+        if self.dir_empty(self.ptvenvs_root):
+            new_files.append(self.ptvenvs_root / ".gitkeep")
+
+        if self.dir_empty(self.tools_root):
+            new_files.append(self.tools_root / ".gitkeep")
+
+        return new_files
 
     @property
     def gitignore(self) -> Path:
@@ -42,10 +50,10 @@ class ProjectPaths(BasePaths):
         return self.root_path / ".git"
 
     def ptvenv_defs(self) -> List[PtVenvPaths]:
-        return [PtVenvPaths(d.name) for d in self.venv_def_root_dir.iterdir() if d.is_dir()]
+        return [PtVenvPaths(d.name) for d in self.ptvenvs_root.iterdir() if d.is_dir()]
 
     def tools(self) -> List[ToolPaths]:
-        return [ToolPaths(d.name, load_version=True) for d in self.tool_def_root_dir.iterdir() if d.is_dir()]
+        return [ToolPaths(d.name, load_version=True) for d in self.tools_root.iterdir() if d.is_dir()]
 
     def get_pytoolbelt_config(self) -> RepoConfigs:
         raw_data = self.pytoolbelt_config.read_text()
@@ -81,8 +89,9 @@ class ProjectTemplater(BaseTemplater):
 
     def template_new_project_files(self, overwrite: bool) -> None:
         for file in self.paths.new_files:
-            if not file.exists() or overwrite:
-                self.write_template(file)
+            if file.exists():
+                if file.stat().st_size == 0 or overwrite:
+                    self.write_template(file)
 
     def write_template(self, file: Path) -> None:
         template_name = self.format_template_name(file.name)

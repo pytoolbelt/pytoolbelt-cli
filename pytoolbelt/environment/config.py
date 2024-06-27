@@ -31,8 +31,6 @@ PYTOOLBELT_PROJECT_ENV_FILE_PATH = Path(os.getenv(
     PYTOOLBELT_DEFAULT_ENV_FILE
 ))
 
-if not PYTOOLBELT_PROJECT_CONFIG_FILE_PATH.exists():
-    raise FileNotFoundError(f"Config file {PYTOOLBELT_PROJECT_CONFIG_FILE_PATH} does not exist")
 
 # load the .env file if it exists
 if PYTOOLBELT_PROJECT_ENV_FILE_PATH.exists():
@@ -48,6 +46,10 @@ class PyToolBeltConfig(BaseModel):
 
     @classmethod
     def from_pytoolbelt_yml(cls) -> "PyToolBeltConfig":
+
+        if not PYTOOLBELT_PROJECT_CONFIG_FILE_PATH.exists():
+            raise FileNotFoundError(f"Config file {PYTOOLBELT_PROJECT_CONFIG_FILE_PATH} does not exist")
+
         with PYTOOLBELT_PROJECT_CONFIG_FILE_PATH.open("r") as file:
             raw_data = yaml.safe_load(file)
             return cls(**raw_data["pytoolbelt-config"])

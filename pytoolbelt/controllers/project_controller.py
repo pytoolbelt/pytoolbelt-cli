@@ -1,5 +1,6 @@
-from pytoolbelt.controllers.parameters import BaseControllerParameters
-from pytoolbelt.core import project as p
+from pytoolbelt.controllers.bases.baseparameters import BaseControllerParameters
+from pytoolbelt.controllers.bases.basecontext import BaseContext
+from pytoolbelt.core import project
 from dataclasses import dataclass
 from git import Repo
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
@@ -10,15 +11,16 @@ class ProjectParameters(BaseControllerParameters):
     overwrite: bool
 
 
-class ProjectContext:
+class ProjectContext(BaseContext[ProjectParameters]):
     def __init__(self, params: ProjectParameters) -> None:
-        self.params = params
+        super().__init__(params=params)
 
 
 def init(context: ProjectContext) -> int:
-    paths = p.ProjectPaths()
+
+    paths = project.ProjectPaths()
     paths.create()
-    templater = p.ProjectTemplater(paths)
+    templater = project.ProjectTemplater(paths)
     templater.template_new_project_files(context.params.overwrite)
 
     if not paths.git_dir.exists():
@@ -34,7 +36,7 @@ ACTIONS = {
         "help": "Init a new pytoolbelt project repo.",
         "flags": {
             "--overwrite": {
-                "help": "Overwrite existing files",
+                "help": "Overwrite existing files if they already exist.",
                 "action": "store_true",
                 "default": False,
             }

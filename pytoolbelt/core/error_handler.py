@@ -1,6 +1,6 @@
 import functools
 
-from pytoolbelt.environment.variables import PYTOOLBELT_DEBUG
+from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
 
 from . import exceptions
 
