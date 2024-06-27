@@ -1,4 +1,3 @@
-from argparse import Action
 from semver import Version
 from typing import Union
 from pytoolbelt.core.exceptions import CliArgumentError
@@ -43,12 +42,3 @@ class NameVersion:
         for char in self.name:
             if char in self.FORBIDDEN_NAME_CHARS:
                 raise CliArgumentError(f"Invalid Name :: {char} is not allowed in name")
-
-
-class ParseNameVersion(Action):
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        name_versions = []
-        for value in values:
-            name_versions.append(NameVersion.from_string(value))
-        setattr(namespace, self.dest, name_versions)

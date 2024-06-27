@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List
 from abc import ABC, abstractmethod
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_PTVENV_ROOT, PYTOOLBELT_TOOLS_ROOT
 
 
 class BasePaths(ABC):
@@ -19,6 +20,18 @@ class BasePaths(ABC):
     @abstractmethod
     def new_files(self) -> List[Path]:
         pass
+
+    @property
+    def project_root(self) -> Path:
+        return PYTOOLBELT_PROJECT_ROOT
+
+    @property
+    def ptvenvs_root(self) -> Path:
+        return PYTOOLBELT_PTVENV_ROOT
+
+    @property
+    def tools_root(self) -> Path:
+        return PYTOOLBELT_TOOLS_ROOT
 
     @property
     def root_path(self) -> Path:

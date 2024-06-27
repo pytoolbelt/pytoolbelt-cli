@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
-from pytoolbelt.bases.basepaths import BasePaths
-from pytoolbelt.bases.basetemplater import BaseTemplater
+from pytoolbelt.bases.base_paths import BasePaths
+from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.ptvenv import PtVenvPaths
 from pytoolbelt.core.tool import ToolPaths
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLS_ROOT, PYTOOLBELT_PTVENV_ROOT, PYTOOLBELT_PROJECT_ROOT
@@ -12,14 +12,6 @@ class ProjectPaths(BasePaths):
 
     def __init__(self) -> None:
         super().__init__(root_path=PYTOOLBELT_PROJECT_ROOT, name="project", kind="project")
-
-    @property
-    def ptvenvs_root(self) -> Path:
-        return PYTOOLBELT_PTVENV_ROOT
-
-    @property
-    def tools_root(self) -> Path:
-        return PYTOOLBELT_TOOLS_ROOT
 
     @property
     def new_directories(self) -> List[Path]:

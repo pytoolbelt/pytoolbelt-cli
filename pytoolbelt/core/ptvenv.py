@@ -1,37 +1,29 @@
 import yaml
 import subprocess
-import hashlib
 from typing import Optional, List
 from pathlib import Path
 from semver import Version
 from pydantic import BaseModel
-from pytoolbelt.bases.basepaths import BasePaths
-from pytoolbelt.bases.basetemplater import BaseTemplater
+from pytoolbelt.bases.base_paths import BasePaths
+from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_VENV_DIR
 from pytoolbelt.core.exceptions import PythonEnvBuildError
+from pytoolbelt.core.data_classes.name_version import NameVersion
 
 
-class VenvDef(BaseModel):
+class PtVenvConfig(BaseModel):
     name: str
     version: str
     python_version: str
     requirements: Optional[List[str]] = []
     ptvenv_hash: Optional[str] = None
 
-    def get_sha256(self) -> str:
-        return hashlib.sha256(str(self).encode()).hexdigest()
-
-    def generate_hash(self) -> None:
-        self.ptvenv_hash = self.get_sha256()
-
 
 class PtVenvPaths(BasePaths):
 
-    # venv_def_root_dir: Path = PYTOOLBELT_PROJECT_ROOT / "ptvenv"
-
-    def __init__(self, name: str, root_path: Optional[Path] = None, version: Optional[Version] = None):
-        self._version = version or Version.parse("0.0.0")
-        super().__init__(root_path=root_path or PYTOOLBELT_PROJECT_ROOT, name=name, kind="ptvenv")
+    def __init__(self, name_version: NameVersion, root_path: Optional[Path] = None) -> None:
+        self._name_version = name_version
+        super().__init__(root_path=root_path or PYTOOLBELT_PROJECT_ROOT, name=name_version.name, kind="ptvenv")
 
     @property
     def version(self) -> Version:
@@ -103,9 +95,9 @@ class PtVenvPaths(BasePaths):
     def get_venv_def_path(name: str, version: Version) -> Path:
         return PYTOOLBELT_PROJECT_ROOT / "venvdef" / name / f"{name}-{version}.yml"
 
-    def get_venvdef(self) -> VenvDef:
+    def get_venvdef(self) -> PtVenvConfig:
         with self.venv_def_file.open("r") as f:
-            return VenvDef(**yaml.safe_load(f))
+            return PtVenvConfig(**yaml.safe_load(f))
 
     def raise_if_venvdef_exists(self) -> None:
         if self.venv_def_file.exists():
@@ -169,3 +161,32 @@ class PtVenvBuilder:
 
         if self.venvdef.requirements:
             self.install_requirements()
+
+
+class PtVenv:
+
+    def __init__(self, name_version: NameVersion) -> None:
+        self._name_version = name_version
+        self._paths = PtVenvPaths(name=name_version.name, version=name_version.version)
+        self._templater = PtVenvTemplater(paths=self._paths)
+        self._builder = PtVenvBuilder(paths=self._paths)
+
+    @property
+    def name(self) -> str:
+        return self._name_version.name
+
+    @property
+    def version(self) -> Version:
+        return self._name_version.version
+
+    @property
+    def paths(self) -> PtVenvPaths:
+        return self._paths
+
+    @property
+    def templater(self) -> PtVenvTemplater:
+        return self._templater
+
+    @property
+    def builder(self) -> PtVenvBuilder:
+        return self._builder
