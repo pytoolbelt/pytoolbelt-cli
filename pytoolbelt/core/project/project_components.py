@@ -2,8 +2,6 @@ from pathlib import Path
 from typing import List, Optional
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
-from pytoolbelt.core.ptvenv import PtVenvPaths
-from pytoolbelt.core.tool import ToolPaths
 from pytoolbelt.environment.config import PYTOOLBELT_VENV_INSTALL_DIR, PYTOOLBELT_PROJECT_ROOT
 
 

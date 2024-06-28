@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar
-from .baseparameters import BaseControllerParameters
+from .base_parameters import BaseControllerParameters
 
 T = TypeVar('T', bound=BaseControllerParameters)
 
