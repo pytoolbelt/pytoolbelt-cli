@@ -1,5 +1,6 @@
 from semver import Version
-from typing import Union
+from typing import Union, Optional
+from pathlib import Path
 from pytoolbelt.core.exceptions import CliArgumentError
 
 
@@ -25,7 +26,7 @@ class ComponentMetadata:
             return inst
 
         try:
-            inst = cls(name, Version.parse(version))
+            inst = cls(name, Version.parse(version), kind)
             inst.raise_if_forbidden_char_in_name()
         except ValueError:
             raise CliArgumentError(f"Invalid Version :: {version} is not a valid version")
@@ -33,8 +34,17 @@ class ComponentMetadata:
         return inst
 
     @classmethod
-    def as_ptvenv(cls, string: str) -> "ComponentMetadata":
-        return cls.from_string(string, "ptvenv")
+    def as_ptvenv(cls, string: str, version: Optional[Version] = None) -> "ComponentMetadata":
+        inst = cls.from_string(string, "ptvenv")
+        if version:
+            inst.version = version
+        return inst
+
+    @classmethod
+    def from_ptvenv_install_path(cls, path: Path) -> "ComponentMetadata":
+        version = Version.parse(path.parent.name)
+        name = path.parent.parent.name
+        return cls(name, version, "ptvenv")
 
     @classmethod
     def as_tool(cls, string: str) -> "ComponentMetadata":
@@ -53,6 +63,10 @@ class ComponentMetadata:
             if self._version == "latest":
                 return self._version
         return self._version
+
+    @version.setter
+    def version(self, value: Union[Version, str]) -> None:
+        self._version = value
 
     @property
     def release_tag(self) -> str:

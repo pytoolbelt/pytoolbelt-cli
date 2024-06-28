@@ -31,3 +31,8 @@ pytoolbelt:
 
 
 pytoolbelt ptvenv new --name myenv --python 3.8  --bump minor
+
+
+after ptvenv creation, store the config and a hash of the config file with the venv. when installing / building,
+load the hash and compare it to the current config file. if it's different and the version is the same
+then throw some error and prevent this from happening.

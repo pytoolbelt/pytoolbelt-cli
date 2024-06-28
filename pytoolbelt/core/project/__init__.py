@@ -1,9 +1,12 @@
 from typing import Optional
 from pathlib import Path
+import shutil
 from .project_components import ProjectPaths, ProjectTemplater
-from .ptvenv_components import PtVenvPaths, PtVenvTemplater, PtVenvBuilder
+from .ptvenv_components import PtVenvPaths, PtVenvTemplater, PtVenvBuilder, PtVenvConfig
 from pytoolbelt.core.git_commands import GitCommands
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from semver import Version
+from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError
 
 
 class Project:
@@ -27,9 +30,21 @@ class PtVenv:
         self.builder = kwargs.get("builder", PtVenvBuilder(self.paths))
 
     @classmethod
-    def from_cli(cls, string: str, root_path: Optional[Path] = None) -> "PtVenv":
+    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False) -> "PtVenv":
         meta = ComponentMetadata.as_ptvenv(string)
-        return cls(meta, root_path)
+        inst = cls(meta, root_path)
+
+        if creation:
+            inst.paths.meta.version = Version.parse("0.0.1")
+            return inst
+
+        if isinstance(inst.paths.meta.version, str):
+            if inst.paths.meta.version == "latest":
+                latest_installed_version = inst.paths.get_latest_installed_version()
+                inst.paths.meta.version = latest_installed_version
+                return inst
+
+        return inst
 
     @classmethod
     def from_release_tag(cls, tag: str, root_path: Optional[Path] = None) -> "PtVenv":
@@ -40,6 +55,24 @@ class PtVenv:
     def release_tag(self) -> str:
         return self.paths.meta.release_tag
 
+    def raise_if_exists(self) -> None:
+        if self.paths.ptvenv_dir.exists():
+            raise PtVenvCreationError(f"Python environment {self.paths.meta.name} already exists.")
+
     def create(self) -> None:
+        self.raise_if_exists()
         self.paths.create()
         self.templater.template_new_venvdef_file()
+
+    def build(self) -> None:
+        self.builder.load_config()
+        self.builder.build()
+
+    def delete(self, _all: bool) -> None:
+        if self.paths.install_dir.exists():
+            if _all:
+                shutil.rmtree(self.paths.install_root_dir)
+            else:
+                shutil.rmtree(self.paths.install_dir.parent)
+        else:
+            raise PtVenvNotFoundError(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed.")

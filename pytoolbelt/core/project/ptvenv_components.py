@@ -7,6 +7,7 @@ from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pathlib import Path
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.exceptions import PythonEnvBuildError
+from semver import Version
 
 
 class PtVenvConfig(BaseModel):
@@ -40,11 +41,15 @@ class PtVenvPaths(BasePaths):
 
     @property
     def ptvenv_dir(self) -> Path:
-        return self.project_paths.ptvenv_dir / self.meta.name
+        return self.project_paths.ptvenvs_dir / self.meta.name
 
     @property
     def ptvenv_config_file(self) -> Path:
-        return self.ptvenv_dir / f"{self.meta.version}.yml"
+        return self.ptvenv_dir / f"{self.meta.name}.yml"
+
+    @property
+    def ptvenv_readme_file(self) -> Path:
+        return self.ptvenv_dir / "README.md"
 
     @property
     def new_directories(self) -> List[Path]:
@@ -52,11 +57,18 @@ class PtVenvPaths(BasePaths):
 
     @property
     def new_files(self) -> List[Path]:
-        return [self.ptvenv_config_file]
+        return [
+            self.ptvenv_config_file,
+            self.ptvenv_readme_file
+        ]
+
+    @property
+    def install_root_dir(self) -> Path:
+        return self.project_paths.venv_install_dir / self.meta.name
 
     @property
     def install_dir(self) -> Path:
-        return self.project_paths.venv_install_dir / self.meta.name / str(self.meta.version) / "venv"
+        return self.install_root_dir / str(self.meta.version) / "venv"
 
     @property
     def python_executable_path(self) -> Path:
@@ -65,6 +77,16 @@ class PtVenvPaths(BasePaths):
     @property
     def pip_executable_path(self) -> Path:
         return self.install_dir / "bin" / "pip"
+
+    def list_installed_versions(self) -> List[Version]:
+        versions = [Version.parse(d.name) for d in self.install_root_dir.iterdir() if Version.is_valid(d.name)]
+        return sorted(versions, reverse=True)
+
+    def get_latest_installed_version(self) -> Optional[Version]:
+        try:
+            return self.list_installed_versions()[0]
+        except IndexError:
+            return None
 
 
 class PtVenvTemplater(BaseTemplater):
@@ -83,7 +105,7 @@ class PtVenvBuilder:
 
     def __init__(self, paths: PtVenvPaths):
         self.paths = paths
-        self.ptvenv = PtVenvConfig.from_file(paths.ptvenv_config_file)
+        self.ptvenv = None
 
     @property
     def create_command(self) -> List[str]:
@@ -102,6 +124,9 @@ class PtVenvBuilder:
             "install",
             *self.ptvenv.requirements
         ]
+
+    def load_config(self) -> None:
+        self.ptvenv = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
 
     def create_install_dir(self) -> None:
         self.paths.install_dir.mkdir(parents=True, exist_ok=True)

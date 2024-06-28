@@ -24,3 +24,11 @@ class LocalAndRemoteHeadAreDifferentError(Exception):
 
 class CliArgumentError(Exception):
     pass
+
+
+class PtVenvCreationError(Exception):
+    pass
+
+
+class PtVenvNotFoundError(Exception):
+    pass

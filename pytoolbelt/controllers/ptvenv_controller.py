@@ -11,8 +11,8 @@ from pytoolbelt.core.project import PtVenv
 @dataclass
 class VenvDefControllerParameters(BaseControllerParameters):
     name: str
-    bump: str
     repo_config: str
+    all: bool
 
 
 class VenvDefContext:
@@ -21,9 +21,22 @@ class VenvDefContext:
 
 
 def new(context: VenvDefContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv = PtVenv.from_cli(context.params.name, creation=True)
     ptvenv.create()
     return 0
+
+
+def build(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv.build()
+    return 0
+
+
+def remove(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv.delete(context.params.all)
+    return 0
+
 
 # def release(context: VenvDefContext) -> int:
 #     project_paths = ProjectPaths()
@@ -131,14 +144,7 @@ def new(context: VenvDefContext) -> int:
 #     return 0
 #
 #
-# def build(context: VenvDefContext) -> int:
-#     paths = vd.PtVenvPaths(name=context.params.name)
-#     paths.set_highest_version()
-#     paths.raise_if_venvdef_not_found()
-#
-#     venv_builder = vd.PtVenvBuilder(paths)
-#     venv_builder.build()
-#     return 0
+
 
 
 
@@ -150,32 +156,40 @@ COMMON_FLAGS = {}
 ACTIONS = {
     "new": {
         "func": new,
-        "help": "Create a new venvdef",
+        "help": "Create a new ptvenv definition file, or bump an existing one to a new version.",
         "flags": {
-            "--bump": {
-                "help": "Version of the venvdef",
-                "required": False,
-                "default": "patch",
-                "choices": ["major", "minor", "patch", "prerelease"],
-            },
             "--name": {
                 "help": "Name of the ptvenv definition to create",
                 "required": True,
             }
         },
+
     },
-    # "build": {
-    #     "func": build,
-    #     "help": "Build a pytoolbelt venv from a venvdef file",
-    #     "flags": {
-    #         "--name": {
-    #             "help": "Name of the venvdef",
-    #             "required": True,
-    #             "action": ParseNameVersion,
-    #             "nargs": "+"
-    #         }
-    #     },
-    # },
+    "build": {
+        "func": build,
+        "help": "Build a pytoolbelt ptvenv from a ptvenv definition yml file.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv to build.",
+                "required": True,
+            }
+        },
+    },
+    "remove": {
+        "func": remove,
+        "help": "Remove a ptvenv definition from the local project.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv to remove. If no version provided, the most recent version will be removed.",
+                "required": True,
+            },
+            "--all": {
+                "help": "Remove all versions of the ptvenv definition.",
+                "action": "store_true",
+                "default": False,
+            }
+        },
+    },
     # "releases": {
     #     "func": releases,
     #     "help": "List all ptvenv releases in the local git repository",
