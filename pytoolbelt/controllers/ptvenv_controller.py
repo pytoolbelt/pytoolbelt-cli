@@ -13,6 +13,8 @@ class VenvDefControllerParameters(BaseControllerParameters):
     name: str
     repo_config: str
     all: bool
+    force: bool
+    part: str
 
 
 class VenvDefContext:
@@ -27,16 +29,21 @@ def new(context: VenvDefContext) -> int:
 
 
 def build(context: VenvDefContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
-    ptvenv.build()
+    ptvenv = PtVenv.from_cli(context.params.name, build=True)
+    ptvenv.build(context.params.force)
     return 0
 
 
 def remove(context: VenvDefContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv = PtVenv.from_cli(context.params.name, deletion=True)
     ptvenv.delete(context.params.all)
     return 0
 
+
+def bump(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name, build=True)
+    ptvenv.bump(context.params.part)
+    return 0
 
 # def release(context: VenvDefContext) -> int:
 #     project_paths = ProjectPaths()
@@ -172,6 +179,11 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the ptvenv to build.",
                 "required": True,
+            },
+            "--force": {
+                "help": "Force rebuild of the ptvenv even if it already exists or has been changed.",
+                "action": "store_true",
+                "default": False,
             }
         },
     },
@@ -187,6 +199,22 @@ ACTIONS = {
                 "help": "Remove all versions of the ptvenv definition.",
                 "action": "store_true",
                 "default": False,
+            }
+        },
+    },
+    "bump": {
+        "func": bump,
+        "help": "Bump a ptvenv definition to a new version.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv definition to bump.",
+                "required": True,
+            },
+            "--part": {
+                "help": "Part of the version to bump. (major, minor, patch, prerelease)",
+                "required": False,
+                "default": "patch",
+                "choices": ["major", "minor", "patch", "prerelease"]
             }
         },
     },
