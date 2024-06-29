@@ -25,6 +25,11 @@ class PtVenvConfig(BaseModel):
             return cls(**raw_data)
 
 
+class IndentedSafeDumper(yaml.SafeDumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(IndentedSafeDumper, self).increase_indent(flow, False)
+
+
 class PtVenvPaths(BasePaths):
 
     def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
@@ -117,7 +122,8 @@ class PtVenvPaths(BasePaths):
 
     def write_to_config_file(self, config: PtVenvConfig) -> None:
         with self.ptvenv_config_file.open("w") as f:
-            f.write(yaml.dump(config.model_dump()))
+            yaml.dump(config.model_dump(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
+
 
 class PtVenvTemplater(BaseTemplater):
 
