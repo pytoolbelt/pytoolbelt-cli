@@ -3,10 +3,9 @@ from pathlib import Path
 from typing import Optional, List, Tuple
 from pytoolbelt.core.exceptions import NotOnReleaseBranchError, UncommittedChangesError, UnableToReleaseError
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.core.pytoolbelt_config import RepoConfig
+from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
 from git.refs import TagReference
 from semver import Version
-import tempfile
 
 
 class GitCommands:
@@ -69,8 +68,12 @@ class GitCommands:
     def fetch_remote_tags(self) -> None:
         self.repo.git.fetch("--tags", "origin")
 
-    def get_local_tags(self) -> List[TagReference]:
-        return list(self.repo.tags)
+    def get_local_tags(self, kind: str) -> List[TagReference]:
+        local_tags = []
+        for tag in self.repo.tags:
+            if tag.name.startswith(kind):
+                local_tags.append(tag)
+        return local_tags
 
     def get_local_tag(self, tag: str) -> TagReference:
         # TODO: make this better. raise an error if not exists...

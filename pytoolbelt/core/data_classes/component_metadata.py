@@ -52,7 +52,7 @@ class ComponentMetadata:
 
     @classmethod
     def from_release_tag(cls, tag: str) -> "ComponentMetadata":
-        kind, name, version = tag.split("-")
+        kind, name, version = tag.split("-", 2)
         inst = cls(name, version, kind)
         inst.raise_if_forbidden_char_in_name()
         return inst

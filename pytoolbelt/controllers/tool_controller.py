@@ -1,6 +1,6 @@
 from pytoolbelt.controllers.parameters import ControllerParameters
 from pytoolbelt.controllers.arg_validation import ValidateName
-from pytoolbelt.core.git_commands import GitCommands
+from pytoolbelt.core.tools.git_commands import GitCommands
 from pytoolbelt.core import tool
 from semver import Version
 from pytoolbelt.core.project.project import ProjectPaths

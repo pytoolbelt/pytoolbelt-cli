@@ -45,6 +45,12 @@ def bump(context: VenvDefContext) -> int:
     ptvenv.bump(context.params.part)
     return 0
 
+
+def release(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name, build=True)
+    ptvenv.release(context.params.repo_config)
+    return 0
+
 # def release(context: VenvDefContext) -> int:
 #     project_paths = ProjectPaths()
 #     config = project_paths.get_pytoolbelt_config()
@@ -215,6 +221,21 @@ ACTIONS = {
                 "required": False,
                 "default": "patch",
                 "choices": ["major", "minor", "patch", "prerelease"]
+            }
+        },
+    },
+    "release": {
+        "func": release,
+        "help": "Release a ptvenv definition to a remote git repository.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv definition to release.",
+                "required": True,
+            },
+            "--repo-config": {
+                "help": "Name of the repo config to use for the release.",
+                "required": False,
+                "default": "default",
             }
         },
     },

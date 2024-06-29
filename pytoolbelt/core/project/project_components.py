@@ -3,6 +3,7 @@ from typing import List, Optional
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.environment.config import PYTOOLBELT_VENV_INSTALL_DIR, PYTOOLBELT_PROJECT_ROOT
+from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
 
 
 class ProjectPaths(BasePaths):
@@ -55,6 +56,9 @@ class ProjectPaths(BasePaths):
     def venv_install_dir(self) -> Path:
         return PYTOOLBELT_VENV_INSTALL_DIR
 
+    def get_pytoolbelt_config(self) -> RepoConfigs:
+        raw_data = self.pytoolbelt_config.read_text()
+        return RepoConfigs.from_yml(raw_data)
 
     # TODO: everything below here should be removed from this class.
     # def ptvenv_defs(self) -> List[PtVenvPaths]:
@@ -63,9 +67,7 @@ class ProjectPaths(BasePaths):
     # def tools(self) -> List[ToolPaths]:
     #     return [ToolPaths(d.name, load_version=True) for d in self.tools_root.iterdir() if d.is_dir()]
     #
-    # def get_pytoolbelt_config(self) -> RepoConfigs:
-    #     raw_data = self.pytoolbelt_config.read_text()
-    #     return RepoConfigs.from_yml(raw_data)
+
     #
     # def get_ptvenv_defs_to_tag(self, local_tags: dict) -> List[PtVenvPaths]:
     #     to_tag = []
