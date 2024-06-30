@@ -1,6 +1,6 @@
 from git import Repo
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 from pytoolbelt.core.exceptions import NotOnReleaseBranchError, UncommittedChangesError, UnableToReleaseError
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
@@ -68,25 +68,30 @@ class GitCommands:
     def fetch_remote_tags(self) -> None:
         self.repo.git.fetch("--tags", "origin")
 
-    def get_local_tags(self, kind: str) -> List[TagReference]:
+    def get_local_tags(self, kind: str, as_names: Optional[bool] = False) -> List[Union[TagReference, str]]:
         local_tags = []
         for tag in self.repo.tags:
             if tag.name.startswith(kind):
-                local_tags.append(tag)
+                if as_names:
+                    local_tags.append(tag.name)
+                else:
+                    local_tags.append(tag)
         return local_tags
 
-    def get_local_tag(self, tag: str) -> TagReference:
-        # TODO: make this better. raise an error if not exists...
-        for t in self.get_local_tags():
-            if t.name == tag:
+    def get_local_tag(self, tag_name: str, kind: str) -> TagReference:
+        for t in self.get_local_tags(kind=kind):
+            if t.name == tag_name:
                 return t
         else:
-            print("tag not found")
+            raise ValueError(f"Tag {tag_name} not found in local tags")
 
     def get_remote_tags(self) -> List[TagReference]:
         tags = self.repo.git.ls_remote("--tags", "origin").split("\n")
         tags = [tag.split("\t")[-1] for tag in tags]
         return [TagReference.from_path(self.repo, tag) for tag in tags]
+
+    def checkout_tag(self, tag_ref: TagReference) -> None:
+        self.repo.git.checkout(tag_ref)
 
     @staticmethod
     def group_versions(tag_refs: List[TagReference], target_name: Optional[str] = None) -> dict:

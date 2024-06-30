@@ -1,3 +1,4 @@
+import tempfile
 from typing import Optional
 from pathlib import Path
 import shutil
@@ -8,6 +9,7 @@ from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from semver import Version
 from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError
 from pytoolbelt.core.tools import hash_config
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
 class Project:
@@ -31,10 +33,13 @@ class PtVenv:
         self.builder = kwargs.get("builder", PtVenvBuilder(self.paths))
 
     @classmethod
-    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False, deletion: Optional[bool] = False, build: Optional[bool] = False) -> "PtVenv":
+    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False,
+                 deletion: Optional[bool] = False, build: Optional[bool] = False) -> "PtVenv":
         meta = ComponentMetadata.as_ptvenv(string)
         inst = cls(meta, root_path)
 
+        # this means it's the first time we're creating a ptvenv definition file
+        # for the passed in name. So we set the version to 0.0.1
         if creation:
             inst.paths.meta.version = Version.parse("0.0.1")
             return inst
@@ -47,8 +52,11 @@ class PtVenv:
                 return inst
 
         if build:
+            # this means we are building, and we passed in a version number in the format name==version
+            if isinstance(meta.version, Version):
+                return inst
             config = PtVenvConfig.from_file(inst.paths.ptvenv_config_file)
-            inst.paths.meta.version = Version.parse(config.version)
+            inst.paths.meta.version = config.version
             return inst
 
         return inst
@@ -71,7 +79,50 @@ class PtVenv:
         self.paths.create()
         self.templater.template_new_venvdef_file()
 
-    def build(self, force: Optional[bool] = False) -> None:
+    def build(self, force: bool, repo_config: str) -> None:
+        kind = "ptvenv"
+        ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
+
+        #TODO: This is buggy, need to fix this
+        if not self._installation_can_proceed(ptvenv_config):
+            print("installation will not continue")
+            return
+
+        # this means we passed in some version number in the format name==version
+        # we need to get the current tags from the repo, if a suitable tag is found
+        # we need to copy the entire repo to a temp dir, and check out the tag.
+        # we can then install the environment from the temp dir, but we must construct new PtVenvPaths and a builder.
+        if ptvenv_config.version != self.paths.meta.version:
+            pytoolbelt_repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config(repo_config)
+
+            git_commands = GitCommands(pytoolbelt_repo_config)
+
+            try:
+                tag_reference = git_commands.get_local_tag(tag_name=self.paths.meta.release_tag, kind=kind)
+            except ValueError:
+                raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
+
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_path = Path(tmp_dir) / "pytoolbelt"
+
+                # first thing to do is copy the repo over
+                print(f"Copying {PYTOOLBELT_PROJECT_ROOT} to {tmp_path}")
+                shutil.copytree(src=PYTOOLBELT_PROJECT_ROOT, dst=tmp_path)
+
+                # get the git commands pointed at the temp repo
+                tmp_git_commands = GitCommands(pytoolbelt_repo_config, root_path=tmp_path)
+
+                # check out the tag in the temp repo
+                print(f"Checking out tag {tag_reference}")
+                tmp_git_commands.checkout_tag(tag_reference)
+
+                # create new paths and builder
+                tmp_project_paths = ProjectPaths(tmp_path)
+                tmp_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
+                tmp_builder = PtVenvBuilder(tmp_paths)
+                print(f"Building {self.paths.meta.name} version {self.paths.meta.version} from {tag_reference}")
+                tmp_builder.build()
+                return
 
         # force is set so just build and exit, regardless of the state of the environment
         if force:
@@ -83,12 +134,12 @@ class PtVenv:
             self.builder.build()
             return
 
+    def _installation_can_proceed(self, current_config: PtVenvConfig) -> bool:
         # the installation directory exists, so we need to check if the configuration has changed
         # if it has, we need to warn the user that the environment definition has changed, however
         # the version has not been updated. This could lead to unexpected behavior.
         if self.paths.install_dir.exists():
 
-            current_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
             installed_config = PtVenvConfig.from_file(self.paths.installed_config_file)
 
             hashed_current_config = hash_config(current_config)
@@ -96,19 +147,22 @@ class PtVenv:
 
             installed_hash = self.paths.installed_hash_file.read_text()
 
+            # this means that the installation file has been messed with, so we need to rebuild the environment
             if installed_hash != hashed_installed_config:
-                raise PtVenvCreationError(f"ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
-                                          f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
+                raise PtVenvCreationError(
+                    f"Warning: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
+                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
             if hashed_current_config != hashed_installed_config:
-                if current_config.version != installed_config.version:
-                    self.builder.build()
-                    return
+                raise PtVenvCreationError(
+                    f"Warning: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has changed since install. "
+                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
-                raise PtVenvCreationError(f"ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
-                                          f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
+            if hashed_current_config == hashed_installed_config:
+                print(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
+                return False
+            return True
 
-            print(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
 
     def delete(self, _all: bool) -> None:
         if self.paths.install_dir.exists():
@@ -117,7 +171,8 @@ class PtVenv:
             else:
                 shutil.rmtree(self.paths.install_dir.parent)
         else:
-            raise PtVenvNotFoundError(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed.")
+            raise PtVenvNotFoundError(
+                f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed.")
 
     def bump(self, part: str) -> None:
         config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
@@ -167,4 +222,17 @@ class PtVenv:
 
         print("Pushing tags to remote...")
         git_commands.push_all_tags_to_remote()
-        return 0
+
+    def releases(self, repo_config_name: str) -> None:
+        pytoolbelt_config = self.project_paths.get_pytoolbelt_config()
+        repo_config = pytoolbelt_config.get_repo_config(repo_config_name)
+
+        git_commands = GitCommands(repo_config)
+
+        # get the local tags and pack them up into a dictionary as well
+        for tag in git_commands.get_local_tags("ptvenv"):
+            if self.paths.meta.name:
+                if self.paths.meta.name in tag.name:
+                    print(tag.name)
+            else:
+                print(tag.name)

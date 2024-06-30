@@ -12,9 +12,14 @@ from semver import Version
 from pytoolbelt.core.tools import hash_config
 
 
+
 class PtVenvConfig(BaseModel):
+
+    class Config:
+        arbitrary_types_allowed = True
+
     name: str
-    version: str
+    version: Version
     python_version: str
     requirements: Optional[List[str]] = []
 
@@ -22,7 +27,16 @@ class PtVenvConfig(BaseModel):
     def from_file(cls, file_path: Path) -> "PtVenvConfig":
         with file_path.open("r") as f:
             raw_data = yaml.safe_load(f)
+            raw_data["version"] = Version.parse(raw_data["version"])
             return cls(**raw_data)
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "version": str(self.version),
+            "python_version": self.python_version,
+            "requirements": self.requirements
+        }
 
 
 class IndentedSafeDumper(yaml.SafeDumper):
@@ -122,7 +136,7 @@ class PtVenvPaths(BasePaths):
 
     def write_to_config_file(self, config: PtVenvConfig) -> None:
         with self.ptvenv_config_file.open("w") as f:
-            yaml.dump(config.model_dump(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
+            yaml.dump(config.to_dict(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
 
 
 class PtVenvTemplater(BaseTemplater):

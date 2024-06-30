@@ -29,8 +29,9 @@ def new(context: VenvDefContext) -> int:
 
 
 def build(context: VenvDefContext) -> int:
+    #TODO: review if the repo config here is really needed. I think it should be removed from GitCommands.
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
-    ptvenv.build(context.params.force)
+    ptvenv.build(context.params.force, context.params.repo_config)
     return 0
 
 
@@ -50,6 +51,14 @@ def release(context: VenvDefContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
     ptvenv.release(context.params.repo_config)
     return 0
+
+
+def releases(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv.releases(context.params.repo_config)
+    return 0
+
+
 
 # def release(context: VenvDefContext) -> int:
 #     project_paths = ProjectPaths()
@@ -158,11 +167,6 @@ def release(context: VenvDefContext) -> int:
 #
 #
 
-
-
-
-
-
 COMMON_FLAGS = {}
 
 
@@ -238,6 +242,21 @@ ACTIONS = {
                 "default": "default",
             }
         },
+    },
+    "releases": {
+        "func": releases,
+        "help": "List all ptvenv releases in the local git repository.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv definition to list releases for.",
+                "default": "",
+            },
+            "--repo-config": {
+                "help": "Name of the repo config to list the releases for.",
+                "required": False,
+                "default": "default",
+            }
+        }
     },
     # "releases": {
     #     "func": releases,
