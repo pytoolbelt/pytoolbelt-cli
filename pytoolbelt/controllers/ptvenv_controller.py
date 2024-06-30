@@ -59,6 +59,10 @@ def releases(context: VenvDefContext) -> int:
     return 0
 
 
+def installed(context: VenvDefContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv.installed()
+    return 0
 
 # def release(context: VenvDefContext) -> int:
 #     project_paths = ProjectPaths()

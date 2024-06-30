@@ -83,11 +83,6 @@ class PtVenv:
         kind = "ptvenv"
         ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
 
-        #TODO: This is buggy, need to fix this
-        if not self._installation_can_proceed(ptvenv_config):
-            print("installation will not continue")
-            return
-
         # this means we passed in some version number in the format name==version
         # we need to get the current tags from the repo, if a suitable tag is found
         # we need to copy the entire repo to a temp dir, and check out the tag.
@@ -119,20 +114,22 @@ class PtVenv:
                 # create new paths and builder
                 tmp_project_paths = ProjectPaths(tmp_path)
                 tmp_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
+                tmp_ptvenv_config = PtVenvConfig.from_file(tmp_paths.ptvenv_config_file)
+
+                if not self._installation_can_proceed(tmp_ptvenv_config):
+                    if not force:
+                        return
+
                 tmp_builder = PtVenvBuilder(tmp_paths)
                 print(f"Building {self.paths.meta.name} version {self.paths.meta.version} from {tag_reference}")
                 tmp_builder.build()
                 return
 
-        # force is set so just build and exit, regardless of the state of the environment
-        if force:
+        else:
+            if not self._installation_can_proceed(ptvenv_config):
+                if not force:
+                    return
             self.builder.build()
-            return
-
-        # if the installation directory doesn't exist, this is the first time we're building so just build.
-        if not self.paths.install_dir.exists():
-            self.builder.build()
-            return
 
     def _installation_can_proceed(self, current_config: PtVenvConfig) -> bool:
         # the installation directory exists, so we need to check if the configuration has changed
@@ -150,18 +147,19 @@ class PtVenv:
             # this means that the installation file has been messed with, so we need to rebuild the environment
             if installed_hash != hashed_installed_config:
                 raise PtVenvCreationError(
-                    f"Warning: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
+                    f"Warning 1: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
                     f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
             if hashed_current_config != hashed_installed_config:
+                import pdb; pdb.set_trace()
                 raise PtVenvCreationError(
-                    f"Warning: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has changed since install. "
+                    f"Warning 2: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has changed since install. "
                     f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
             if hashed_current_config == hashed_installed_config:
                 print(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
                 return False
-            return True
+        return True
 
 
     def delete(self, _all: bool) -> None:
