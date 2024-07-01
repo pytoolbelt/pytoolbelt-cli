@@ -10,6 +10,7 @@ from semver import Version
 from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
+from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
 
 
 class Project:
@@ -161,7 +162,6 @@ class PtVenv:
                 return False
         return True
 
-
     def delete(self, _all: bool) -> None:
         if self.paths.install_dir.exists():
             if _all:
@@ -234,3 +234,11 @@ class PtVenv:
                     print(tag.name)
             else:
                 print(tag.name)
+
+    def installed(self) -> None:
+        table = PtVenvInstalledTableView()
+        installed_ptvenvs = list(self.project_paths.iter_installed_ptvenvs())
+        installed_ptvenvs.sort(key=lambda x: (x.version, x.name),reverse=True)
+        for installed_ptvenv in installed_ptvenvs:
+            table.add_row(installed_ptvenv.name, installed_ptvenv.version)
+        table.print_table()

@@ -4,6 +4,7 @@ from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.environment.config import PYTOOLBELT_VENV_INSTALL_DIR, PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 
 
 class ProjectPaths(BasePaths):
@@ -59,6 +60,15 @@ class ProjectPaths(BasePaths):
     def get_pytoolbelt_config(self) -> RepoConfigs:
         raw_data = self.pytoolbelt_config.read_text()
         return RepoConfigs.from_yml(raw_data)
+
+    def iter_installed_ptvenvs(self, name: Optional[str] = None) -> List[ComponentMetadata]:
+        for venv in self.venv_install_dir.iterdir():
+            if venv.is_dir():
+                for version in venv.iterdir():
+                    if version.is_dir():
+                        if name and venv.name == name:
+                            yield ComponentMetadata(venv.name, version.name, "ptvenv")
+                        yield ComponentMetadata(venv.name, version.name, "ptvenv")
 
     # TODO: everything below here should be removed from this class.
     # def ptvenv_defs(self) -> List[PtVenvPaths]:
