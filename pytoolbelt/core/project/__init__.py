@@ -98,12 +98,12 @@ class PtVenv:
 
     @classmethod
     def from_cli(
-        cls,
-        string: str,
-        root_path: Optional[Path] = None,
-        creation: Optional[bool] = False,
-        deletion: Optional[bool] = False,
-        build: Optional[bool] = False,
+            cls,
+            string: str,
+            root_path: Optional[Path] = None,
+            creation: Optional[bool] = False,
+            deletion: Optional[bool] = False,
+            build: Optional[bool] = False,
     ) -> "PtVenv":
         meta = ComponentMetadata.as_ptvenv(string)
         inst = cls(meta, root_path)
@@ -277,6 +277,62 @@ class PtVenv:
             table.add_row(installed_ptvenv.name, installed_ptvenv.version)
         table.print_table()
 
+    def fetch(self, repo_config_name: str, keep: bool, build: bool, force: bool) -> None:
+
+        if not keep and not build:
+            print("the ptvenv must be either kept with --keep, or built with --build or both, but not none")
+            return
+
+        if not build and force:
+            print("the --force flag is only valid when building the ptvenv")
+            return
+
+        if keep:
+            self.raise_if_exists()
+
+        repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config(repo_config_name)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            print("setting up temp dir...")
+            tmpdir_path = Path(tmpdir)
+
+            print("cloning repo...")
+            tmp_repo, tmp_repo_path = GitCommands.clone_repo_to_temp_dir(repo_config.url, tmpdir_path.as_posix())
+            tmp_git_commands = GitCommands.from_repo(tmp_repo, repo_config)
+
+            if isinstance(self.paths.meta.version, str) and self.paths.meta.version == "latest":
+                print("latest version being fetched....")
+                local_tags = tmp_git_commands.get_local_tags(kind="ptvenv", as_names=True)
+                component_meta = [ComponentMetadata.from_release_tag(tag) for tag in local_tags if self.paths.meta.name in tag]
+                component_meta.sort(key=lambda x: x.version, reverse=True)
+                latest_meta = component_meta[0]
+                tag = tmp_git_commands.get_local_tag(latest_meta.release_tag, kind="ptvenv")
+
+            # otherwise we got a version passed in the cli so just assume it exists and check it out and if not... poop.
+            else:
+                print("passed in version being fetched.")
+                tag = tmp_git_commands.get_local_tag(self.paths.meta.release_tag, kind="ptvenv")
+
+            tmp_git_commands.checkout_tag(tag)
+            tmp_project_paths = ProjectPaths(tmp_repo_path)
+            tmp_ptvenv_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
+
+            self.paths.ptvenv_dir.mkdir(parents=True, exist_ok=True)
+
+            # we should only do this when we keep...
+            shutil.copytree(tmp_ptvenv_paths.ptvenv_dir, self.paths.ptvenv_dir, dirs_exist_ok=True)
+
+            if build:
+                builder = PtVenvBuilder(tmp_ptvenv_paths)
+                builder.build()
+
+            # TODO: you need to fix this. gets deleted if already exists.... not good.
+            if keep:
+                if not self.paths.ptvenv_dir.exists():
+                    shutil.rmtree(self.paths.ptvenv_dir)
+
+
+
 
 class Tool:
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
@@ -287,11 +343,11 @@ class Tool:
 
     @classmethod
     def from_cli(
-        cls,
-        string: str,
-        root_path: Optional[Path] = None,
-        creation: Optional[bool] = False,
-        release: Optional[bool] = False,
+            cls,
+            string: str,
+            root_path: Optional[Path] = None,
+            creation: Optional[bool] = False,
+            release: Optional[bool] = False,
     ) -> "Tool":
         meta = ComponentMetadata.as_tool(string)
         inst = cls(meta, root_path)

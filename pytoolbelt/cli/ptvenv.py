@@ -8,8 +8,8 @@ from pytoolbelt.core.error_handler import handle_cli_errors
 
 @handle_cli_errors
 def entrypoint(cliargs: Namespace) -> int:
-    params = c.VenvDefControllerParameters.from_cliargs(cliargs)
-    context = c.VenvDefContext(params)
+    params = c.PtVenvControllerParameters.from_cliargs(cliargs)
+    context = c.PtVenvContext(params)
     action = c.ACTIONS[params.action]["func"]
     return action(context)
 

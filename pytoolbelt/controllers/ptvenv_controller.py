@@ -5,64 +5,77 @@ from pytoolbelt.core.project import PtVenv
 
 
 @dataclass
-class VenvDefControllerParameters(BaseControllerParameters):
+class PtVenvControllerParameters(BaseControllerParameters):
     name: str
     repo_config: str
     all: bool
     force: bool
     part: str
+    build: bool
+    keep: bool
 
 
-class VenvDefContext:
-    def __init__(self, params: VenvDefControllerParameters) -> None:
+class PtVenvContext:
+    def __init__(self, params: PtVenvControllerParameters) -> None:
         self.params = params
 
 
-def new(context: VenvDefContext) -> int:
+def new(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, creation=True)
     ptvenv.create()
     return 0
 
 
-def build(context: VenvDefContext) -> int:
+def build(context: PtVenvContext) -> int:
     # TODO: review if the repo config here is really needed. I think it should be removed from GitCommands.
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
     ptvenv.build(context.params.force, context.params.repo_config)
     return 0
 
 
-def remove(context: VenvDefContext) -> int:
+def remove(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, deletion=True)
     ptvenv.delete(context.params.all)
     return 0
 
 
-def bump(context: VenvDefContext) -> int:
+def bump(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
     ptvenv.bump(context.params.part)
     return 0
 
 
-def release(context: VenvDefContext) -> int:
+def release(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
     ptvenv.release()
     return 0
 
 
-def releases(context: VenvDefContext) -> int:
+def releases(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name)
     ptvenv.releases(context.params.repo_config)
     return 0
 
 
-def installed(context: VenvDefContext) -> int:
+def installed(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name)
     ptvenv.installed()
     return 0
 
 
-COMMON_FLAGS = {}
+def fetch(context: PtVenvContext) -> int:
+    ptvenv = PtVenv.from_cli(context.params.name)
+    ptvenv.fetch(
+        repo_config_name=context.params.repo_config,
+        build=context.params.build,
+        force=context.params.force,
+        keep=context.params.keep,
 
+    )
+    return 0
+
+
+COMMON_FLAGS = {}
 
 ACTIONS = {
     "new": {
@@ -154,6 +167,35 @@ ACTIONS = {
                 "help": "Name of the ptvenv definition to list installed versions for.",
                 "required": False,
                 "default": "",
+            }
+        },
+    },
+    "fetch": {
+        "func": fetch,
+        "help": "Fetch the ptvenv definition from the remote git repository.",
+        "flags": {
+            "--name": {
+                "help": "Name of the ptvenv definition to fetch.",
+                "required": True,
+            },
+            "--repo-config": {
+                "help": "Name of the repo config to fetch the ptvenv definition from.",
+                "required": True
+            },
+            "--build": {
+                "help": "Build the ptvenv after fetching.",
+                "action": "store_true",
+                "default": False,
+            },
+            "--force": {
+                "help": "Force build after fetching.",
+                "action": "store_true",
+                "default": False,
+            },
+            "--keep": {
+                "help": "Keep the fetched ptvenv definition in the local project.",
+                "action": "store_true",
+                "default": False,
             }
         },
     },
