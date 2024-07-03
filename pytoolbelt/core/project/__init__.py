@@ -1,16 +1,18 @@
 import tempfile
-from typing import Optional
+from typing import Optional, Union
 from pathlib import Path
 import shutil
 from .project_components import ProjectPaths, ProjectTemplater
 from .ptvenv_components import PtVenvPaths, PtVenvTemplater, PtVenvBuilder, PtVenvConfig
+from .tool_components import ToolPaths, ToolTemplater, ToolConfig, ToolInstaller
 from pytoolbelt.core.tools.git_commands import GitCommands
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from semver import Version
-from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError
+from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError, ToolCreationError
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
+from pytoolbelt.core.prompts import exit_on_no
 
 
 class Project:
@@ -24,6 +26,58 @@ class Project:
         self.templater.template_new_project_files(overwrite)
         GitCommands.init_if_not_exists(self.paths.project_dir)
 
+    def release(self, component_paths: Union[PtVenvPaths, ToolPaths]) -> None:
+
+        if isinstance(component_paths, PtVenvPaths):
+            kind = "ptvenv"
+        elif isinstance(component_paths, ToolPaths):
+            kind = "tool"
+        else:
+            raise ValueError("Invalid component paths passed to release method.")
+
+        repo_config = self.paths.get_pytoolbelt_config().get_repo_config("default")
+        git_commands = GitCommands(repo_config)
+
+        # first fetch all remote tags if we don't have them
+        print("Fetching remote tags...")
+        git_commands.fetch_remote_tags()
+
+        # if we are not on the configured release branch, raise an error
+        # this will prevent tagging releases from non-release branches
+        print("Checking if we are on the release branch...")
+        git_commands.raise_if_not_release_branch()
+
+        # if we have uncommitted changes, raise an error. the local branch
+        # needs to be clean before tagging a release.
+        print("Checking for uncommitted changes...")
+        git_commands.raise_if_uncommitted_changes()
+
+        # if we have any untracked files, this would cause inconsistencies in the release tag
+        # and the files that have been added to the repo... so we raise an error here
+        print("Checking for untracked files...")
+        git_commands.raise_if_untracked_files()
+
+        # if the local release branch is behind the remote, raise an error
+        # which tells the user to pull the latest changes. This is to ensure
+        # that the changes in the release branch (likely master / main) have been merged
+        # into the release branch via PR before tagging a release.
+        print("Checking if the local and remote heads are the same...")
+        git_commands.raise_if_local_and_remote_head_are_different()
+
+        # get the local tags and pack them up into a dictionary as well
+        print("Getting local tags...")
+        local_tags = git_commands.get_local_tags(kind, as_names=True)
+
+        if component_paths.meta.release_tag not in local_tags:
+            print("Tagging release...")
+            git_commands.tag_release(component_paths.meta.release_tag)
+        else:
+            print(f"Release tag {component_paths.meta.release_tag} already exists. Nothing to do.")
+            return
+
+        print("Pushing tags to remote...")
+        git_commands.push_all_tags_to_remote()
+
 
 class PtVenv:
 
@@ -32,6 +86,10 @@ class PtVenv:
         self.paths = kwargs.get("paths", PtVenvPaths(meta, self.project_paths))
         self.templater = kwargs.get("templater", PtVenvTemplater(self.paths))
         self.builder = kwargs.get("builder", PtVenvBuilder(self.paths))
+
+    @classmethod
+    def from_ptvenv_paths(cls, paths: PtVenvPaths) -> "PtVenv":
+        return cls(paths.meta, paths.project_paths, paths=paths)
 
     @classmethod
     def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False,
@@ -53,7 +111,7 @@ class PtVenv:
                 return inst
 
         if build:
-            # this means we are building, and we passed in a version number in the format name==version
+            # this means we are building, or releasing a new version, and we passed in a version number in the format name==version
             if isinstance(meta.version, Version):
                 return inst
             config = PtVenvConfig.from_file(inst.paths.ptvenv_config_file)
@@ -152,13 +210,13 @@ class PtVenv:
                     f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
             if hashed_current_config != hashed_installed_config:
-                import pdb; pdb.set_trace()
                 raise PtVenvCreationError(
                     f"Warning 2: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has changed since install. "
                     f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
 
             if hashed_current_config == hashed_installed_config:
-                print(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
+                print(
+                    f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
                 return False
         return True
 
@@ -178,48 +236,9 @@ class PtVenv:
         config.version = str(next_version)
         self.paths.write_to_config_file(config)
 
-    def release(self, repo_config_name: str) -> None:
-        pytoolbelt_config = self.project_paths.get_pytoolbelt_config()
-        repo_config = pytoolbelt_config.get_repo_config(repo_config_name)
-
-        git_commands = GitCommands(repo_config)
-
-        # first fetch all remote tags if we don't have them
-        print("Fetching remote tags...")
-        git_commands.fetch_remote_tags()
-
-        # if we are not on the configured release branch, raise an error
-        # this will prevent tagging releases from non-release branches
-        print("Checking if we are on the release branch...")
-        git_commands.raise_if_not_release_branch()
-
-        # if we have uncommitted changes, raise an error. the local branch
-        # needs to be clean before tagging a release.
-        print("Checking for uncommitted changes...")
-        git_commands.raise_if_uncommitted_changes()
-
-        # if we have any untracked files, this would cause inconsistencies in the release tag
-        # and the files that have been added to the repo... so we raise an error here
-        print("Checking for untracked files...")
-        git_commands.raise_if_untracked_files()
-
-        # if the local release branch is behind the remote, raise an error
-        # which tells the user to pull the latest changes. This is to ensure
-        # that the changes in the release branch (likely master / main) have been merged
-        # into the release branch via PR before tagging a release.
-        print("Checking if the local and remote heads are the same...")
-        git_commands.raise_if_local_and_remote_head_are_different()
-
-        # get the local tags and pack them up into a dictionary as well
-        print("Getting local tags...")
-        local_tags = git_commands.get_local_tags("ptvenv")
-
-        if self.paths.meta.release_tag not in local_tags:
-            print("Tagging release...")
-            git_commands.tag_release(self.paths.meta.release_tag)
-
-        print("Pushing tags to remote...")
-        git_commands.push_all_tags_to_remote()
+    def release(self) -> None:
+        project = Project()
+        project.release(self.paths)
 
     def releases(self, repo_config_name: str) -> None:
         pytoolbelt_config = self.project_paths.get_pytoolbelt_config()
@@ -238,7 +257,64 @@ class PtVenv:
     def installed(self) -> None:
         table = PtVenvInstalledTableView()
         installed_ptvenvs = list(self.project_paths.iter_installed_ptvenvs())
-        installed_ptvenvs.sort(key=lambda x: (x.version, x.name),reverse=True)
+        installed_ptvenvs.sort(key=lambda x: (x.version, x.name), reverse=True)
         for installed_ptvenv in installed_ptvenvs:
             table.add_row(installed_ptvenv.name, installed_ptvenv.version)
         table.print_table()
+
+
+class Tool:
+
+    def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
+        self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
+        self.paths = kwargs.get("paths", ToolPaths(meta, self.project_paths))
+        self.templater = kwargs.get("templater", ToolTemplater(self.paths))
+        self.installer = kwargs.get("installer", ToolInstaller(self.paths))
+
+    @classmethod
+    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False, release: Optional[bool] = False) -> "Tool":
+        meta = ComponentMetadata.as_tool(string)
+        inst = cls(meta, root_path)
+
+        if creation:
+            inst.paths.meta.version = Version.parse("0.0.1")
+            return inst
+
+        if release:
+            # this means we are building, or releasing a new version, and we passed in a version number in the format name==version
+            if isinstance(meta.version, Version):
+                return inst
+            config = ToolConfig.from_file(inst.paths.tool_config_file)
+            inst.paths.meta.version = config.version
+            return inst
+
+        return inst
+
+    def raise_if_exists(self) -> None:
+        if self.paths.tool_dir.exists():
+            raise ToolCreationError(f"A tool named '{self.paths.meta.name}' already exists in this project.")
+
+    def create(self) -> None:
+        self.raise_if_exists()
+        self.paths.create()
+        self.templater.template_new_tool_files()
+
+    def install(self, repo_config: str) -> None:
+        tool_config = ToolConfig.from_file(self.paths.tool_config_file)
+        ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.project_paths)
+
+        if not ptvenv_paths.install_dir.exists():
+            exit_on_no(f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?", "Unable to install tool. Exiting.")
+            ptvenv = PtVenv.from_ptvenv_paths(ptvenv_paths)
+            ptvenv.build(force=False, repo_config=repo_config)
+        self.installer.install(ptvenv_paths.python_executable_path.as_posix())
+
+    def remove(self) -> None:
+        if self.paths.install_path.exists():
+            self.paths.install_path.unlink()
+        else:
+            raise ToolCreationError(f"Tool {self.paths.meta.name} does not exist.")
+
+    def release(self) -> None:
+        project = Project()
+        project.release(self.paths)

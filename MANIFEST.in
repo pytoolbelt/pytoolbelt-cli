@@ -1,1 +1,1 @@
-include pytoolbelt/templates
+recursive-include pytoolbelt/templates *

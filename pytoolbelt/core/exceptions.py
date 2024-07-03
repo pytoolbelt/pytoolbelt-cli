@@ -32,3 +32,6 @@ class PtVenvCreationError(Exception):
 
 class PtVenvNotFoundError(Exception):
     pass
+
+class ToolCreationError(Exception):
+    pass

@@ -2,19 +2,19 @@ import zipapp
 
 import yaml
 
-from pytoolbelt.bases.basepaths import BasePaths
+from pytoolbelt.bases.base_paths import BasePaths
 from pathlib import Path
 from typing import Optional, List
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from semver import Version
-from pytoolbelt.bases.basetemplater import BaseTemplater
+from pytoolbelt.bases.base_templater import BaseTemplater
 from pydantic import BaseModel
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 
 
 class PtVenv(BaseModel):
     name: str
     version: str
-    source: str
 
 
 class ToolConfig(BaseModel):
@@ -22,38 +22,40 @@ class ToolConfig(BaseModel):
     version: str
     ptvenv: PtVenv
 
+    @classmethod
+    def from_file(cls, file: Path) -> "ToolConfig":
+        with file.open("r") as f:
+            raw_yaml = yaml.safe_load(f)["tool"]
+            ptvenv = PtVenv(**raw_yaml["ptvenv"])
+            return cls(
+                name=raw_yaml["name"],
+                version=raw_yaml["version"],
+                ptvenv=ptvenv
+            )
+
 
 class ToolPaths(BasePaths):
 
-    def __init__(self, name: str, root_path: Optional[Path] = None, version: Optional[Version] = None, load_version: Optional[bool] = False) -> None:
-        super().__init__(root_path=root_path or PYTOOLBELT_PROJECT_ROOT, name=name, kind="tool")
-        if version and load_version:
-            raise ValueError("Cannot specify both version and load_version")
-
-        self._version = version or Version.parse("0.0.0")
-
-        if load_version:
-            self.load_version_from_config()
+    def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
+        self._meta = meta
+        self._project_paths = project_paths
+        super().__init__(project_paths.root_path)
 
     @property
-    def version(self) -> Version:
-        return self._version
-
-    @version.setter
-    def version(self, version: Version) -> None:
-        self._version = version
+    def project_paths(self) -> "ProjectPaths":
+        return self._project_paths
 
     @property
-    def tools_root_dir(self) -> Path:
-        return self.root_path / "tools"
+    def meta(self) -> ComponentMetadata:
+        return self._meta
 
     @property
     def tool_dir(self) -> Path:
-        return self.tools_root_dir / self.name
+        return self.project_paths.tools_dir / self.meta.name
 
     @property
     def tool_code_dir(self) -> Path:
-        return self.tool_dir / self.name
+        return self.tool_dir / self.meta.name
 
     @property
     def cli_dir(self) -> Path:
@@ -85,12 +87,11 @@ class ToolPaths(BasePaths):
 
     @property
     def install_path(self) -> Path:
-        return Path.home() / ".pytoolbelt" / "tools" / self.name
+        return Path.home() / ".pytoolbelt" / "tools" / self.meta.name
 
     @property
     def new_directories(self) -> List[Path]:
         return [
-            self.tools_root_dir,
             self.tool_dir,
             self.tool_code_dir,
             self.cli_dir,
@@ -106,23 +107,20 @@ class ToolPaths(BasePaths):
             self.cli_entrypoints_file
         ]
 
-    @property
-    def release_tag(self) -> str:
-        return f"{self.kind}-{self.name}-{str(self.version)}"
-
-    def get_tool_config(self) -> ToolConfig:
-        with self.tool_config_file.open("r") as f:
-            raw_yaml = yaml.safe_load(f)["tool"]
-            ptvenv = PtVenv(**raw_yaml["ptvenv"])
-            return ToolConfig(
-                name=raw_yaml["name"],
-                version=raw_yaml["version"],
-                ptvenv=ptvenv
-            )
-
-    def load_version_from_config(self) -> None:
-        config = self.get_tool_config()
-        self.version = Version.parse(config.version)
+    # TODO: this likely belongs somewhere else....
+    # def get_tool_config(self) -> ToolConfig:
+    #     with self.tool_config_file.open("r") as f:
+    #         raw_yaml = yaml.safe_load(f)["tool"]
+    #         ptvenv = PtVenv(**raw_yaml["ptvenv"])
+    #         return ToolConfig(
+    #             name=raw_yaml["name"],
+    #             version=raw_yaml["version"],
+    #             ptvenv=ptvenv
+    #         )
+    #
+    # def load_version_from_config(self) -> None:
+    #     config = self.get_tool_config()
+    #     self.version = Version.parse(config.version)
 
 
 class ToolTemplater(BaseTemplater):
@@ -146,8 +144,9 @@ class ToolInstaller:
     def install(self, interpreter: str) -> None:
         with self.paths.install_path.open("wb") as target:
             zipapp.create_archive(
-                source=self.paths.tool_code_dir,
+                source=self.paths.tool_dir,
                 target=target,
-                interpreter=interpreter
+                interpreter=interpreter,
+                main=self.paths.meta.name + ".__main__:main"
             )
         self.paths.install_path.chmod(0o755)

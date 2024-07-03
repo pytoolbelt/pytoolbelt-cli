@@ -12,7 +12,6 @@ from semver import Version
 from pytoolbelt.core.tools import hash_config
 
 
-
 class PtVenvConfig(BaseModel):
 
     class Config:
@@ -50,6 +49,13 @@ class PtVenvPaths(BasePaths):
         self._meta = meta
         self._project_paths = project_paths
         super().__init__(project_paths.root_path)
+
+    @classmethod
+    def from_tool_config(cls, tool_config: "ToolConfig", project_paths: "ProjectPaths") -> "PtVenvPaths":
+        return cls(
+            ComponentMetadata(name=tool_config.ptvenv.name, version=tool_config.ptvenv.version, kind="ptvenv"),
+            project_paths
+        )
 
     @property
     def ptvenv_filename(self) -> str:
@@ -186,7 +192,12 @@ class PtVenvBuilder:
         result = subprocess.run(self.install_requirements_command)
 
         if result.returncode != 0:
+            self.remove_build_on_failure()
             raise PythonEnvBuildError(f"Failed to install requirements for python environment {self.ptvenv.name}")
+
+    def remove_build_on_failure(self) -> None:
+        if self.paths.install_version_dir.exists():
+            shutil.rmtree(self.paths.install_version_dir)
 
     def build(self) -> None:
         self.load_config()
@@ -194,6 +205,7 @@ class PtVenvBuilder:
         result = subprocess.run(self.create_command)
 
         if result.returncode != 0:
+            self.remove_build_on_failure()
             raise PythonEnvBuildError(f"Failed to create the python virtual environment {self.ptvenv.name}")
 
         if self.ptvenv.requirements:

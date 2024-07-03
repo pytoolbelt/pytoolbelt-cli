@@ -1,11 +1,6 @@
-import tempfile
 from dataclasses import dataclass
 from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
-from pytoolbelt.controllers.validation.name_validation import ParsePtVenvMeta
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.project import PtVenv
-# from pytoolbelt.core.project.project import ProjectPaths
-# from pytoolbelt.core.git_commands import GitCommands
 
 
 @dataclass
@@ -49,7 +44,7 @@ def bump(context: VenvDefContext) -> int:
 
 def release(context: VenvDefContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
-    ptvenv.release(context.params.repo_config)
+    ptvenv.release()
     return 0
 
 
@@ -134,11 +129,6 @@ ACTIONS = {
                 "help": "Name of the ptvenv definition to release.",
                 "required": True,
             },
-            "--repo-config": {
-                "help": "Name of the repo config to use for the release.",
-                "required": False,
-                "default": "default",
-            }
         },
     },
     "releases": {

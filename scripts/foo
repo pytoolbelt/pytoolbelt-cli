@@ -1,0 +1,3 @@
+#! /Users/maitland/workspaces/pytoolbelt/venv/bin/python
+import sys
+print(sys.argv)
