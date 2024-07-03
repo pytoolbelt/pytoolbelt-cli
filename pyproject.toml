@@ -43,5 +43,8 @@ upload_to_pypi = false
 [tool.black]
 line_length = 120
 
+[tool.isort]
+profile = "black"
+
 [tool.setuptools.packages.find]
 exclude = ["tests*"]

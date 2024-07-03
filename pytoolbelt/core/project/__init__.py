@@ -6,8 +6,11 @@ from typing import Optional, Union
 from semver import Version
 
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.exceptions import (PtVenvCreationError,
-                                        PtVenvNotFoundError, ToolCreationError)
+from pytoolbelt.core.exceptions import (
+    PtVenvCreationError,
+    PtVenvNotFoundError,
+    ToolCreationError,
+)
 from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_commands import GitCommands
@@ -15,10 +18,8 @@ from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
 
 from .project_components import ProjectPaths, ProjectTemplater
-from .ptvenv_components import (PtVenvBuilder, PtVenvConfig, PtVenvPaths,
-                                PtVenvTemplater)
-from .tool_components import (ToolConfig, ToolInstaller, ToolPaths,
-                              ToolTemplater)
+from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
+from .tool_components import ToolConfig, ToolInstaller, ToolPaths, ToolTemplater
 
 
 class Project:

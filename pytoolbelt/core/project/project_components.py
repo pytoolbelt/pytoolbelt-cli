@@ -5,8 +5,10 @@ from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
-from pytoolbelt.environment.config import (PYTOOLBELT_PROJECT_ROOT,
-                                           PYTOOLBELT_VENV_INSTALL_DIR)
+from pytoolbelt.environment.config import (
+    PYTOOLBELT_PROJECT_ROOT,
+    PYTOOLBELT_VENV_INSTALL_DIR,
+)
 
 
 class ProjectPaths(BasePaths):

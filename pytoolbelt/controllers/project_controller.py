@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from pytoolbelt.controllers.bases.base_context import BaseContext
-from pytoolbelt.controllers.bases.base_parameters import \
-    BaseControllerParameters
+from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
 from pytoolbelt.core.project import Project
 
 

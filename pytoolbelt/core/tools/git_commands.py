@@ -6,9 +6,11 @@ from git.refs import TagReference
 from semver import Version
 
 from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
-from pytoolbelt.core.exceptions import (NotOnReleaseBranchError,
-                                        UnableToReleaseError,
-                                        UncommittedChangesError)
+from pytoolbelt.core.exceptions import (
+    NotOnReleaseBranchError,
+    UnableToReleaseError,
+    UncommittedChangesError,
+)
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
