@@ -1,7 +1,8 @@
-from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
-from pytoolbelt.core.project import Tool
-
 from dataclasses import dataclass
+
+from pytoolbelt.controllers.bases.base_parameters import \
+    BaseControllerParameters
+from pytoolbelt.core.project import Tool
 
 
 @dataclass
@@ -136,12 +137,7 @@ ACTIONS = {
     "new": {
         "func": new,
         "help": "Create a new tool",
-        "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True
-            }
-        }
+        "flags": {"--name": {"help": "Name of the tool", "required": True}},
     },
     "install": {
         "func": install,
@@ -151,7 +147,7 @@ ACTIONS = {
                 "help": "Name of the tool",
                 "required": True,
             }
-        }
+        },
     },
     "remove": {
         "func": remove,
@@ -161,7 +157,7 @@ ACTIONS = {
                 "help": "Name of the tool",
                 "required": True,
             }
-        }
+        },
     },
     "release": {
         "func": release,
@@ -171,7 +167,7 @@ ACTIONS = {
                 "help": "Name of the tool",
                 "required": True,
             }
-        }
+        },
     },
     # "release": {
     #     "func": release,

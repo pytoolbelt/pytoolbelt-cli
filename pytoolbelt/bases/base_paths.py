@@ -1,11 +1,13 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List
-from abc import ABC, abstractmethod
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT, PYTOOLBELT_PTVENV_ROOT, PYTOOLBELT_TOOLS_ROOT
+
+from pytoolbelt.environment.config import (PYTOOLBELT_PROJECT_ROOT,
+                                           PYTOOLBELT_PTVENV_ROOT,
+                                           PYTOOLBELT_TOOLS_ROOT)
 
 
 class BasePaths(ABC):
-
     def __init__(self, root_path: Path) -> None:
         self._root_path = root_path
 

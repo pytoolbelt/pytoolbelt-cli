@@ -1,19 +1,20 @@
-import subprocess
-import yaml
 import shutil
-from pydantic import BaseModel
-from typing import List, Optional
-from pytoolbelt.bases.base_paths import BasePaths
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+import subprocess
 from pathlib import Path
-from pytoolbelt.bases.base_templater import BaseTemplater
-from pytoolbelt.core.exceptions import PythonEnvBuildError
+from typing import List, Optional
+
+import yaml
+from pydantic import BaseModel
 from semver import Version
+
+from pytoolbelt.bases.base_paths import BasePaths
+from pytoolbelt.bases.base_templater import BaseTemplater
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.exceptions import PythonEnvBuildError
 from pytoolbelt.core.tools import hash_config
 
 
 class PtVenvConfig(BaseModel):
-
     class Config:
         arbitrary_types_allowed = True
 
@@ -34,7 +35,7 @@ class PtVenvConfig(BaseModel):
             "name": self.name,
             "version": str(self.version),
             "python_version": self.python_version,
-            "requirements": self.requirements
+            "requirements": self.requirements,
         }
 
 
@@ -44,7 +45,6 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class PtVenvPaths(BasePaths):
-
     def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
         self._meta = meta
         self._project_paths = project_paths
@@ -54,7 +54,7 @@ class PtVenvPaths(BasePaths):
     def from_tool_config(cls, tool_config: "ToolConfig", project_paths: "ProjectPaths") -> "PtVenvPaths":
         return cls(
             ComponentMetadata(name=tool_config.ptvenv.name, version=tool_config.ptvenv.version, kind="ptvenv"),
-            project_paths
+            project_paths,
         )
 
     @property
@@ -91,10 +91,7 @@ class PtVenvPaths(BasePaths):
 
     @property
     def new_files(self) -> List[Path]:
-        return [
-            self.ptvenv_config_file,
-            self.ptvenv_readme_file
-        ]
+        return [self.ptvenv_config_file, self.ptvenv_readme_file]
 
     @property
     def install_root_dir(self) -> Path:
@@ -146,7 +143,6 @@ class PtVenvPaths(BasePaths):
 
 
 class PtVenvTemplater(BaseTemplater):
-
     def __init__(self, paths: PtVenvPaths):
         super().__init__()
         self.paths = paths
@@ -158,28 +154,17 @@ class PtVenvTemplater(BaseTemplater):
 
 
 class PtVenvBuilder:
-
     def __init__(self, paths: PtVenvPaths):
         self.paths = paths
         self.ptvenv = None
 
     @property
     def create_command(self) -> List[str]:
-        return [
-            f"python{self.ptvenv.python_version}",
-            "-m",
-            "venv",
-            self.paths.install_dir.as_posix(),
-            "--clear"
-        ]
+        return [f"python{self.ptvenv.python_version}", "-m", "venv", self.paths.install_dir.as_posix(), "--clear"]
 
     @property
     def install_requirements_command(self) -> List[str]:
-        return [
-            self.paths.pip_executable_path.as_posix(),
-            "install",
-            *self.ptvenv.requirements
-        ]
+        return [self.paths.pip_executable_path.as_posix(), "install", *self.ptvenv.requirements]
 
     def load_config(self) -> None:
         self.ptvenv = PtVenvConfig.from_file(self.paths.ptvenv_config_file)

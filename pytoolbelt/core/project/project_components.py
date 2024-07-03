@@ -1,14 +1,15 @@
 from pathlib import Path
 from typing import List, Optional
+
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
-from pytoolbelt.environment.config import PYTOOLBELT_VENV_INSTALL_DIR, PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
+from pytoolbelt.environment.config import (PYTOOLBELT_PROJECT_ROOT,
+                                           PYTOOLBELT_VENV_INSTALL_DIR)
 
 
 class ProjectPaths(BasePaths):
-
     def __init__(self, project_root: Optional[Path] = None) -> None:
         project_root = project_root or PYTOOLBELT_PROJECT_ROOT
         super().__init__(root_path=project_root)
@@ -102,7 +103,6 @@ class ProjectPaths(BasePaths):
 
 
 class ProjectTemplater(BaseTemplater):
-
     def __init__(self, paths: ProjectPaths) -> None:
         super().__init__()
         self.paths = paths

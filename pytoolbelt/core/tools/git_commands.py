@@ -1,15 +1,18 @@
-from git import Repo
 from pathlib import Path
-from typing import Optional, List, Tuple, Union
-from pytoolbelt.core.exceptions import NotOnReleaseBranchError, UncommittedChangesError, UnableToReleaseError
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
+from typing import List, Optional, Tuple, Union
+
+from git import Repo
 from git.refs import TagReference
 from semver import Version
 
+from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
+from pytoolbelt.core.exceptions import (NotOnReleaseBranchError,
+                                        UnableToReleaseError,
+                                        UncommittedChangesError)
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
+
 
 class GitCommands:
-
     def __init__(self, repo_config: RepoConfig, root_path: Optional[Path] = None, repo: Optional[Repo] = None) -> None:
         self.repo = repo or Repo(root_path or PYTOOLBELT_PROJECT_ROOT)
         self.repo_config = repo_config
@@ -35,26 +38,36 @@ class GitCommands:
     def raise_if_not_release_branch(self) -> None:
         if not self.is_release_branch():
             current_branch = self.get_current_branch()
-            raise NotOnReleaseBranchError(f"{current_branch} branch is not the configured release branch {self.repo_config.release_branch}")
+            raise NotOnReleaseBranchError(
+                f"{current_branch} branch is not the configured release branch {self.repo_config.release_branch}"
+            )
 
     def raise_if_untracked_files(self) -> None:
 
         if self.has_untracked_files_in_directory("ptvenv"):
-            raise UncommittedChangesError("Repo has untracked files in the ptvenv directory. Please commit your changes before tagging a release.")
+            raise UncommittedChangesError(
+                "Repo has untracked files in the ptvenv directory. Please commit your changes before tagging a release."
+            )
 
         if self.has_untracked_files_in_directory("tools"):
-            raise UncommittedChangesError("Repo has untracked files in the tools directory. Please commit your changes before tagging a release.")
+            raise UncommittedChangesError(
+                "Repo has untracked files in the tools directory. Please commit your changes before tagging a release."
+            )
 
     def raise_if_uncommitted_changes(self) -> None:
         if self.repo.is_dirty():
-            raise UncommittedChangesError("Repo has uncommited changes. Please commit your changes before tagging a release.")
+            raise UncommittedChangesError(
+                "Repo has uncommited changes. Please commit your changes before tagging a release."
+            )
 
     def raise_if_local_and_remote_head_are_different(self) -> None:
         self.repo.remotes.origin.fetch()
         current_branch = self.get_current_branch()
 
         if self.repo.head.commit.hexsha != self.repo.commit(f"origin/{current_branch}").hexsha:
-            raise UnableToReleaseError("Local and remote HEAD are different. Please pull / push the latest changes before tagging a release.")
+            raise UnableToReleaseError(
+                "Local and remote HEAD are different. Please pull / push the latest changes before tagging a release."
+            )
 
     def tag_release(self, tag_name: str) -> TagReference:
         return self.repo.create_tag(tag_name)
@@ -99,7 +112,7 @@ class GitCommands:
 
         for tag_ref in tag_refs:
             try:
-                prefix, name, version = tag_ref.name.split('-', 2)
+                prefix, name, version = tag_ref.name.split("-", 2)
                 if target_name and name != target_name:
                     continue
             except ValueError:

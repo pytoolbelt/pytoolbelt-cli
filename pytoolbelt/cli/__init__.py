@@ -1,6 +1,6 @@
 import argparse
-from pytoolbelt.cli import project, add_path, ptvenv, tool
 
+from pytoolbelt.cli import add_path, project, ptvenv, tool
 
 __version__ = "0.0.0"
 

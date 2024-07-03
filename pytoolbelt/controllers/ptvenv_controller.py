@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
+
+from pytoolbelt.controllers.bases.base_parameters import \
+    BaseControllerParameters
 from pytoolbelt.core.project import PtVenv
 
 
@@ -24,7 +26,7 @@ def new(context: VenvDefContext) -> int:
 
 
 def build(context: VenvDefContext) -> int:
-    #TODO: review if the repo config here is really needed. I think it should be removed from GitCommands.
+    # TODO: review if the repo config here is really needed. I think it should be removed from GitCommands.
     ptvenv = PtVenv.from_cli(context.params.name, build=True)
     ptvenv.build(context.params.force, context.params.repo_config)
     return 0
@@ -73,7 +75,6 @@ ACTIONS = {
                 "required": True,
             }
         },
-
     },
     "build": {
         "func": build,
@@ -87,7 +88,7 @@ ACTIONS = {
                 "help": "Force rebuild of the ptvenv even if it already exists or has been changed.",
                 "action": "store_true",
                 "default": False,
-            }
+            },
         },
     },
     "remove": {
@@ -102,7 +103,7 @@ ACTIONS = {
                 "help": "Remove all versions of the ptvenv definition.",
                 "action": "store_true",
                 "default": False,
-            }
+            },
         },
     },
     "bump": {
@@ -117,8 +118,8 @@ ACTIONS = {
                 "help": "Part of the version to bump. (major, minor, patch, prerelease)",
                 "required": False,
                 "default": "patch",
-                "choices": ["major", "minor", "patch", "prerelease"]
-            }
+                "choices": ["major", "minor", "patch", "prerelease"],
+            },
         },
     },
     "release": {
@@ -143,8 +144,8 @@ ACTIONS = {
                 "help": "Name of the repo config to list the releases for.",
                 "required": False,
                 "default": "default",
-            }
-        }
+            },
+        },
     },
     "installed": {
         "func": installed,
@@ -155,6 +156,6 @@ ACTIONS = {
                 "required": False,
                 "default": "",
             }
-        }
-    }
+        },
+    },
 }

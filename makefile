@@ -41,6 +41,12 @@ check-format:          ## Run black linter to check formatting of project files
 test:                  ## Run project tests using pytest
 	. venv/bin/activate && python -m pytest ${TEST_DIR} -p no:warnings -s
 
+
+.PHONY: sort-imports
+sort-imports:          ## Sort imports in project files
+	. venv/bin/activate && python -m isort ${PROJECT_DIR} ${TEST_DIR}
+
+
 .PHONY: qa
 qa:                    ## Run both linter and pytest together
 	make test

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
-import yaml
-from pydantic import BaseModel
-from dotenv import load_dotenv
 
+import yaml
+from dotenv import load_dotenv
+from pydantic import BaseModel
 
 # project paths used for project creation and tool development
 PYTOOLBELT_PROJECT_ROOT = Path.cwd()
@@ -21,15 +21,9 @@ PYTOOLBELT_TOOLS_INSTALL_DIR = Path.home() / ".pytoolbelt" / "tools"
 # used to set the path to the project config file
 # default is the current directory's pytoolbelt.yml file
 # however this can be set to an arbitrary path
-PYTOOLBELT_PROJECT_CONFIG_FILE_PATH = Path(os.getenv(
-    "PYTOOLBELT_CONFIG_FILE_PATH",
-    PYTOOLBELT_DEFAULT_CONFIG_FILE
-))
+PYTOOLBELT_PROJECT_CONFIG_FILE_PATH = Path(os.getenv("PYTOOLBELT_CONFIG_FILE_PATH", PYTOOLBELT_DEFAULT_CONFIG_FILE))
 
-PYTOOLBELT_PROJECT_ENV_FILE_PATH = Path(os.getenv(
-    "PYTOOLBELT_ENV_FILE_PATH",
-    PYTOOLBELT_DEFAULT_ENV_FILE
-))
+PYTOOLBELT_PROJECT_ENV_FILE_PATH = Path(os.getenv("PYTOOLBELT_ENV_FILE_PATH", PYTOOLBELT_DEFAULT_ENV_FILE))
 
 
 # load the .env file if it exists

@@ -1,6 +1,8 @@
-from semver import Version
-from typing import Union, Optional
 from pathlib import Path
+from typing import Optional, Union
+
+from semver import Version
+
 from pytoolbelt.core.exceptions import CliArgumentError
 
 

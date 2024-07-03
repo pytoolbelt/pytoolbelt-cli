@@ -1,15 +1,15 @@
 import zipapp
+from pathlib import Path
+from typing import List, Optional
 
 import yaml
+from pydantic import BaseModel
+from semver import Version
 
 from pytoolbelt.bases.base_paths import BasePaths
-from pathlib import Path
-from typing import Optional, List
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from semver import Version
 from pytoolbelt.bases.base_templater import BaseTemplater
-from pydantic import BaseModel
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
 class PtVenv(BaseModel):
@@ -27,15 +27,10 @@ class ToolConfig(BaseModel):
         with file.open("r") as f:
             raw_yaml = yaml.safe_load(f)["tool"]
             ptvenv = PtVenv(**raw_yaml["ptvenv"])
-            return cls(
-                name=raw_yaml["name"],
-                version=raw_yaml["version"],
-                ptvenv=ptvenv
-            )
+            return cls(name=raw_yaml["name"], version=raw_yaml["version"], ptvenv=ptvenv)
 
 
 class ToolPaths(BasePaths):
-
     def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
         self._meta = meta
         self._project_paths = project_paths
@@ -104,7 +99,7 @@ class ToolPaths(BasePaths):
             self.readme_md_file,
             self.dunder_main_file,
             self.dunder_cli_init_file,
-            self.cli_entrypoints_file
+            self.cli_entrypoints_file,
         ]
 
     # TODO: this likely belongs somewhere else....
@@ -124,7 +119,6 @@ class ToolPaths(BasePaths):
 
 
 class ToolTemplater(BaseTemplater):
-
     def __init__(self, paths: ToolPaths) -> None:
         super().__init__()
         self.paths = paths
@@ -137,7 +131,6 @@ class ToolTemplater(BaseTemplater):
 
 
 class ToolInstaller:
-
     def __init__(self, paths: ToolPaths) -> None:
         self.paths = paths
 
@@ -147,6 +140,6 @@ class ToolInstaller:
                 source=self.paths.tool_dir,
                 target=target,
                 interpreter=interpreter,
-                main=self.paths.meta.name + ".__main__:main"
+                main=self.paths.meta.name + ".__main__:main",
             )
         self.paths.install_path.chmod(0o755)

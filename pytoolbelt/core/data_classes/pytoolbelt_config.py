@@ -1,7 +1,9 @@
 import os
+from typing import Dict, Optional
+
 import yaml
 from pydantic import BaseModel
-from typing import Dict, Optional
+
 from pytoolbelt.core.exceptions import RepoConfigNotFoundError
 
 

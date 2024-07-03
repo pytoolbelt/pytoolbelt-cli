@@ -1,7 +1,8 @@
 from typing import Generic, TypeVar
+
 from .base_parameters import BaseControllerParameters
 
-T = TypeVar('T', bound=BaseControllerParameters)
+T = TypeVar("T", bound=BaseControllerParameters)
 
 
 class BaseContext(Generic[T]):

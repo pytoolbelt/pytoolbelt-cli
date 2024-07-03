@@ -1,22 +1,27 @@
-import tempfile
-from typing import Optional, Union
-from pathlib import Path
 import shutil
-from .project_components import ProjectPaths, ProjectTemplater
-from .ptvenv_components import PtVenvPaths, PtVenvTemplater, PtVenvBuilder, PtVenvConfig
-from .tool_components import ToolPaths, ToolTemplater, ToolConfig, ToolInstaller
-from pytoolbelt.core.tools.git_commands import GitCommands
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+import tempfile
+from pathlib import Path
+from typing import Optional, Union
+
 from semver import Version
-from pytoolbelt.core.exceptions import PtVenvCreationError, PtVenvNotFoundError, ToolCreationError
+
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.exceptions import (PtVenvCreationError,
+                                        PtVenvNotFoundError, ToolCreationError)
+from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools import hash_config
+from pytoolbelt.core.tools.git_commands import GitCommands
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
-from pytoolbelt.core.prompts import exit_on_no
+
+from .project_components import ProjectPaths, ProjectTemplater
+from .ptvenv_components import (PtVenvBuilder, PtVenvConfig, PtVenvPaths,
+                                PtVenvTemplater)
+from .tool_components import (ToolConfig, ToolInstaller, ToolPaths,
+                              ToolTemplater)
 
 
 class Project:
-
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
         self.paths = kwargs.get("paths", ProjectPaths(project_root=root_path))
         self.templater = kwargs.get("templater", ProjectTemplater(self.paths))
@@ -80,7 +85,6 @@ class Project:
 
 
 class PtVenv:
-
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
         self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
         self.paths = kwargs.get("paths", PtVenvPaths(meta, self.project_paths))
@@ -92,8 +96,14 @@ class PtVenv:
         return cls(paths.meta, paths.project_paths, paths=paths)
 
     @classmethod
-    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False,
-                 deletion: Optional[bool] = False, build: Optional[bool] = False) -> "PtVenv":
+    def from_cli(
+        cls,
+        string: str,
+        root_path: Optional[Path] = None,
+        creation: Optional[bool] = False,
+        deletion: Optional[bool] = False,
+        build: Optional[bool] = False,
+    ) -> "PtVenv":
         meta = ComponentMetadata.as_ptvenv(string)
         inst = cls(meta, root_path)
 
@@ -207,16 +217,19 @@ class PtVenv:
             if installed_hash != hashed_installed_config:
                 raise PtVenvCreationError(
                     f"Warning 1: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has been modified since install. "
-                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
+                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition."
+                )
 
             if hashed_current_config != hashed_installed_config:
                 raise PtVenvCreationError(
                     f"Warning 2: ptvenv definition for {self.paths.meta.name} version {self.paths.meta.version} has changed since install. "
-                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition.")
+                    f"Please run 'ptvenv build --force' to rebuild the environment. This will replace {self.paths.meta.name} version {self.paths.meta.version} with the new version definition."
+                )
 
             if hashed_current_config == hashed_installed_config:
                 print(
-                    f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
+                    f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date."
+                )
                 return False
         return True
 
@@ -228,7 +241,8 @@ class PtVenv:
                 shutil.rmtree(self.paths.install_dir.parent)
         else:
             raise PtVenvNotFoundError(
-                f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed.")
+                f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed."
+            )
 
     def bump(self, part: str) -> None:
         config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
@@ -264,7 +278,6 @@ class PtVenv:
 
 
 class Tool:
-
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
         self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
         self.paths = kwargs.get("paths", ToolPaths(meta, self.project_paths))
@@ -272,7 +285,13 @@ class Tool:
         self.installer = kwargs.get("installer", ToolInstaller(self.paths))
 
     @classmethod
-    def from_cli(cls, string: str, root_path: Optional[Path] = None, creation: Optional[bool] = False, release: Optional[bool] = False) -> "Tool":
+    def from_cli(
+        cls,
+        string: str,
+        root_path: Optional[Path] = None,
+        creation: Optional[bool] = False,
+        release: Optional[bool] = False,
+    ) -> "Tool":
         meta = ComponentMetadata.as_tool(string)
         inst = cls(meta, root_path)
 
@@ -304,7 +323,10 @@ class Tool:
         ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.project_paths)
 
         if not ptvenv_paths.install_dir.exists():
-            exit_on_no(f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?", "Unable to install tool. Exiting.")
+            exit_on_no(
+                f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?",
+                "Unable to install tool. Exiting.",
+            )
             ptvenv = PtVenv.from_ptvenv_paths(ptvenv_paths)
             ptvenv.build(force=False, repo_config=repo_config)
         self.installer.install(ptvenv_paths.python_executable_path.as_posix())
