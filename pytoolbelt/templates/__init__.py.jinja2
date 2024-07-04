@@ -1,8 +1,9 @@
-from pytoolbelt.toolkit.utils import parse_args_from_commands
+from pytoolbelt.toolkit.clitools import PyToolBeltCommand
+from pytoolbelt.toolkit.config import
 from . import entrypoints
 
 __version__ = "0.0.0"
 
 
 def parse_args():
-    return parse_args_from_commands(__version__, entrypoints)
+    return PyToolBeltCommand.parse(__version__, entrypoints)

@@ -73,6 +73,10 @@ class ToolPaths(BasePaths):
         return self.tool_code_dir / "__main__.py"
 
     @property
+    def package_init_file(self) -> Path:
+        return self.tool_code_dir / "__init__.py"
+
+    @property
     def dunder_cli_init_file(self) -> Path:
         return self.cli_dir / "__init__.py"
 
@@ -83,6 +87,18 @@ class ToolPaths(BasePaths):
     @property
     def install_path(self) -> Path:
         return Path.home() / ".pytoolbelt" / "tools" / self.meta.name
+
+    @property
+    def zipapp_path(self) -> Path:
+        return Path(f"{self.install_path.as_posix()}=={str(self.meta.version)}")
+
+    @property
+    def dev_install_path(self) -> Path:
+        return Path(f"{self.install_path.as_posix()}-dev")
+
+    @property
+    def dev_symlink_path(self) -> Path:
+        return self.install_path
 
     @property
     def new_directories(self) -> List[Path]:
@@ -98,24 +114,48 @@ class ToolPaths(BasePaths):
             self.tool_config_file,
             self.readme_md_file,
             self.dunder_main_file,
+            self.package_init_file,
             self.dunder_cli_init_file,
             self.cli_entrypoints_file,
         ]
 
-    # TODO: this likely belongs somewhere else....
-    # def get_tool_config(self) -> ToolConfig:
-    #     with self.tool_config_file.open("r") as f:
-    #         raw_yaml = yaml.safe_load(f)["tool"]
-    #         ptvenv = PtVenv(**raw_yaml["ptvenv"])
-    #         return ToolConfig(
-    #             name=raw_yaml["name"],
-    #             version=raw_yaml["version"],
-    #             ptvenv=ptvenv
-    #         )
-    #
-    # def load_version_from_config(self) -> None:
-    #     config = self.get_tool_config()
-    #     self.version = Version.parse(config.version)
+    def create_install_symlink(self) -> None:
+        if self.install_path.exists():
+            self.install_path.unlink()
+        self.install_path.symlink_to(self.zipapp_path)
+
+    def create_dev_sym_link(self) -> None:
+        if self.dev_symlink_path.exists():
+            self.dev_symlink_path.unlink()
+        self.dev_symlink_path.symlink_to(self.dev_install_path)
+
+    def remove_installed_tool(self) -> None:
+        self.install_path.unlink()
+        self.zipapp_path.unlink()
+
+    def remove_installed_dev_tool(self) -> None:
+        self.dev_symlink_path.unlink()
+        self.dev_install_path.unlink()
+
+
+class EntrypointShimTemplater(BaseTemplater):
+
+    def __init__(self, tool_paths: ToolPaths, interpreter: str) -> None:
+        self.tool_paths = tool_paths
+        self.interpreter = interpreter
+        super().__init__()
+
+    def get_template_kwargs(self) -> dict:
+        return {
+            "python_executable": self.interpreter,
+            "tool_path": self.tool_paths.tool_dir.as_posix(),
+            "tool_name": self.tool_paths.meta.name,
+        }
+
+    def write_entrypoint_shim(self) -> None:
+        content = self.render("entrypoint-shim.py.jinja2", **self.get_template_kwargs())
+        self.tool_paths.dev_install_path.touch(exist_ok=True)
+        self.tool_paths.dev_install_path.write_text(content)
 
 
 class ToolTemplater(BaseTemplater):
@@ -135,11 +175,18 @@ class ToolInstaller:
         self.paths = paths
 
     def install(self, interpreter: str) -> None:
-        with self.paths.install_path.open("wb") as target:
+        with self.paths.zipapp_path.open("wb") as target:
             zipapp.create_archive(
                 source=self.paths.tool_dir,
                 target=target,
                 interpreter=interpreter,
                 main=self.paths.meta.name + ".__main__:main",
             )
+        self.paths.create_install_symlink()
+        self.paths.zipapp_path.chmod(0o755)
+
+    def install_shim(self, interpreter: str) -> None:
+        shim_templater = EntrypointShimTemplater(self.paths, interpreter)
+        shim_templater.write_entrypoint_shim()
+        self.paths.create_dev_sym_link()
         self.paths.install_path.chmod(0o755)

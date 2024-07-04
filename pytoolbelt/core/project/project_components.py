@@ -8,6 +8,7 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
 from pytoolbelt.environment.config import (
     PYTOOLBELT_PROJECT_ROOT,
     PYTOOLBELT_VENV_INSTALL_DIR,
+    PYTOOLBELT_TOOLS_INSTALL_DIR
 )
 
 
@@ -60,6 +61,10 @@ class ProjectPaths(BasePaths):
     def venv_install_dir(self) -> Path:
         return PYTOOLBELT_VENV_INSTALL_DIR
 
+    @property
+    def tool_install_dir(self) -> Path:
+        return PYTOOLBELT_TOOLS_INSTALL_DIR
+
     def get_pytoolbelt_config(self) -> RepoConfigs:
         raw_data = self.pytoolbelt_config.read_text()
         return RepoConfigs.from_yml(raw_data)
@@ -73,15 +78,15 @@ class ProjectPaths(BasePaths):
                             yield ComponentMetadata(venv.name, version.name, "ptvenv")
                         yield ComponentMetadata(venv.name, version.name, "ptvenv")
 
-    # TODO: everything below here should be removed from this class.
-    # def ptvenv_defs(self) -> List[PtVenvPaths]:
-    #     return [PtVenvPaths(d.name) for d in self.ptvenvs_root.iterdir() if d.is_dir()]
-    #
-    # def tools(self) -> List[ToolPaths]:
-    #     return [ToolPaths(d.name, load_version=True) for d in self.tools_root.iterdir() if d.is_dir()]
-    #
+    def iter_installed_tools(self) -> List[ComponentMetadata]:
+        for tool in self.tool_install_dir.iterdir():
+            if tool.is_symlink():
+                links_to = tool.readlink().name
+                if links_to.endswith("dev"):
+                    yield ComponentMetadata(f"{tool.name} (dev-mode)", "latest", "tool")
+                else:
+                    yield ComponentMetadata.from_string(links_to, "tool")
 
-    #
     # def get_ptvenv_defs_to_tag(self, local_tags: dict) -> List[PtVenvPaths]:
     #     to_tag = []
     #     for ptvenv_def in self.ptvenv_defs():

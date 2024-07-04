@@ -8,6 +8,7 @@ from pytoolbelt.core.project import Tool
 class ToolControllerParameters(BaseControllerParameters):
     name: str
     repo_config: str
+    dev_mode: bool
 
 
 class ToolContext:
@@ -22,8 +23,14 @@ def new(context: ToolContext) -> int:
 
 
 def install(context: ToolContext) -> int:
-    tool = Tool.from_cli(context.params.name)
-    tool.install(repo_config="default")
+    tool = Tool.from_cli(context.params.name, release=True)
+    tool.install(repo_config="default", dev_mode=context.params.dev_mode)
+    return 0
+
+
+def installed(context: ToolContext) -> int:
+    tool = Tool.from_cli("")
+    tool.installed()
     return 0
 
 
@@ -145,8 +152,24 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the tool",
                 "required": True,
+            },
+            "--dev-mode": {
+                "help": "Install in dev mode",
+                "action": "store_true",
+                "default": False,
             }
         },
+    },
+    "installed": {
+        "func": installed,
+        "help": "List installed tools",
+        "flags": {
+            "--name": {
+                "help": "Name of the tool to list",
+                "required": False,
+                "default": "",
+            }
+        }
     },
     "remove": {
         "func": remove,

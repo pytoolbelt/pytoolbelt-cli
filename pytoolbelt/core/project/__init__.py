@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 from semver import Version
-
+from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.exceptions import (
     PtVenvCreationError,
@@ -17,7 +17,7 @@ from pytoolbelt.core.tools.git_client import GitClient
 # from pytoolbelt.core.tools.git_commands import GitCommands
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
-
+from pytoolbelt.views.tool_views import ToolInstalledTableView
 from .project_components import ProjectPaths, ProjectTemplater
 from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 from .tool_components import ToolConfig, ToolInstaller, ToolPaths, ToolTemplater
@@ -317,8 +317,6 @@ class PtVenv:
                     shutil.rmtree(self.paths.ptvenv_dir)
 
 
-
-
 class Tool:
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
         self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
@@ -360,18 +358,31 @@ class Tool:
         self.paths.create()
         self.templater.template_new_tool_files()
 
-    def install(self, repo_config: str) -> None:
+    def install(self, repo_config: str, dev_mode: bool) -> None:
         tool_config = ToolConfig.from_file(self.paths.tool_config_file)
         ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.project_paths)
 
         if not ptvenv_paths.install_dir.exists():
             exit_on_no(
-                f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?",
-                "Unable to install tool. Exiting.",
+                prompt_message=f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?",
+                exit_message="Unable to install tool. Exiting.",
             )
             ptvenv = PtVenv.from_ptvenv_paths(ptvenv_paths)
             ptvenv.build(force=False, repo_config=repo_config)
-        self.installer.install(ptvenv_paths.python_executable_path.as_posix())
+
+        if dev_mode:
+            self.installer.install_shim(ptvenv_paths.python_executable_path.as_posix())
+        else:
+            self.installer.install(ptvenv_paths.python_executable_path.as_posix())
+
+    def installed(self) -> None:
+        table = ToolInstalledTableView()
+        installed_tools = list(self.project_paths.iter_installed_tools())
+        installed_tools.sort(key=lambda x: (x.version, x.name), reverse=True)
+
+        for installed_tool in installed_tools:
+            table.add_row(installed_tool.name, installed_tool.version)
+        table.print_table()
 
     def remove(self) -> None:
         if self.paths.install_path.exists():
