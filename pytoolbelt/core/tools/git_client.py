@@ -86,6 +86,13 @@ class GitClient:
                 "Local and remote HEAD are different. Please pull / push the latest changes before tagging a release."
             )
 
+    def raise_on_release_attempt(self) -> None:
+        self.raise_if_not_release_branch()
+        self.raise_if_untracked_ptvenv()
+        self.raise_if_untracked_tools()
+        self.raise_if_uncommitted_changes()
+        self.raise_if_local_and_remote_head_are_different()
+
     def tag_release(self, tag_name: str) -> TagReference:
         return self.repo.create_tag(tag_name)
 
@@ -97,16 +104,6 @@ class GitClient:
 
     def fetch_remote_tags(self) -> None:
         self.repo.git.fetch("--tags", "origin")
-
-    def get_tags(self, kind: str, as_names: Optional[bool] = False) -> List[Union[TagReference, str]]:
-        local_tags = []
-        for tag in self.repo.tags:
-            if tag.name.startswith(kind):
-                if as_names:
-                    local_tags.append(tag.name)
-                else:
-                    local_tags.append(tag)
-        return local_tags
 
     def ptvenv_releases(self, name: Optional[str] = None, as_names: Optional[bool] = False) -> Union[List[TagReference], List[str]]:
         flt = self.get_tag_filter("ptvenv", name)
@@ -122,3 +119,6 @@ class GitClient:
 
     def get_tag_reference(self, tag_name: str) -> TagReference:
         return self.repo.tags[tag_name]
+
+    def checkout_tag(self, tag_ref: TagReference) -> None:
+        self.repo.git.checkout(tag_ref)

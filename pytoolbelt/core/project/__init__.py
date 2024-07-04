@@ -13,7 +13,8 @@ from pytoolbelt.core.exceptions import (
 )
 from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools import hash_config
-from pytoolbelt.core.tools.git_commands import GitCommands
+from pytoolbelt.core.tools.git_client import GitClient
+# from pytoolbelt.core.tools.git_commands import GitCommands
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
 
@@ -30,7 +31,7 @@ class Project:
     def create(self, overwrite: Optional[bool] = False) -> None:
         self.paths.create()
         self.templater.template_new_project_files(overwrite)
-        GitCommands.init_if_not_exists(self.paths.project_dir)
+        GitClient.init_if_not_exists(self.paths.project_dir)
 
     def release(self, component_paths: Union[PtVenvPaths, ToolPaths]) -> None:
 
@@ -42,47 +43,31 @@ class Project:
             raise ValueError("Invalid component paths passed to release method.")
 
         repo_config = self.paths.get_pytoolbelt_config().get_repo_config("default")
-        git_commands = GitCommands(repo_config)
+        git_client = GitClient.from_path(self.paths.root_path, repo_config)
 
         # first fetch all remote tags if we don't have them
         print("Fetching remote tags...")
-        git_commands.fetch_remote_tags()
+        git_client.fetch_remote_tags()
 
-        # if we are not on the configured release branch, raise an error
-        # this will prevent tagging releases from non-release branches
-        print("Checking if we are on the release branch...")
-        git_commands.raise_if_not_release_branch()
+        # run all the checks to ensure we can release
+        print("checking git release requirements...")
+        git_client.raise_on_release_attempt()
 
-        # if we have uncommitted changes, raise an error. the local branch
-        # needs to be clean before tagging a release.
-        print("Checking for uncommitted changes...")
-        git_commands.raise_if_uncommitted_changes()
+        try:
+            release_tags = getattr(git_client, f"{kind}_releases")(as_names=True)
+        except AttributeError:
+            raise ValueError("Invalid kind passed to release method.")
 
-        # if we have any untracked files, this would cause inconsistencies in the release tag
-        # and the files that have been added to the repo... so we raise an error here
-        print("Checking for untracked files...")
-        git_commands.raise_if_untracked_files()
-
-        # if the local release branch is behind the remote, raise an error
-        # which tells the user to pull the latest changes. This is to ensure
-        # that the changes in the release branch (likely master / main) have been merged
-        # into the release branch via PR before tagging a release.
-        print("Checking if the local and remote heads are the same...")
-        git_commands.raise_if_local_and_remote_head_are_different()
-
-        # get the local tags and pack them up into a dictionary as well
-        print("Getting local tags...")
-        local_tags = git_commands.get_local_tags(kind, as_names=True)
-
-        if component_paths.meta.release_tag not in local_tags:
-            print("Tagging release...")
-            git_commands.tag_release(component_paths.meta.release_tag)
-        else:
+        if component_paths.meta.release_tag in release_tags:
             print(f"Release tag {component_paths.meta.release_tag} already exists. Nothing to do.")
             return
 
+        # otherwise release the component
+        print("tagging release...")
+        git_client.tag_release(component_paths.meta.release_tag)
+
         print("Pushing tags to remote...")
-        git_commands.push_all_tags_to_remote()
+        git_client.push_tags_to_remote()
 
 
 class PtVenv:
