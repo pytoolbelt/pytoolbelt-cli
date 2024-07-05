@@ -9,7 +9,8 @@ from pytoolbelt.core.exceptions import RepoConfigNotFoundError
 
 class RepoConfig(BaseModel):
     url: str
-    secret: Optional[str] = None
+    owner: str
+    repo_name: str
     release_branch: Optional[str] = "master"
 
 

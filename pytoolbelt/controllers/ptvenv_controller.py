@@ -53,7 +53,7 @@ def release(context: PtVenvContext) -> int:
 
 def releases(context: PtVenvContext) -> int:
     ptvenv = PtVenv.from_cli(context.params.name)
-    ptvenv.releases(context.params.repo_config)
+    ptvenv.releases()
     return 0
 
 

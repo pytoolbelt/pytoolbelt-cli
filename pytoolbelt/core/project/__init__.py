@@ -14,9 +14,9 @@ from pytoolbelt.core.exceptions import (
 from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_client import GitClient
-# from pytoolbelt.core.tools.git_commands import GitCommands
+
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView
+from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
 from pytoolbelt.views.tool_views import ToolInstalledTableView
 from .project_components import ProjectPaths, ProjectTemplater
 from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
@@ -107,7 +107,8 @@ class PtVenv:
                 return inst
 
         if build:
-            # this means we are building, or releasing a new version, and we passed in a version number in the format name==version
+            # this means we are building, or releasing a new version,
+            # and we passed in a version number in the format name==version
             if isinstance(meta.version, Version):
                 return inst
             config = PtVenvConfig.from_file(inst.paths.ptvenv_config_file)
@@ -134,8 +135,7 @@ class PtVenv:
         self.paths.create()
         self.templater.template_new_venvdef_file()
 
-    def build(self, force: bool, repo_config: str) -> None:
-        kind = "ptvenv"
+    def build(self, force: bool) -> None:
         ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
 
         # this means we passed in some version number in the format name==version
@@ -143,13 +143,11 @@ class PtVenv:
         # we need to copy the entire repo to a temp dir, and check out the tag.
         # we can then install the environment from the temp dir, but we must construct new PtVenvPaths and a builder.
         if ptvenv_config.version != self.paths.meta.version:
-            pytoolbelt_repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config(repo_config)
-
-            git_commands = GitCommands(pytoolbelt_repo_config)
+            git_client = GitClient.from_path(self.project_paths.root_path)
 
             try:
-                tag_reference = git_commands.get_local_tag(tag_name=self.paths.meta.release_tag, kind=kind)
-            except ValueError:
+                tag_reference = git_client.get_tag_reference(self.paths.meta.release_tag)
+            except IndexError:
                 raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
 
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -160,13 +158,13 @@ class PtVenv:
                 shutil.copytree(src=PYTOOLBELT_PROJECT_ROOT, dst=tmp_path)
 
                 # get the git commands pointed at the temp repo
-                tmp_git_commands = GitCommands(pytoolbelt_repo_config, root_path=tmp_path)
+                tmp_git_client = GitClient.from_path(path=tmp_path)
 
                 # check out the tag in the temp repo
                 print(f"Checking out tag {tag_reference}")
-                tmp_git_commands.checkout_tag(tag_reference)
+                tmp_git_client.checkout_tag(tag_reference)
 
-                # create new paths and builder
+                # create new paths and builder pointed to the temp repo
                 tmp_project_paths = ProjectPaths(tmp_path)
                 tmp_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
                 tmp_ptvenv_config = PtVenvConfig.from_file(tmp_paths.ptvenv_config_file)
@@ -240,19 +238,16 @@ class PtVenv:
         project = Project()
         project.release(self.paths)
 
-    def releases(self, repo_config_name: str) -> None:
-        pytoolbelt_config = self.project_paths.get_pytoolbelt_config()
-        repo_config = pytoolbelt_config.get_repo_config(repo_config_name)
+    def releases(self) -> None:
+        # https://github.com/pytoolbelt/pytoolbelt-playground/tree/222fb90b677e0eb4ab942e66a9d382f244aa3816/ptvenv/scum
+        repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config("default")
+        table = PtVenvReleasesTableView(repo_config)
+        git_client = GitClient.from_path(self.project_paths.root_path)
 
-        git_commands = GitCommands(repo_config)
-
-        # get the local tags and pack them up into a dictionary as well
-        for tag in git_commands.get_local_tags("ptvenv"):
-            if self.paths.meta.name:
-                if self.paths.meta.name in tag.name:
-                    print(tag.name)
-            else:
-                print(tag.name)
+        for tag in git_client.ptvenv_releases():
+            meta = ComponentMetadata.from_release_tag(tag.name)
+            table.add_row(meta.name, meta.version, str(tag.commit.committed_datetime.date()), tag.commit.hexsha)
+        table.print_table()
 
     def installed(self) -> None:
         table = PtVenvInstalledTableView()

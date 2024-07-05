@@ -87,27 +87,6 @@ class ProjectPaths(BasePaths):
                 else:
                     yield ComponentMetadata.from_string(links_to, "tool")
 
-    # def get_ptvenv_defs_to_tag(self, local_tags: dict) -> List[PtVenvPaths]:
-    #     to_tag = []
-    #     for ptvenv_def in self.ptvenv_defs():
-    #         for version in ptvenv_def.versions():
-    #             try:
-    #                 if version not in local_tags["ptvenv"][ptvenv_def.name]["versions"]:
-    #                     to_tag.append(PtVenvPaths(ptvenv_def.name, version=version))
-    #             except KeyError:
-    #                 to_tag.append(PtVenvPaths(ptvenv_def.name, version=version))
-    #     return to_tag
-    #
-    # def get_tools_to_tag(self, local_tags: dict) -> List[ToolPaths]:
-    #     to_tag = []
-    #     for tool in self.tools():
-    #         try:
-    #             if tool.version not in local_tags["tool"][tool.name]["versions"]:
-    #                 to_tag.append(tool)
-    #         except KeyError:
-    #             to_tag.append(tool)
-    #     return to_tag
-
 
 class ProjectTemplater(BaseTemplater):
     def __init__(self, paths: ProjectPaths) -> None:

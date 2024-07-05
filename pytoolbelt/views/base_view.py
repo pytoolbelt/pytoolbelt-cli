@@ -1,23 +1,25 @@
 from typing import Tuple
+from rich.table import Table
+from rich.console import Console
+from abc import ABC, abstractmethod
 
-from prettytable import PrettyTable
 from semver import Version
 
 
 class BaseTableView:
-    def __init__(self, title: str, headers: list[str]):
+    def __init__(self, title: str, headers: list[dict[str, str]]):
         self.title = title
-        self.headers = headers
-        self.table = PrettyTable()
-        self.table.title = title
-        self.table.field_names = headers
+        self.table = Table(title=title)
 
-    def add_row(self, *row):
-        self.table.add_row(row)
+        for header in headers:
+            self.table.add_column(**header)
+
+    def add_row(self, *row: str):
+        self.table.add_row(*row)
 
     def print_table(self):
-        self.table.align = "l"
-        print(self.table)
+        console = Console()
+        console.print(self.table)
 
 
 class BaseComponentTableView(BaseTableView):
