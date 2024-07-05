@@ -30,6 +30,10 @@ class ProjectPaths(BasePaths):
         return self.project_dir / "tools"
 
     @property
+    def external_repos_dir(self) -> Path:
+        return self.project_dir / "external-repos"
+
+    @property
     def new_directories(self) -> List[Path]:
         return [self.ptvenvs_dir, self.tools_dir]
 
