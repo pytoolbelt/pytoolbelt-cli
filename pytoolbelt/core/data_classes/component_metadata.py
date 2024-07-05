@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from semver import Version
 
@@ -55,9 +55,19 @@ class ComponentMetadata:
     @classmethod
     def from_release_tag(cls, tag: str) -> "ComponentMetadata":
         kind, name, version = tag.split("-", 2)
-        inst = cls(name, version, kind)
+        inst = cls(name, Version.parse(version), kind)
         inst.raise_if_forbidden_char_in_name()
         return inst
+
+    @classmethod
+    def get_latest_release(cls, tag_names: List[str]) -> "ComponentMetadata":
+        releases = filter(lambda x: x.is_not_prerelease(), [cls.from_release_tag(tag) for tag in tag_names])
+        return max(releases, key=lambda x: x.version)
+
+    def is_not_prerelease(self) -> bool:
+        if isinstance(self.version, str):
+            return False
+        return not self.version.prerelease
 
     @property
     def version(self) -> Union[Version, str]:

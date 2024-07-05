@@ -23,9 +23,10 @@ class GitClient:
     def repo_from_path(path: Path) -> Repo:
         return Repo(path)
 
-    @staticmethod
-    def clone_from_url(url: str, path: Path) -> Repo:
-        return Repo.clone_from(url, path)
+    @classmethod
+    def clone_from_url(cls, url: str, path: Path) -> "GitClient":
+        repo = Repo.clone_from(url, path)
+        return cls(repo)
 
     @staticmethod
     def init_if_not_exists(path: Path) -> None:

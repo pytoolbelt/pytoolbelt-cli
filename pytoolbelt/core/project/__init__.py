@@ -278,24 +278,25 @@ class PtVenv:
             tmpdir_path = Path(tmpdir)
 
             print("cloning repo...")
-            tmp_repo, tmp_repo_path = GitCommands.clone_repo_to_temp_dir(repo_config.url, tmpdir_path.as_posix())
-            tmp_git_commands = GitCommands.from_repo(tmp_repo, repo_config)
+            tmp_git_client = GitClient.clone_from_url(repo_config.url, tmpdir_path)
 
             if isinstance(self.paths.meta.version, str) and self.paths.meta.version == "latest":
                 print("latest version being fetched....")
-                local_tags = tmp_git_commands.get_local_tags(kind="ptvenv", as_names=True)
-                component_meta = [ComponentMetadata.from_release_tag(tag) for tag in local_tags if self.paths.meta.name in tag]
-                component_meta.sort(key=lambda x: x.version, reverse=True)
-                latest_meta = component_meta[0]
-                tag = tmp_git_commands.get_local_tag(latest_meta.release_tag, kind="ptvenv")
+
+                tags = tmp_git_client.ptvenv_releases(name=self.paths.meta.name, as_names=True)
+                latest_meta = ComponentMetadata.get_latest_release(tags)
+                latest_release = tmp_git_client.get_tag_reference(latest_meta.release_tag)
 
             # otherwise we got a version passed in the cli so just assume it exists and check it out and if not... poop.
             else:
                 print("passed in version being fetched.")
-                tag = tmp_git_commands.get_local_tag(self.paths.meta.release_tag, kind="ptvenv")
+                try:
+                    latest_release = tmp_git_client.get_tag_reference(self.paths.meta.release_tag)
+                except IndexError:
+                    raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
 
-            tmp_git_commands.checkout_tag(tag)
-            tmp_project_paths = ProjectPaths(tmp_repo_path)
+            tmp_git_client.checkout_tag(latest_release)
+            tmp_project_paths = ProjectPaths(tmpdir_path)
             tmp_ptvenv_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
 
             self.paths.ptvenv_dir.mkdir(parents=True, exist_ok=True)
@@ -336,7 +337,8 @@ class Tool:
             return inst
 
         if release:
-            # this means we are building, or releasing a new version, and we passed in a version number in the format name==version
+            # this means we are building, or releasing a new version,
+            # and we passed in a version number in the format name==version
             if isinstance(meta.version, Version):
                 return inst
             config = ToolConfig.from_file(inst.paths.tool_config_file)
@@ -354,7 +356,7 @@ class Tool:
         self.paths.create()
         self.templater.template_new_tool_files()
 
-    def install(self, repo_config: str, dev_mode: bool) -> None:
+    def install(self, dev_mode: bool) -> None:
         tool_config = ToolConfig.from_file(self.paths.tool_config_file)
         ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.project_paths)
 
@@ -364,7 +366,7 @@ class Tool:
                 exit_message="Unable to install tool. Exiting.",
             )
             ptvenv = PtVenv.from_ptvenv_paths(ptvenv_paths)
-            ptvenv.build(force=False, repo_config=repo_config)
+            ptvenv.build(force=False)
 
         if dev_mode:
             self.installer.install_shim(ptvenv_paths.python_executable_path.as_posix())

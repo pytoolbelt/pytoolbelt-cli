@@ -24,7 +24,7 @@ def new(context: ToolContext) -> int:
 
 def install(context: ToolContext) -> int:
     tool = Tool.from_cli(context.params.name, release=True)
-    tool.install(repo_config="default", dev_mode=context.params.dev_mode)
+    tool.install(dev_mode=context.params.dev_mode)
     return 0
 
 

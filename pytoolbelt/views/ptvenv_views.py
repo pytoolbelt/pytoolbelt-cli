@@ -30,7 +30,7 @@ class PtVenvReleasesTableView(BaseTableView):
 
     def add_row(self, name: str, version: str, release_date: str, commit: str) -> None:
         url = self.format_commit_url(name, version, commit)
-        super().add_row(name, version, release_date, url)
+        super().add_row(name, str(version), release_date, url)
 
     def format_commit_url(self, name: str, version: str, commit: str) -> str:
         url = f"https://github.com/{self.repo_config.owner}/{self.repo_config.repo_name}/tree/{commit}/ptvenv/{name}"
