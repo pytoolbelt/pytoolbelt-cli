@@ -17,7 +17,7 @@ from pytoolbelt.core.tools.git_client import GitClient
 
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
-from pytoolbelt.views.tool_views import ToolInstalledTableView
+from pytoolbelt.views.tool_views import ToolInstalledTableView, ToolReleasesTableView
 from .project_components import ProjectPaths, ProjectTemplater
 from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 from .tool_components import ToolConfig, ToolInstaller, ToolPaths, ToolTemplater
@@ -254,7 +254,8 @@ class PtVenv:
         installed_ptvenvs = list(self.project_paths.iter_installed_ptvenvs())
         installed_ptvenvs.sort(key=lambda x: (x.version, x.name), reverse=True)
         for installed_ptvenv in installed_ptvenvs:
-            table.add_row(installed_ptvenv.name, installed_ptvenv.version)
+            ptvenv_paths = PtVenvPaths(installed_ptvenv, self.project_paths)
+            table.add_row(installed_ptvenv.name, installed_ptvenv.version, ptvenv_paths.display_install_dir)
         table.print_table()
 
     def fetch(self, repo_config_name: str, keep: bool, build: bool, force: bool) -> None:
@@ -376,7 +377,8 @@ class Tool:
         installed_tools.sort(key=lambda x: (x.version, x.name), reverse=True)
 
         for installed_tool in installed_tools:
-            table.add_row(installed_tool.name, installed_tool.version)
+            tool_paths = ToolPaths(installed_tool, self.project_paths)
+            table.add_row(installed_tool.name, installed_tool.version, tool_paths.display_install_path)
         table.print_table()
 
     def remove(self) -> None:
@@ -388,3 +390,13 @@ class Tool:
     def release(self) -> None:
         project = Project()
         project.release(self.paths)
+
+    def releases(self) -> None:
+        repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config("default")
+        table = ToolReleasesTableView(repo_config)
+        git_client = GitClient.from_path(self.project_paths.root_path)
+
+        for tag in git_client.tool_releases():
+            meta = ComponentMetadata.from_release_tag(tag.name)
+            table.add_row(meta.name, meta.version, str(tag.commit.committed_datetime.date()), tag.commit.hexsha)
+        table.print_table()

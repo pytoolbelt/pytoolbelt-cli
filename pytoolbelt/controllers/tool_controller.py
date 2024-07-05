@@ -46,6 +46,12 @@ def release(context: ToolContext) -> int:
     return 0
 
 
+def releases(context: ToolContext) -> int:
+    tool = Tool.from_cli("")
+    tool.releases()
+    return 0
+
+
 def fetch(context: ToolContext) -> int:
     tool = Tool.from_cli(context.params.name, release=True)
     tool.fetch()
@@ -105,5 +111,9 @@ ACTIONS = {
                 "required": True,
             }
         },
+    },
+    "releases": {
+        "func": releases,
+        "help": "List all releases",
     },
 }

@@ -89,6 +89,10 @@ class ToolPaths(BasePaths):
         return Path.home() / ".pytoolbelt" / "tools" / self.meta.name
 
     @property
+    def display_install_path(self) -> str:
+        return f"~/.pytoolbelt/tools/{self.meta.name}"
+
+    @property
     def zipapp_path(self) -> Path:
         return Path(f"{self.install_path.as_posix()}=={str(self.meta.version)}")
 

@@ -106,6 +106,10 @@ class PtVenvPaths(BasePaths):
         return self.install_version_dir / "venv"
 
     @property
+    def display_install_dir(self) -> str:
+        return f"~/.pytoolbelt/environments/{self.meta.name}/{self.meta.version}"
+
+    @property
     def installed_config_file(self) -> Path:
         return self.install_version_dir / self.ptvenv_filename
 
