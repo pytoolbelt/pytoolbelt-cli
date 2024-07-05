@@ -1,8 +1,8 @@
 from git import Repo, TagReference
 from pathlib import Path
-from typing import Optional, List, Union, Iterator
-from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfig
-from pytoolbelt.core.exceptions import (
+from typing import Optional, List, Union
+from pytoolbelt.core.data_classes.global_config import RepoConfig
+from pytoolbelt.core.error_handling.exceptions import (
     NotOnReleaseBranchError,
     UnableToReleaseError,
     UncommittedChangesError,

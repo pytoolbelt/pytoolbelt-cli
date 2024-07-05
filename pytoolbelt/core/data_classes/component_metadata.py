@@ -3,7 +3,7 @@ from typing import Optional, Union, List
 
 from semver import Version
 
-from pytoolbelt.core.exceptions import CliArgumentError
+from pytoolbelt.core.error_handling.exceptions import CliArgumentError
 
 
 class ComponentMetadata:

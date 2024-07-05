@@ -1,34 +1,25 @@
-import os
-from typing import Dict, Optional
-
-import yaml
+from pytoolbelt.environment.config import PYTOOLBELT_DEFAULT_CONFIG_FILE
 from pydantic import BaseModel
-
-from pytoolbelt.core.exceptions import RepoConfigNotFoundError
-
-
-class RepoConfig(BaseModel):
-    url: str
-    owner: str
-    repo_name: str
-    release_branch: Optional[str] = "master"
+import yaml
+from functools import wraps
 
 
-class RepoConfigs(BaseModel):
-    default: str
-    repos: Dict[str, RepoConfig]
+class PytoolbeltConfig(BaseModel):
+    python: str
+    bump: str
+    envfile: str
+    release_branch: str
 
     @classmethod
-    def from_yml(cls, raw_yml: str) -> "RepoConfigs":
-        raw_data = os.path.expandvars(raw_yml)
-        yml = yaml.safe_load(raw_data)
-        repos = {name: RepoConfig(**repo) for name, repo in yml["repos"].items() if name != "default"}
-        return cls(default=yml["repos"]["default"], repos=repos)
+    def load(cls) -> "PytoolbeltConfig":
+        with PYTOOLBELT_DEFAULT_CONFIG_FILE.open("r") as file:
+            config = yaml.safe_load(file)["project-config"]
+        return cls(**config)
 
-    def get_repo_config(self, name: Optional[str] = None) -> RepoConfig:
-        if name is None or name == "default":
-            name = self.default
-        try:
-            return self.repos[name]
-        except KeyError:
-            raise RepoConfigNotFoundError(name)
+
+def pytoolbelt_config(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        ptc = PytoolbeltConfig.load()
+        return func(*args, **kwargs, ptc=ptc)
+    return wrapper

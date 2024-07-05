@@ -10,7 +10,7 @@ from semver import Version
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.exceptions import PythonEnvBuildError
+from pytoolbelt.core.error_handling.exceptions import PythonEnvBuildError
 from pytoolbelt.core.tools import hash_config
 
 

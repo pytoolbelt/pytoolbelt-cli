@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseControllerParameters
 from pytoolbelt.core.project import Tool
 
 

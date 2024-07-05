@@ -2,8 +2,6 @@ import functools
 
 from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
 
-from . import exceptions
-
 
 class ErrorHandler:
     def __init__(self) -> None:

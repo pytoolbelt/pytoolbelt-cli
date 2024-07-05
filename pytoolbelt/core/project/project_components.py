@@ -4,11 +4,12 @@ from typing import List, Optional
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.data_classes.pytoolbelt_config import RepoConfigs
+from pytoolbelt.core.data_classes.global_config import RepoConfigs
 from pytoolbelt.environment.config import (
     PYTOOLBELT_PROJECT_ROOT,
     PYTOOLBELT_VENV_INSTALL_DIR,
-    PYTOOLBELT_TOOLS_INSTALL_DIR
+    PYTOOLBELT_TOOLS_INSTALL_DIR,
+    PYTOOLBELT_GLOBAL_CONFIG_FILE,
 )
 
 
@@ -30,16 +31,12 @@ class ProjectPaths(BasePaths):
         return self.project_dir / "tools"
 
     @property
-    def external_repos_dir(self) -> Path:
-        return self.project_dir / "external-repos"
-
-    @property
     def new_directories(self) -> List[Path]:
         return [self.ptvenvs_dir, self.tools_dir]
 
     @property
     def new_files(self) -> List[Path]:
-        new_files = [self.gitignore, self.pytoolbelt_config]
+        new_files = [self.gitignore, self.pytoolbelt_config, self.global_config_file]
 
         if self.dir_empty(self.ptvenvs_dir):
             new_files.append(self.ptvenvs_dir / ".gitkeep")
@@ -52,6 +49,10 @@ class ProjectPaths(BasePaths):
     @property
     def gitignore(self) -> Path:
         return self.root_path / ".gitignore"
+
+    @property
+    def global_config_file(self) -> Path:
+        return PYTOOLBELT_GLOBAL_CONFIG_FILE
 
     @property
     def pytoolbelt_config(self) -> Path:

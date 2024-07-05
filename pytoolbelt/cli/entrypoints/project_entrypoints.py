@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-
-from pytoolbelt.controllers.bases.base_context import BaseContext
-from pytoolbelt.controllers.bases.base_parameters import BaseControllerParameters
-from pytoolbelt.core.project import Project
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.cli.controllers.project_controller import Project
+from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
 
 
 @dataclass
@@ -10,14 +9,11 @@ class ProjectParameters(BaseControllerParameters):
     overwrite: bool
 
 
-class ProjectContext(BaseContext[ProjectParameters]):
-    def __init__(self, params: ProjectParameters) -> None:
-        super().__init__(params=params)
-
-
-def init(ctx: ProjectContext) -> int:
+@pytoolbelt_config
+def init(ptc: PytoolbeltConfig, params: ProjectParameters) -> int:
+    print(ptc)
     project = Project()
-    project.create(overwrite=ctx.params.overwrite)
+    project.create(overwrite=params.overwrite)
     return 0
 
 

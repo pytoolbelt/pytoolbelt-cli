@@ -1,5 +1,5 @@
 from .base_view import BaseTableView
-from ..core.data_classes.pytoolbelt_config import RepoConfig
+from ..core.data_classes.global_config import RepoConfig
 
 
 class PtVenvInstalledTableView(BaseTableView):
