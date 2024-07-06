@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenv
 
 
 @dataclass
-class PtVenvControllerParameters(BaseControllerParameters):
+class PtVenvParameters(BaseEntrypointParameters):
     name: str
-    repo_config: str
+    repo: str
     all: bool
     force: bool
     part: str
@@ -15,61 +15,55 @@ class PtVenvControllerParameters(BaseControllerParameters):
     keep: bool
 
 
-class PtVenvContext:
-    def __init__(self, params: PtVenvControllerParameters) -> None:
-        self.params = params
-
-
-def new(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name, creation=True)
+def new(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name, creation=True)
     ptvenv.create()
     return 0
 
 
-def build(context: PtVenvContext) -> int:
-    # TODO: review if the repo config here is really needed. I think it should be removed from GitCommands.
-    ptvenv = PtVenv.from_cli(context.params.name, build=True)
-    ptvenv.build(context.params.force, context.params.repo_config)
+def build(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name, build=True)
+    ptvenv.build(params.force)
     return 0
 
 
-def remove(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name, deletion=True)
-    ptvenv.delete(context.params.all)
+def remove(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name, deletion=True)
+    ptvenv.delete(params.all)
     return 0
 
 
-def bump(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name, build=True)
-    ptvenv.bump(context.params.part)
+def bump(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name, build=True)
+    ptvenv.bump(params.part)
     return 0
 
 
-def release(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name, build=True)
+def release(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name, build=True)
     ptvenv.release()
     return 0
 
 
-def releases(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
+def releases(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name)
     ptvenv.releases()
     return 0
 
 
-def installed(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
+def installed(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name)
     ptvenv.installed()
     return 0
 
 
-def fetch(context: PtVenvContext) -> int:
-    ptvenv = PtVenv.from_cli(context.params.name)
+def fetch(params: PtVenvParameters) -> int:
+    ptvenv = PtVenv.from_cli(params.name)
     ptvenv.fetch(
-        repo_config_name=context.params.repo_config,
-        build=context.params.build,
-        force=context.params.force,
-        keep=context.params.keep,
+        repo_config_name=params.repo,
+        build=params.build,
+        force=params.force,
+        keep=params.keep,
 
     )
     return 0

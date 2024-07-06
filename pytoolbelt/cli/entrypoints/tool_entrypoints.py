@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.core.project import Tool
 
 
 @dataclass
-class ToolControllerParameters(BaseControllerParameters):
+class ToolControllerParameters(BaseEntrypointParameters):
     name: str
     repo_config: str
     dev_mode: bool

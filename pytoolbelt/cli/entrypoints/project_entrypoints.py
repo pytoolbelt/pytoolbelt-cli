@@ -1,17 +1,14 @@
 from dataclasses import dataclass
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseControllerParameters
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.controllers.project_controller import Project
-from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
 
 
 @dataclass
-class ProjectParameters(BaseControllerParameters):
+class ProjectParameters(BaseEntrypointParameters):
     overwrite: bool
 
 
-@pytoolbelt_config
-def init(ptc: PytoolbeltConfig, params: ProjectParameters) -> int:
-    print(ptc)
+def init(params: ProjectParameters) -> int:
     project = Project()
     project.create(overwrite=params.overwrite)
     return 0
