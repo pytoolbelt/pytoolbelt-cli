@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenv
+from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
 
 
 @dataclass
@@ -15,49 +16,47 @@ class PtVenvParameters(BaseEntrypointParameters):
     keep: bool
 
 
-def new(params: PtVenvParameters) -> int:
+@pytoolbelt_config
+def new(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, creation=True)
-    ptvenv.create()
-    return 0
+    return ptvenv.create(ptc)
 
 
 def build(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, build=True)
-    ptvenv.build(params.force)
-    return 0
+    return ptvenv.build(params.force)
 
 
 def remove(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, deletion=True)
-    ptvenv.delete(params.all)
-    return 0
+    return ptvenv.delete(params.all)
 
 
-def bump(params: PtVenvParameters) -> int:
+@pytoolbelt_config
+def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, build=True)
-    ptvenv.bump(params.part)
-    return 0
+    if params.part == "config":
+        return ptvenv.bump(ptc.bump)
+    return ptvenv.bump(params.part)
 
 
 def release(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, build=True)
-    ptvenv.release()
-    return 0
+    return ptvenv.release()
 
 
 def releases(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name)
-    ptvenv.releases()
-    return 0
+    return ptvenv.releases()
 
 
 def installed(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name)
-    ptvenv.installed()
-    return 0
+    return ptvenv.installed()
 
 
 def fetch(params: PtVenvParameters) -> int:
+    # TODO: This likely goes away....
     ptvenv = PtVenv.from_cli(params.name)
     ptvenv.fetch(
         repo_config_name=params.repo,
@@ -123,8 +122,8 @@ ACTIONS = {
             "--part": {
                 "help": "Part of the version to bump. (major, minor, patch, prerelease)",
                 "required": False,
-                "default": "patch",
-                "choices": ["major", "minor", "patch", "prerelease"],
+                "default": "config",
+                "choices": ["major", "minor", "patch", "prerelease", "config"],
             },
         },
     },

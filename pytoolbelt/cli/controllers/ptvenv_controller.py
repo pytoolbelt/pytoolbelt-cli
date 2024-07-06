@@ -14,7 +14,7 @@ from pytoolbelt.core.tools.git_client import GitClient
 
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
-
+from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.project.project_components import ProjectPaths
 from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 
@@ -79,12 +79,13 @@ class PtVenv:
         if self.paths.ptvenv_dir.exists():
             raise PtVenvCreationError(f"Python environment {self.paths.meta.name} already exists.")
 
-    def create(self) -> None:
+    def create(self, ptc: PytoolbeltConfig) -> int:
         self.raise_if_exists()
         self.paths.create()
-        self.templater.template_new_venvdef_file()
+        self.templater.template_new_venvdef_file(ptc=ptc)
+        return 0
 
-    def build(self, force: bool) -> None:
+    def build(self, force: bool) -> int:
         ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
 
         # this means we passed in some version number in the format name==version
@@ -120,18 +121,19 @@ class PtVenv:
 
                 if not self._installation_can_proceed(tmp_ptvenv_config):
                     if not force:
-                        return
+                        return 0
 
                 tmp_builder = PtVenvBuilder(tmp_paths)
                 print(f"Building {self.paths.meta.name} version {self.paths.meta.version} from {tag_reference}")
                 tmp_builder.build()
-                return
+                return 0
 
         else:
             if not self._installation_can_proceed(ptvenv_config):
                 if not force:
-                    return
+                    return 0
             self.builder.build()
+            return 0
 
     def _installation_can_proceed(self, current_config: PtVenvConfig) -> bool:
         # the installation directory exists, so we need to check if the configuration has changed
@@ -166,28 +168,31 @@ class PtVenv:
                 return False
         return True
 
-    def delete(self, _all: bool) -> None:
+    def delete(self, _all: bool) -> int:
         if self.paths.install_dir.exists():
             if _all:
                 shutil.rmtree(self.paths.install_root_dir)
             else:
                 shutil.rmtree(self.paths.install_dir.parent)
+            return 0
         else:
             raise PtVenvNotFoundError(
                 f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is not installed."
             )
 
-    def bump(self, part: str) -> None:
+    def bump(self, part: str) -> int:
         config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
         next_version = self.paths.meta.version.next_version(part)
         config.version = str(next_version)
         self.paths.write_to_config_file(config)
+        return 0
 
-    def release(self) -> None:
+    def release(self) -> int:
         project = Project()
         project.release(self.paths)
+        return 0
 
-    def releases(self) -> None:
+    def releases(self) -> int:
         # https://github.com/pytoolbelt/pytoolbelt-playground/tree/222fb90b677e0eb4ab942e66a9d382f244aa3816/ptvenv/scum
         repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config("default")
         table = PtVenvReleasesTableView(repo_config)
@@ -197,8 +202,9 @@ class PtVenv:
             meta = ComponentMetadata.from_release_tag(tag.name)
             table.add_row(meta.name, meta.version, str(tag.commit.committed_datetime.date()), tag.commit.hexsha)
         table.print_table()
+        return 0
 
-    def installed(self) -> None:
+    def installed(self) -> int:
         table = PtVenvInstalledTableView()
         installed_ptvenvs = list(self.project_paths.iter_installed_ptvenvs())
         installed_ptvenvs.sort(key=lambda x: (x.version, x.name), reverse=True)
@@ -206,6 +212,7 @@ class PtVenv:
             ptvenv_paths = PtVenvPaths(installed_ptvenv, self.project_paths)
             table.add_row(installed_ptvenv.name, installed_ptvenv.version, ptvenv_paths.display_install_dir)
         table.print_table()
+        return 0
 
     def fetch(self, repo_config_name: str, keep: bool, build: bool, force: bool) -> None:
 

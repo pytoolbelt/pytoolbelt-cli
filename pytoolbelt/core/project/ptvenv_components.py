@@ -6,7 +6,7 @@ from typing import List, Optional
 import yaml
 from pydantic import BaseModel
 from semver import Version
-
+from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
@@ -151,8 +151,8 @@ class PtVenvTemplater(BaseTemplater):
         super().__init__()
         self.paths = paths
 
-    def template_new_venvdef_file(self) -> None:
-        template = self.render("ptvenv_config.jinja2", meta=self.paths.meta)
+    def template_new_venvdef_file(self, ptc: PytoolbeltConfig) -> None:
+        template = self.render("ptvenv_config.jinja2", meta=self.paths.meta, ptc=ptc)
         with self.paths.ptvenv_config_file.open("w") as f:
             f.write(template)
 
