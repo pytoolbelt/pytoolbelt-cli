@@ -40,14 +40,15 @@ def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
     return ptvenv.bump(params.part)
 
 
-def release(params: PtVenvParameters) -> int:
+@pytoolbelt_config
+def release(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name, build=True)
-    return ptvenv.release()
+    return ptvenv.release(ptc)
 
 
 def releases(params: PtVenvParameters) -> int:
     ptvenv = PtVenv.from_cli(params.name)
-    return ptvenv.releases()
+    return ptvenv.releases(params.repo)
 
 
 def installed(params: PtVenvParameters) -> int:

@@ -1,5 +1,5 @@
 from .base_view import BaseTableView
-from ..core.data_classes.global_config import RepoConfig
+from ..core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 class PtVenvInstalledTableView(BaseTableView):
@@ -17,10 +17,10 @@ class PtVenvInstalledTableView(BaseTableView):
 
 
 class PtVenvReleasesTableView(BaseTableView):
-    def __init__(self, repo_config: RepoConfig) -> None:
+    def __init__(self, repo_config: ToolbeltConfig) -> None:
         self.repo_config = repo_config
         super().__init__(
-            title="PtVenv Releases",
+            title=f"PtVenv Releases for {repo_config.name} -- {repo_config.url}",
             headers=[
                 {"header": "Name", "style": "cyan", "justify": "right"},
                 {"header": "Version", "style": "magenta", "justify": "center"},

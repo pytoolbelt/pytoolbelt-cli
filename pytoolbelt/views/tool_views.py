@@ -1,5 +1,5 @@
 from .base_view import BaseTableView
-from pytoolbelt.core.data_classes.global_config import RepoConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 class ToolInstalledTableView(BaseTableView):
@@ -18,7 +18,7 @@ class ToolInstalledTableView(BaseTableView):
 
 
 class ToolReleasesTableView(BaseTableView):
-    def __init__(self, repo_config: RepoConfig) -> None:
+    def __init__(self, repo_config: ToolbeltConfig) -> None:
         self.repo_config = repo_config
         super().__init__(
             title="PtVenv Releases",

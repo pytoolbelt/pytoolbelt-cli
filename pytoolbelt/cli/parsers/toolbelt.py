@@ -1,24 +1,25 @@
+
 from argparse import Namespace
 from typing import Any
 
-from pytoolbelt.cli.entrypoints import tool_entrypoints
+from pytoolbelt.cli.entrypoints import toolbelt_entrypoints
 from pytoolbelt.core.tools import build_entrypoint_parsers
 from pytoolbelt.core.error_handling.error_handler import handle_cli_errors
 
 
 @handle_cli_errors
 def entrypoint(cliargs: Namespace) -> int:
-    params = tool_entrypoints.ToolParameters.from_cliargs(cliargs)
-    action = tool_entrypoints.ACTIONS[params.action]["func"]
+    params = toolbelt_entrypoints.ToolbeltParameters.from_cliargs(cliargs)
+    action = toolbelt_entrypoints.ACTIONS[params.action]["func"]
     return action(params=params)
 
 
 def configure_parser(subparser: Any) -> None:
     build_entrypoint_parsers(
         subparser=subparser,
-        name="tool",
-        root_help="Interact with pytoolbelt tools",
+        name="toolbelt",
+        root_help="Interact with the pytoolbelt toolbelt config.",
         entrypoint=entrypoint,
-        actions=tool_entrypoints.ACTIONS,
-        common_flags=tool_entrypoints.COMMON_FLAGS,
+        actions=toolbelt_entrypoints.ACTIONS,
+        common_flags=toolbelt_entrypoints.COMMON_FLAGS,
     )

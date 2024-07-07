@@ -11,12 +11,13 @@ from pytoolbelt.core.error_handling.exceptions import (
 )
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_client import GitClient
-
+from pytoolbelt.cli.controllers.project_controller import Project
 from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.project.project_components import ProjectPaths
 from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
 class PtVenv:
@@ -187,14 +188,12 @@ class PtVenv:
         self.paths.write_to_config_file(config)
         return 0
 
-    def release(self) -> int:
+    def release(self, ptc: PytoolbeltConfig) -> int:
         project = Project()
-        project.release(self.paths)
-        return 0
+        return project.release(ptc=ptc, component_paths=self.paths)
 
-    def releases(self) -> int:
-        # https://github.com/pytoolbelt/pytoolbelt-playground/tree/222fb90b677e0eb4ab942e66a9d382f244aa3816/ptvenv/scum
-        repo_config = self.project_paths.get_pytoolbelt_config().get_repo_config("default")
+    def releases(self, repo: str) -> int:
+        repo_config = ToolbeltConfigs.load().get(repo)
         table = PtVenvReleasesTableView(repo_config)
         git_client = GitClient.from_path(self.project_paths.root_path)
 

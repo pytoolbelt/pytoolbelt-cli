@@ -4,6 +4,7 @@ from pytoolbelt.core.project.project_components import ProjectPaths, ProjectTemp
 from pytoolbelt.core.project.tool_components import ToolPaths
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.tools.git_client import GitClient
+from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 
 
 class Project:
@@ -16,7 +17,7 @@ class Project:
         self.templater.template_new_project_files(overwrite)
         GitClient.init_if_not_exists(self.paths.project_dir)
 
-    def release(self, component_paths: Union[PtVenvPaths, ToolPaths]) -> None:
+    def release(self, ptc: PytoolbeltConfig, component_paths: Union[PtVenvPaths, ToolPaths]) -> int:
 
         if isinstance(component_paths, PtVenvPaths):
             kind = "ptvenv"
@@ -25,8 +26,7 @@ class Project:
         else:
             raise ValueError("Invalid component paths passed to release method.")
 
-        repo_config = self.paths.get_pytoolbelt_config().get_repo_config("default")
-        git_client = GitClient.from_path(self.paths.root_path, repo_config)
+        git_client = GitClient.from_path(path=self.paths.root_path, release_branch=ptc.release_branch)
 
         # first fetch all remote tags if we don't have them
         print("Fetching remote tags...")
@@ -43,7 +43,7 @@ class Project:
 
         if component_paths.meta.release_tag in release_tags:
             print(f"Release tag {component_paths.meta.release_tag} already exists. Nothing to do.")
-            return
+            return 0
 
         # otherwise release the component
         print("tagging release...")
@@ -51,3 +51,4 @@ class Project:
 
         print("Pushing tags to remote...")
         git_client.push_tags_to_remote()
+        return 0

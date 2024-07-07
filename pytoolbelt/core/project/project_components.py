@@ -1,15 +1,16 @@
 from pathlib import Path
 from typing import List, Optional
-
+from git import Repo
+import giturlparse
 from pytoolbelt.bases.base_paths import BasePaths
 from pytoolbelt.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.data_classes.global_config import RepoConfigs
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.environment.config import (
     PYTOOLBELT_PROJECT_ROOT,
     PYTOOLBELT_VENV_INSTALL_DIR,
     PYTOOLBELT_TOOLS_INSTALL_DIR,
-    PYTOOLBELT_GLOBAL_CONFIG_FILE,
+    PYTOOLBELT_TOOLBELT_CONFIG_FILE,
 )
 
 
@@ -52,7 +53,7 @@ class ProjectPaths(BasePaths):
 
     @property
     def global_config_file(self) -> Path:
-        return PYTOOLBELT_GLOBAL_CONFIG_FILE
+        return PYTOOLBELT_TOOLBELT_CONFIG_FILE
 
     @property
     def pytoolbelt_config(self) -> Path:
@@ -70,9 +71,23 @@ class ProjectPaths(BasePaths):
     def tool_install_dir(self) -> Path:
         return PYTOOLBELT_TOOLS_INSTALL_DIR
 
-    def get_pytoolbelt_config(self) -> RepoConfigs:
+    def is_pytoolbelt_project(self, repo: Repo) -> bool:
+        if self.git_dir.exists():
+            if self.pytoolbelt_config.exists():
+                if self.tools_dir.exists():
+                    if self.ptvenvs_dir.exists():
+                        parsed_url = giturlparse.parse(repo.remote("origin").url)
+                        if parsed_url.name.endswith("toolbelt"):
+                            return True
+        return False
+
+    def raise_if_not_pytoolbelt_project(self, repo: Repo) -> None:
+        if not self.is_pytoolbelt_project(repo):
+            raise ValueError("This is not a pytoolbelt project.")
+
+    def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()
-        return RepoConfigs.from_yml(raw_data)
+        return ToolbeltConfigs.from_yml(raw_data)
 
     def iter_installed_ptvenvs(self, name: Optional[str] = None) -> List[ComponentMetadata]:
         for venv in self.venv_install_dir.iterdir():

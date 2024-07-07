@@ -1,7 +1,7 @@
 from git import Repo, TagReference
 from pathlib import Path
 from typing import Optional, List, Union
-from pytoolbelt.core.data_classes.global_config import RepoConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import (
     NotOnReleaseBranchError,
     UnableToReleaseError,
@@ -11,13 +11,14 @@ from pytoolbelt.core.error_handling.exceptions import (
 
 class GitClient:
 
-    def __init__(self, repo: Repo, config: Optional[RepoConfig] = None) -> None:
+    def __init__(self, repo: Repo, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None) -> None:
         self._repo = repo
         self._config = config
+        self._release_branch = release_branch
 
     @classmethod
-    def from_path(cls, path: Path, config: Optional[RepoConfig] = None) -> "GitClient":
-        return cls(Repo(path), config)
+    def from_path(cls, path: Path, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None) -> "GitClient":
+        return cls(Repo(path), config, release_branch)
 
     @staticmethod
     def repo_from_path(path: Path) -> Repo:
@@ -42,15 +43,21 @@ class GitClient:
         return self._repo
 
     @property
-    def repo_config(self) -> Optional[RepoConfig]:
+    def repo_config(self) -> Optional[ToolbeltConfig]:
         return self._config
 
     @property
     def current_branch(self) -> str:
         return self.repo.active_branch.name
 
+    @property
+    def release_branch(self) -> str:
+        return self._release_branch or self.repo_config.release_branch
+
     def is_release_branch(self) -> bool:
-        return self.current_branch == self.repo_config.release_branch
+        if not self.repo_config and not self._release_branch:
+            raise NotOnReleaseBranchError("No release branch set. Please provide a release branch in a repo config or pytoolbelt.yml.")
+        return self.current_branch == self.release_branch
 
     def has_untracked_files_in_directory(self, directory: str) -> bool:
         return any(file.startswith(directory) for file in self.repo.untracked_files)

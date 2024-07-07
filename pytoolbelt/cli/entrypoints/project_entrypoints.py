@@ -25,7 +25,7 @@ ACTIONS = {
                 "help": "Overwrite existing files if they already exist.",
                 "action": "store_true",
                 "default": False,
-            }
+            },
         },
     }
 }

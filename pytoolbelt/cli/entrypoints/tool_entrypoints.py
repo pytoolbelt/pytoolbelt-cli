@@ -5,56 +5,45 @@ from pytoolbelt.core.project import Tool
 
 
 @dataclass
-class ToolControllerParameters(BaseEntrypointParameters):
+class ToolParameters(BaseEntrypointParameters):
     name: str
     repo_config: str
     dev_mode: bool
 
 
-class ToolContext:
-    def __init__(self, params: ToolControllerParameters) -> None:
-        self.params = params
-
-
-def new(context: ToolContext) -> int:
-    paths = Tool.from_cli(context.params.name, creation=True)
+def new(params: ToolParameters) -> int:
+    paths = Tool.from_cli(params.name, creation=True)
     paths.create()
     return 0
 
 
-def install(context: ToolContext) -> int:
-    tool = Tool.from_cli(context.params.name, release=True)
-    tool.install(dev_mode=context.params.dev_mode)
+def install(params: ToolParameters) -> int:
+    tool = Tool.from_cli(params.name, release=True)
+    tool.install(dev_mode=params.dev_mode)
     return 0
 
 
-def installed(context: ToolContext) -> int:
+def installed(params: ToolParameters) -> int:
     tool = Tool.from_cli("")
     tool.installed()
     return 0
 
 
-def remove(context: ToolContext) -> int:
-    tool = Tool.from_cli(context.params.name)
+def remove(params: ToolParameters) -> int:
+    tool = Tool.from_cli(params.name)
     tool.remove()
     return 0
 
 
-def release(context: ToolContext) -> int:
-    tool = Tool.from_cli(context.params.name, release=True)
+def release(params: ToolParameters) -> int:
+    tool = Tool.from_cli(params.name, release=True)
     tool.release()
     return 0
 
 
-def releases(context: ToolContext) -> int:
-    tool = Tool.from_cli("")
+def releases(params: ToolParameters) -> int:
+    tool = Tool.from_cli(params.name, release=True)
     tool.releases()
-    return 0
-
-
-def fetch(context: ToolContext) -> int:
-    tool = Tool.from_cli(context.params.name, release=True)
-    tool.fetch()
     return 0
 
 
