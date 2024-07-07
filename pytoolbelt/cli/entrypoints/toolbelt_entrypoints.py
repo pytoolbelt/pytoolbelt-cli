@@ -42,6 +42,16 @@ def add(params: ToolbeltParameters) -> int:
     return controller.add(params.url, params.this_toolbelt)
 
 
+def remove(params: ToolbeltParameters) -> int:
+    controller = ToolbeltController()
+    return controller.remove(params.name)
+
+
+def show(params: ToolbeltParameters) -> int:
+    controller = ToolbeltController()
+    return controller.show()
+
+
 COMMON_FLAGS = {}
 
 ACTIONS = {
@@ -77,5 +87,20 @@ ACTIONS = {
                 "required": False,
             }
         },
+    },
+    "remove": {
+        "func": remove,
+        "help": "Remove a toolbelt entry from the global config.",
+        "flags": {
+            "--name": {
+                "help": "The name of the toolbelt to remove.",
+                "required": True,
+            }
+        },
+    },
+    "show": {
+        "func": show,
+        "help": "Show all toolbelts in the global config.",
+        "flags": {},
     }
 }

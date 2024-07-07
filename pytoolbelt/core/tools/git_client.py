@@ -30,9 +30,9 @@ class GitClient:
         return cls(repo)
 
     @staticmethod
-    def init_if_not_exists(path: Path) -> None:
+    def init_if_not_exists(path: Path) -> Repo:
         if not path.joinpath(".git").exists():
-            Repo.init(path)
+            return Repo.init(path)
 
     @staticmethod
     def get_tag_filter(kind: str, name: Optional[str] = None) -> str:

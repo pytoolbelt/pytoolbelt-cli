@@ -36,3 +36,7 @@ class PtVenvNotFoundError(Exception):
 
 class ToolCreationError(Exception):
     pass
+
+
+class ToolbeltConfigNotFound(Exception):
+    pass

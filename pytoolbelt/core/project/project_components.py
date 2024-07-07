@@ -15,6 +15,7 @@ from pytoolbelt.environment.config import (
 
 
 class ProjectPaths(BasePaths):
+
     def __init__(self, project_root: Optional[Path] = None) -> None:
         self._name = None
         project_root = project_root or PYTOOLBELT_PROJECT_ROOT
@@ -60,7 +61,7 @@ class ProjectPaths(BasePaths):
 
     @property
     def gitignore(self) -> Path:
-        return self.root_path / ".gitignore"
+        return self.project_dir / ".gitignore"
 
     @property
     def global_config_file(self) -> Path:
@@ -68,11 +69,11 @@ class ProjectPaths(BasePaths):
 
     @property
     def pytoolbelt_config(self) -> Path:
-        return self.root_path / "pytoolbelt.yml"
+        return self.project_dir / "pytoolbelt.yml"
 
     @property
     def git_dir(self) -> Path:
-        return self.root_path / ".git"
+        return self.project_dir / ".git"
 
     @property
     def venv_install_dir(self) -> Path:
