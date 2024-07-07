@@ -1,15 +1,19 @@
 from pathlib import Path
 from git import Repo
+from typing import Optional
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
-from pytoolbelt.core.project.project_components import ProjectPaths
+from pytoolbelt.core.project.project_components import ProjectPaths, ProjectTemplater
+from pytoolbelt.core.tools.git_client import GitClient
 import giturlparse
 
 
 class ToolbeltController:
 
-    def __init__(self) -> None:
+    def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
+        self._project_paths = kwargs.get("paths", ProjectPaths(project_root=root_path))
+        self.templater = kwargs.get("templater", ProjectTemplater(self._project_paths))
+
         self._toolbelt = ToolbeltConfigs.load()
-        self._project_paths = ProjectPaths()
 
     @property
     def toolbelt(self) -> ToolbeltConfigs:
@@ -28,6 +32,23 @@ class ToolbeltController:
             raise ValueError(f"Invalid git url: {repo.remotes.origin.url}")
 
         self.toolbelt.add(ToolbeltConfig.from_url(repo.remotes.origin.url))
+        self.toolbelt.save()
+        return 0
+
+    def create(self, **kwargs) -> int:
+        # if we have provided a URL, add it to the toolbelt config
+        if url := kwargs.get("url"):
+            toolbelt_config = ToolbeltConfig.from_url(url)
+        else:
+            # we must have provided either a URL or name/owner
+            toolbelt_config = ToolbeltConfig.from_name_owner(kwargs["name"], kwargs["owner"])
+
+        self.toolbelt.add(toolbelt_config)
+        self.project_paths.name = toolbelt_config.name
+
+        self.project_paths.create()
+        self.templater.template_new_project_files()
+        GitClient.init_if_not_exists(self.project_paths.project_dir)
         self.toolbelt.save()
         return 0
 

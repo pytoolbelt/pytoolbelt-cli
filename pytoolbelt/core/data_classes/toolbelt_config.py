@@ -3,7 +3,6 @@ from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE
 import yaml
 from pydantic import BaseModel
 import giturlparse
-
 from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
 
 
@@ -16,6 +15,14 @@ class ToolbeltConfig(BaseModel):
     def from_url(cls, url: str) -> "ToolbeltConfig":
         parsed_url = giturlparse.parse(url)
         return cls(url=url, owner=parsed_url.owner, name=parsed_url.name)
+
+    @classmethod
+    def from_name_owner(cls, name: str, owner: str) -> "ToolbeltConfig":
+        return cls(
+            url=f"https://github.com/{owner}/{name}.git",
+            owner=owner,
+            name=name,
+        )
 
 
 class ToolbeltConfigs(BaseModel):

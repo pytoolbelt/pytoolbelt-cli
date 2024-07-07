@@ -16,11 +16,22 @@ from pytoolbelt.environment.config import (
 
 class ProjectPaths(BasePaths):
     def __init__(self, project_root: Optional[Path] = None) -> None:
+        self._name = None
         project_root = project_root or PYTOOLBELT_PROJECT_ROOT
         super().__init__(root_path=project_root)
 
     @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
+
+    @property
     def project_dir(self) -> Path:
+        if self.name:
+            return self.root_path / self.name
         return self.root_path
 
     @property
@@ -113,10 +124,10 @@ class ProjectTemplater(BaseTemplater):
         super().__init__()
         self.paths = paths
 
-    def template_new_project_files(self, overwrite: bool) -> None:
+    def template_new_project_files(self) -> None:
         for file in self.paths.new_files:
             if file.exists():
-                if file.stat().st_size == 0 or overwrite:
+                if file.stat().st_size == 0:
                     self.write_template(file)
 
     def write_template(self, file: Path) -> None:
