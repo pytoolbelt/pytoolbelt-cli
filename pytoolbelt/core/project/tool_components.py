@@ -1,15 +1,13 @@
 import zipapp
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import yaml
 from pydantic import BaseModel
-from semver import Version
 
-from pytoolbelt.bases.base_paths import BasePaths
-from pytoolbelt.bases.base_templater import BaseTemplater
+from pytoolbelt.core.bases.base_paths import BasePaths
+from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
 
 
 class PtVenv(BaseModel):

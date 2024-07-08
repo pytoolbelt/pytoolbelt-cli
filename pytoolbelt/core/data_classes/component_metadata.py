@@ -84,6 +84,12 @@ class ComponentMetadata:
     def release_tag(self) -> str:
         return f"{self.kind}-{self.name}-{self.version}"
 
+    @property
+    def is_latest_version(self) -> bool:
+        if isinstance(self.version, str):
+            return self.version == "latest"
+        return False
+
     def raise_if_forbidden_char_in_name(self) -> None:
         for char in self.name:
             if char in self.FORBIDDEN_NAME_CHARS:

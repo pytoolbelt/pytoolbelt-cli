@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 from pytoolbelt.environment.config import (
-    PYTOOLBELT_PROJECT_ROOT,
+    PYTOOLBELT_TOOLBELT_ROOT,
     PYTOOLBELT_PTVENV_ROOT,
     PYTOOLBELT_TOOLS_ROOT,
 )

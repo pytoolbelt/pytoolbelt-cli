@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional, Union
-from pytoolbelt.core.project.project_components import ProjectPaths, ProjectTemplater
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from pytoolbelt.core.project.tool_components import ToolPaths
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.tools.git_client import GitClient
@@ -9,13 +9,13 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 
 class Project:
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
-        self.paths = kwargs.get("paths", ProjectPaths(project_root=root_path))
-        self.templater = kwargs.get("templater", ProjectTemplater(self.paths))
+        self.paths = kwargs.get("paths", ToolbeltPaths(toolbelt_root=root_path))
+        self.templater = kwargs.get("templater", ToolbeltTemplater(self.paths))
 
     def create(self, overwrite: Optional[bool] = False) -> None:
         self.paths.create()
-        self.templater.template_new_project_files(overwrite)
-        GitClient.init_if_not_exists(self.paths.project_dir)
+        self.templater.template_new_toolbelt_files(overwrite)
+        GitClient.init_if_not_exists(self.paths.toolbelt_dir)
 
     def release(self, ptc: PytoolbeltConfig, component_paths: Union[PtVenvPaths, ToolPaths]) -> int:
 

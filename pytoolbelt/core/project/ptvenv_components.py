@@ -7,8 +7,8 @@ import yaml
 from pydantic import BaseModel
 from semver import Version
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.bases.base_paths import BasePaths
-from pytoolbelt.bases.base_templater import BaseTemplater
+from pytoolbelt.core.bases.base_paths import BasePaths
+from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import PythonEnvBuildError
 from pytoolbelt.core.tools import hash_config

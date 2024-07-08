@@ -2,24 +2,25 @@ from pathlib import Path
 from typing import List, Optional
 from git import Repo
 import giturlparse
-from pytoolbelt.bases.base_paths import BasePaths
-from pytoolbelt.bases.base_templater import BaseTemplater
+from pytoolbelt.core.bases.base_paths import BasePaths
+from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.environment.config import (
-    PYTOOLBELT_PROJECT_ROOT,
+    PYTOOLBELT_TOOLBELT_ROOT,
     PYTOOLBELT_VENV_INSTALL_DIR,
     PYTOOLBELT_TOOLS_INSTALL_DIR,
     PYTOOLBELT_TOOLBELT_CONFIG_FILE,
+    PYTOOLBELT_TOOLBELT_INSTALL_DIR
 )
 
 
-class ProjectPaths(BasePaths):
+class ToolbeltPaths(BasePaths):
 
-    def __init__(self, project_root: Optional[Path] = None) -> None:
+    def __init__(self, toolbelt_root: Optional[Path] = None) -> None:
         self._name = None
-        project_root = project_root or PYTOOLBELT_PROJECT_ROOT
-        super().__init__(root_path=project_root)
+        toolbelt_root = toolbelt_root or PYTOOLBELT_TOOLBELT_ROOT
+        super().__init__(root_path=toolbelt_root)
 
     @property
     def name(self) -> str:
@@ -30,22 +31,28 @@ class ProjectPaths(BasePaths):
         self._name = value
 
     @property
-    def project_dir(self) -> Path:
+    def toolbelt_dir(self) -> Path:
         if self.name:
             return self.root_path / self.name
         return self.root_path
 
     @property
     def ptvenvs_dir(self) -> Path:
-        return self.project_dir / "ptvenv"
+        return self.toolbelt_dir / "ptvenv"
 
     @property
     def tools_dir(self) -> Path:
-        return self.project_dir / "tools"
+        return self.toolbelt_dir / "tools"
 
     @property
     def new_directories(self) -> List[Path]:
-        return [self.ptvenvs_dir, self.tools_dir]
+        return [
+            self.ptvenvs_dir,
+            self.tools_dir,
+            self.venv_install_dir,
+            self.toolbelt_install_dir,
+            self.tool_install_dir
+        ]
 
     @property
     def new_files(self) -> List[Path]:
@@ -61,7 +68,7 @@ class ProjectPaths(BasePaths):
 
     @property
     def gitignore(self) -> Path:
-        return self.project_dir / ".gitignore"
+        return self.toolbelt_dir / ".gitignore"
 
     @property
     def global_config_file(self) -> Path:
@@ -69,11 +76,11 @@ class ProjectPaths(BasePaths):
 
     @property
     def pytoolbelt_config(self) -> Path:
-        return self.project_dir / "pytoolbelt.yml"
+        return self.toolbelt_dir / "pytoolbelt.yml"
 
     @property
     def git_dir(self) -> Path:
-        return self.project_dir / ".git"
+        return self.toolbelt_dir / ".git"
 
     @property
     def venv_install_dir(self) -> Path:
@@ -82,6 +89,10 @@ class ProjectPaths(BasePaths):
     @property
     def tool_install_dir(self) -> Path:
         return PYTOOLBELT_TOOLS_INSTALL_DIR
+
+    @property
+    def toolbelt_install_dir(self) -> Path:
+        return PYTOOLBELT_TOOLBELT_INSTALL_DIR
 
     def is_pytoolbelt_project(self, repo: Repo) -> bool:
         if self.git_dir.exists():
@@ -120,12 +131,12 @@ class ProjectPaths(BasePaths):
                     yield ComponentMetadata.from_string(links_to, "tool")
 
 
-class ProjectTemplater(BaseTemplater):
-    def __init__(self, paths: ProjectPaths) -> None:
+class ToolbeltTemplater(BaseTemplater):
+    def __init__(self, paths: ToolbeltPaths) -> None:
         super().__init__()
         self.paths = paths
 
-    def template_new_project_files(self) -> None:
+    def template_new_toolbelt_files(self) -> None:
         for file in self.paths.new_files:
             if file.exists():
                 if file.stat().st_size == 0:

@@ -3,17 +3,17 @@ from pathlib import Path
 from git import Repo
 from typing import Optional
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
-from pytoolbelt.core.project.project_components import ProjectPaths, ProjectTemplater
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.core.error_handling.exceptions import ToolbeltConfigNotFound
-from pytoolbelt.views.toolbelt_views import ToolbeltConfigView
+from pytoolbelt.cli.views.toolbelt_views import ToolbeltConfigView
 
 
 class ToolbeltController:
 
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
-        self._project_paths = kwargs.get("paths", ProjectPaths(project_root=root_path))
-        self.templater = kwargs.get("templater", ProjectTemplater(self._project_paths))
+        self._project_paths = kwargs.get("paths", ToolbeltPaths(toolbelt_root=root_path))
+        self.templater = kwargs.get("templater", ToolbeltTemplater(self._project_paths))
         self._toolbelt = ToolbeltConfigs.load()
 
     @property
@@ -21,7 +21,7 @@ class ToolbeltController:
         return self._toolbelt
 
     @property
-    def project_paths(self) -> ProjectPaths:
+    def project_paths(self) -> ToolbeltPaths:
         return self._project_paths
 
     def _add_this_repo(self) -> int:
@@ -47,8 +47,8 @@ class ToolbeltController:
         self.toolbelt.add(toolbelt_config)
         self.project_paths.name = toolbelt_config.name
         self.project_paths.create()
-        self.templater.template_new_project_files()
-        repo = GitClient.init_if_not_exists(self.project_paths.project_dir)
+        self.templater.template_new_toolbelt_files()
+        repo = GitClient.init_if_not_exists(self.project_paths.toolbelt_dir)
         repo.create_remote(name="origin", url=toolbelt_config.url)
         self.toolbelt.save()
         return 0
@@ -74,3 +74,11 @@ class ToolbeltController:
         table.add_configs(self.toolbelt)
         table.print_table()
         return 0
+
+    def fetch(self, name: str) -> int:
+        try:
+            toolbelt_config = self.toolbelt.repos[name]
+        except KeyError:
+            raise ToolbeltConfigNotFound(f"Toolbelt {name} not found in config file.")
+
+        repo = GitClient.clone_from_url(toolbelt_config.url, self.project_paths.toolbelt_dir)

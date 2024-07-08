@@ -1,5 +1,5 @@
 from .base_view import BaseTableView
-from ..core.data_classes.toolbelt_config import ToolbeltConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 class PtVenvInstalledTableView(BaseTableView):

@@ -29,6 +29,8 @@ pytoolbelt:
 
 
 
+pytoolbelt releases --toolbelt aws-toolbelt  --ptvenv / --tools --all
+pytoolbelt installed --toolbelt aws-toolbelt --ptvenv / --tools
 
 pytoolbelt ptvenv new --name myenv --python 3.8  --bump minor
 

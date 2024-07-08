@@ -34,8 +34,11 @@ def build_entrypoint_parsers(
         root_subparsers = root_parser.add_subparsers(dest="action")
         root_subparsers.required = True
 
-        for action, options in actions.items():
-            action_parser = root_subparsers.add_parser(action, help=options["help"])
+        sorted_actions = sorted(actions.keys())
+
+        for sorted_action in sorted_actions:
+            options = actions[sorted_action]
+            action_parser = root_subparsers.add_parser(sorted_action, help=options["help"])
             action_parser.set_defaults(func=entrypoint)
 
             if common_flags:

@@ -12,24 +12,56 @@ from pytoolbelt.core.error_handling.exceptions import (
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.cli.controllers.project_controller import Project
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
+from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_ROOT
+from pytoolbelt.cli.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.project.project_components import ProjectPaths
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
-class PtVenv:
+class PtVenvController:
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
-        self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
+        self.project_paths = kwargs.get("project_paths", ToolbeltPaths(root_path))
         self.paths = kwargs.get("paths", PtVenvPaths(meta, self.project_paths))
         self.templater = kwargs.get("templater", PtVenvTemplater(self.paths))
         self.builder = kwargs.get("builder", PtVenvBuilder(self.paths))
 
     @classmethod
-    def from_ptvenv_paths(cls, paths: PtVenvPaths) -> "PtVenv":
+    def from_ptvenv_paths(cls, paths: PtVenvPaths) -> "PtVenvController":
         return cls(paths.meta, paths.project_paths, paths=paths)
+
+    @classmethod
+    def for_creation(cls, string: str, root_path: Optional[Path] = None) -> "PtVenvController":
+        version = Version.parse("0.0.1")
+        meta = ComponentMetadata.as_ptvenv(string, version)
+        return cls(meta, root_path)
+
+    @classmethod
+    def for_deletion(cls, string: str, root_path: Optional[Path] = None) -> "PtVenvController":
+        meta = ComponentMetadata.as_ptvenv(string)
+        inst = cls(meta, root_path)
+
+        if not inst.paths.meta.is_latest_version:
+            return inst
+
+        latest_version = inst.paths.get_latest_installed_version()
+        inst.paths.meta.version = latest_version
+        return inst
+
+    @classmethod
+    def for_build_and_release(cls, string: str, root_path: Optional[Path] = None) -> "PtVenvController":
+        meta = ComponentMetadata.as_ptvenv(string)
+        inst = cls(meta, root_path)
+
+        # this means we passed in some version number in the format name==version
+        if isinstance(meta.version, Version):
+            return inst
+
+        # this means we are building, or releasing a new / latest version,
+        config = PtVenvConfig.from_file(inst.paths.ptvenv_config_file)
+        inst.paths.meta.version = config.version
+        return inst
 
     @classmethod
     def from_cli(
@@ -39,7 +71,7 @@ class PtVenv:
             creation: Optional[bool] = False,
             deletion: Optional[bool] = False,
             build: Optional[bool] = False,
-    ) -> "PtVenv":
+    ) -> "PtVenvController":
         meta = ComponentMetadata.as_ptvenv(string)
         inst = cls(meta, root_path)
 
@@ -68,7 +100,7 @@ class PtVenv:
         return inst
 
     @classmethod
-    def from_release_tag(cls, tag: str, root_path: Optional[Path] = None) -> "PtVenv":
+    def from_release_tag(cls, tag: str, root_path: Optional[Path] = None) -> "PtVenvController":
         meta = ComponentMetadata.from_release_tag(tag)
         return cls(meta, root_path)
 
@@ -105,8 +137,8 @@ class PtVenv:
                 tmp_path = Path(tmp_dir) / "pytoolbelt"
 
                 # first thing to do is copy the repo over
-                print(f"Copying {PYTOOLBELT_PROJECT_ROOT} to {tmp_path}")
-                shutil.copytree(src=PYTOOLBELT_PROJECT_ROOT, dst=tmp_path)
+                print(f"Copying {PYTOOLBELT_TOOLBELT_ROOT} to {tmp_path}")
+                shutil.copytree(src=PYTOOLBELT_TOOLBELT_ROOT, dst=tmp_path)
 
                 # get the git commands pointed at the temp repo
                 tmp_git_client = GitClient.from_path(path=tmp_path)
@@ -116,7 +148,7 @@ class PtVenv:
                 tmp_git_client.checkout_tag(tag_reference)
 
                 # create new paths and builder pointed to the temp repo
-                tmp_project_paths = ProjectPaths(tmp_path)
+                tmp_project_paths = ToolbeltPaths(tmp_path)
                 tmp_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
                 tmp_ptvenv_config = PtVenvConfig.from_file(tmp_paths.ptvenv_config_file)
 
@@ -251,7 +283,7 @@ class PtVenv:
                     raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
 
             tmp_git_client.checkout_tag(latest_release)
-            tmp_project_paths = ProjectPaths(tmpdir_path)
+            tmp_project_paths = ToolbeltPaths(tmpdir_path)
             tmp_ptvenv_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
 
             self.paths.ptvenv_dir.mkdir(parents=True, exist_ok=True)

@@ -6,27 +6,21 @@ from typing import Optional
 from semver import Version
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import (
-    PtVenvCreationError,
-    PtVenvNotFoundError,
     ToolCreationError,
 )
 from pytoolbelt.core.prompts import exit_on_no
-from pytoolbelt.core.tools import hash_config
+
 from pytoolbelt.core.tools.git_client import GitClient
 
-from pytoolbelt.environment.config import PYTOOLBELT_PROJECT_ROOT
-from pytoolbelt.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
-from pytoolbelt.views.tool_views import ToolInstalledTableView, ToolReleasesTableView
-from .project_components import ProjectPaths, ProjectTemplater
+from pytoolbelt.cli.views.tool_views import ToolInstalledTableView, ToolReleasesTableView
+from .toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 from .tool_components import ToolConfig, ToolInstaller, ToolPaths, ToolTemplater
 
 
-
-
 class Tool:
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
-        self.project_paths = kwargs.get("project_paths", ProjectPaths(root_path))
+        self.project_paths = kwargs.get("project_paths", ToolbeltPaths(root_path))
         self.paths = kwargs.get("paths", ToolPaths(meta, self.project_paths))
         self.templater = kwargs.get("templater", ToolTemplater(self.paths))
         self.installer = kwargs.get("installer", ToolInstaller(self.paths))
