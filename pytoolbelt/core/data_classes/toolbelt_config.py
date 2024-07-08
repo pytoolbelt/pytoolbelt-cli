@@ -3,9 +3,9 @@ from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE
 import yaml
 from pydantic import BaseModel
 import giturlparse
-import json
 from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
 import os
+
 
 class ToolbeltConfig(BaseModel):
     url: str
@@ -32,18 +32,12 @@ class ToolbeltConfigs(BaseModel):
     @classmethod
     def load(cls) -> "ToolbeltConfigs":
         with PYTOOLBELT_TOOLBELT_CONFIG_FILE.open("r") as file:
-            config = yaml.safe_load(file)["repos"]
-            config = cls.expandvars(config)
+            raw_data = os.path.expandvars(file.read())
+            config = yaml.safe_load(raw_data)["repos"]
             if not config:
                 config = {}
             repos = {name: ToolbeltConfig(**repo) for name, repo in config.items()}
         return cls(repos=repos)
-
-    @staticmethod
-    def expandvars(config: Dict) -> Dict:
-        raw_data = json.dumps(config)
-        raw_data = os.path.expandvars(raw_data)
-        return json.loads(raw_data)
 
     def get(self, key: str) -> ToolbeltConfig:
         try:
