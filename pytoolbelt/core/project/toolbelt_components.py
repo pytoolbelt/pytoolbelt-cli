@@ -1,22 +1,23 @@
 from pathlib import Path
 from typing import List, Optional
-from git import Repo
+
 import giturlparse
+from git import Repo
+
 from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.environment.config import (
-    PYTOOLBELT_TOOLBELT_ROOT,
-    PYTOOLBELT_VENV_INSTALL_DIR,
-    PYTOOLBELT_TOOLS_INSTALL_DIR,
     PYTOOLBELT_TOOLBELT_CONFIG_FILE,
-    PYTOOLBELT_TOOLBELT_INSTALL_DIR
+    PYTOOLBELT_TOOLBELT_INSTALL_DIR,
+    PYTOOLBELT_TOOLBELT_ROOT,
+    PYTOOLBELT_TOOLS_INSTALL_DIR,
+    PYTOOLBELT_VENV_INSTALL_DIR,
 )
 
 
 class ToolbeltPaths(BasePaths):
-
     def __init__(self, toolbelt_root: Optional[Path] = None) -> None:
         self._name = None
         toolbelt_root = toolbelt_root or PYTOOLBELT_TOOLBELT_ROOT
@@ -51,7 +52,7 @@ class ToolbeltPaths(BasePaths):
             self.tools_dir,
             self.venv_install_dir,
             self.toolbelt_install_dir,
-            self.tool_install_dir
+            self.tool_install_dir,
         ]
 
     @property

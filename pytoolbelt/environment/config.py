@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Optional
+
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel

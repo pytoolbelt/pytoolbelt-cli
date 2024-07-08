@@ -1,9 +1,9 @@
-from .base_view import BaseTableView
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+
+from .base_view import BaseTableView
 
 
 class ToolbeltConfigView(BaseTableView):
-
     def __init__(self) -> None:
         super().__init__(
             title="Pytoolbelt Configuration",
@@ -11,7 +11,7 @@ class ToolbeltConfigView(BaseTableView):
                 {"header": "Name", "style": "cyan", "justify": "right"},
                 {"header": "Owner", "style": "magenta", "justify": "center"},
                 {"header": "URL", "style": "green"},
-            ]
+            ],
         )
 
     def add_configs(self, configs: ToolbeltConfigs) -> None:

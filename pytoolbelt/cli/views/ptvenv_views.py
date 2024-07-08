@@ -1,5 +1,6 @@
-from .base_view import BaseTableView
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
+
+from .base_view import BaseTableView
 
 
 class PtVenvInstalledTableView(BaseTableView):
@@ -10,7 +11,8 @@ class PtVenvInstalledTableView(BaseTableView):
                 {"header": "Name", "style": "cyan", "justify": "right"},
                 {"header": "Version", "style": "magenta", "justify": "center"},
                 {"header": "Path", "style": "green"},
-            ])
+            ],
+        )
 
     def add_row(self, name: str, version: str, path: str) -> None:
         super().add_row(name, version, path)
@@ -26,7 +28,8 @@ class PtVenvReleasesTableView(BaseTableView):
                 {"header": "Version", "style": "magenta", "justify": "center"},
                 {"header": "Release Date", "style": "green", "justify": "center"},
                 {"header": "Release Link", "style": "red"},
-            ])
+            ],
+        )
 
     def add_row(self, name: str, version: str, release_date: str, commit: str) -> None:
         url = self.format_commit_url(name, version, commit)

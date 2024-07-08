@@ -1,10 +1,12 @@
+import os
 from typing import Dict
-from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE
+
+import giturlparse
 import yaml
 from pydantic import BaseModel
-import giturlparse
+
 from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
-import os
+from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE
 
 
 class ToolbeltConfig(BaseModel):

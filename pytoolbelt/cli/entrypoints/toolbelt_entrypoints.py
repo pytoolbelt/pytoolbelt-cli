@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+
 from pytoolbelt.cli.controllers.toolbelt_controller import ToolbeltController
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 
 
 @dataclass
@@ -67,7 +68,7 @@ ACTIONS = {
                 "help": "Add the origin remote config for this pytoolbelt repo to the global config.",
                 "action": "store_true",
                 "default": False,
-            }
+            },
         },
     },
     "new": {
@@ -85,7 +86,7 @@ ACTIONS = {
             "--url": {
                 "help": "The git url of the new project.",
                 "required": False,
-            }
+            },
         },
     },
     "remove": {
@@ -102,5 +103,5 @@ ACTIONS = {
         "func": show,
         "help": "Show all toolbelts in the global config.",
         "flags": {},
-    }
+    },
 }

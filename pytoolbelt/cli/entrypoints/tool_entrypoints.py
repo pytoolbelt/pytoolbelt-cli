@@ -67,7 +67,7 @@ ACTIONS = {
                 "help": "Install in dev mode",
                 "action": "store_true",
                 "default": False,
-            }
+            },
         },
     },
     "installed": {
@@ -79,7 +79,7 @@ ACTIONS = {
                 "required": False,
                 "default": "",
             }
-        }
+        },
     },
     "remove": {
         "func": remove,

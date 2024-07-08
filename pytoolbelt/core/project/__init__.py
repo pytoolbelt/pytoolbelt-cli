@@ -4,18 +4,19 @@ from pathlib import Path
 from typing import Optional
 
 from semver import Version
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.error_handling.exceptions import (
-    ToolCreationError,
-)
-from pytoolbelt.core.prompts import exit_on_no
 
+from pytoolbelt.cli.views.tool_views import (
+    ToolInstalledTableView,
+    ToolReleasesTableView,
+)
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.error_handling.exceptions import ToolCreationError
+from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools.git_client import GitClient
 
-from pytoolbelt.cli.views.tool_views import ToolInstalledTableView, ToolReleasesTableView
-from .toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from .ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
 from .tool_components import ToolConfig, ToolInstaller, ToolPaths, ToolTemplater
+from .toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 
 
 class Tool:
@@ -27,11 +28,11 @@ class Tool:
 
     @classmethod
     def from_cli(
-            cls,
-            string: str,
-            root_path: Optional[Path] = None,
-            creation: Optional[bool] = False,
-            release: Optional[bool] = False,
+        cls,
+        string: str,
+        root_path: Optional[Path] = None,
+        creation: Optional[bool] = False,
+        release: Optional[bool] = False,
     ) -> "Tool":
         meta = ComponentMetadata.as_tool(string)
         inst = cls(meta, root_path)

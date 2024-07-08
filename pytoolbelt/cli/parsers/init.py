@@ -1,7 +1,8 @@
 from argparse import Namespace
 from typing import Any
+
 from pytoolbelt.core.error_handling.error_handler import handle_cli_errors
-from pytoolbelt.environment.config import init_home, add_path
+from pytoolbelt.environment.config import add_path, init_home
 
 
 @handle_cli_errors

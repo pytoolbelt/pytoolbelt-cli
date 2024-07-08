@@ -141,7 +141,6 @@ class ToolPaths(BasePaths):
 
 
 class EntrypointShimTemplater(BaseTemplater):
-
     def __init__(self, tool_paths: ToolPaths, interpreter: str) -> None:
         self.tool_paths = tool_paths
         self.interpreter = interpreter

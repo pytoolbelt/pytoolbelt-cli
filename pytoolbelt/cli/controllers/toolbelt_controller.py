@@ -1,16 +1,17 @@
-import giturlparse
 from pathlib import Path
-from git import Repo
 from typing import Optional
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
+
+import giturlparse
+from git import Repo
+
+from pytoolbelt.cli.views.toolbelt_views import ToolbeltConfigView
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig, ToolbeltConfigs
+from pytoolbelt.core.error_handling.exceptions import ToolbeltConfigNotFound
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from pytoolbelt.core.tools.git_client import GitClient
-from pytoolbelt.core.error_handling.exceptions import ToolbeltConfigNotFound
-from pytoolbelt.cli.views.toolbelt_views import ToolbeltConfigView
 
 
 class ToolbeltController:
-
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
         self._project_paths = kwargs.get("paths", ToolbeltPaths(toolbelt_root=root_path))
         self.templater = kwargs.get("templater", ToolbeltTemplater(self._project_paths))

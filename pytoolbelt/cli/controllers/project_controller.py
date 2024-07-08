@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Optional, Union
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
-from pytoolbelt.core.project.tool_components import ToolPaths
-from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
-from pytoolbelt.core.tools.git_client import GitClient
+
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
+from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
+from pytoolbelt.core.project.tool_components import ToolPaths
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
+from pytoolbelt.core.tools.git_client import GitClient
 
 
 class Project:

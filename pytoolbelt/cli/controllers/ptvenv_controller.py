@@ -4,20 +4,29 @@ from pathlib import Path
 from typing import Optional
 
 from semver import Version
+
+from pytoolbelt.cli.controllers.project_controller import Project
+from pytoolbelt.cli.views.ptvenv_views import (
+    PtVenvInstalledTableView,
+    PtVenvReleasesTableView,
+)
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import (
     PtVenvCreationError,
     PtVenvNotFoundError,
 )
+from pytoolbelt.core.project.ptvenv_components import (
+    PtVenvBuilder,
+    PtVenvConfig,
+    PtVenvPaths,
+    PtVenvTemplater,
+)
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_client import GitClient
-from pytoolbelt.cli.controllers.project_controller import Project
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_ROOT
-from pytoolbelt.cli.views.ptvenv_views import PtVenvInstalledTableView, PtVenvReleasesTableView
-from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
 class PtVenvController:
@@ -65,12 +74,12 @@ class PtVenvController:
 
     @classmethod
     def from_cli(
-            cls,
-            string: str,
-            root_path: Optional[Path] = None,
-            creation: Optional[bool] = False,
-            deletion: Optional[bool] = False,
-            build: Optional[bool] = False,
+        cls,
+        string: str,
+        root_path: Optional[Path] = None,
+        creation: Optional[bool] = False,
+        deletion: Optional[bool] = False,
+        build: Optional[bool] = False,
     ) -> "PtVenvController":
         meta = ComponentMetadata.as_ptvenv(string)
         inst = cls(meta, root_path)

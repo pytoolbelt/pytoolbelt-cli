@@ -1,6 +1,8 @@
-from git import Repo, TagReference
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import List, Optional, Union
+
+from git import Repo, TagReference
+
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import (
     NotOnReleaseBranchError,
@@ -10,14 +12,17 @@ from pytoolbelt.core.error_handling.exceptions import (
 
 
 class GitClient:
-
-    def __init__(self, repo: Repo, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None) -> None:
+    def __init__(
+        self, repo: Repo, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None
+    ) -> None:
         self._repo = repo
         self._config = config
         self._release_branch = release_branch
 
     @classmethod
-    def from_path(cls, path: Path, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None) -> "GitClient":
+    def from_path(
+        cls, path: Path, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None
+    ) -> "GitClient":
         return cls(Repo(path), config, release_branch)
 
     @staticmethod
@@ -56,7 +61,9 @@ class GitClient:
 
     def is_release_branch(self) -> bool:
         if not self.repo_config and not self._release_branch:
-            raise NotOnReleaseBranchError("No release branch set. Please provide a release branch in a repo config or pytoolbelt.yml.")
+            raise NotOnReleaseBranchError(
+                "No release branch set. Please provide a release branch in a repo config or pytoolbelt.yml."
+            )
         return self.current_branch == self.release_branch
 
     def has_untracked_files_in_directory(self, directory: str) -> bool:
@@ -113,13 +120,17 @@ class GitClient:
     def fetch_remote_tags(self) -> None:
         self.repo.git.fetch("--tags", "origin")
 
-    def ptvenv_releases(self, name: Optional[str] = None, as_names: Optional[bool] = False) -> Union[List[TagReference], List[str]]:
+    def ptvenv_releases(
+        self, name: Optional[str] = None, as_names: Optional[bool] = False
+    ) -> Union[List[TagReference], List[str]]:
         flt = self.get_tag_filter("ptvenv", name)
         if as_names:
             return [tag.name for tag in self.repo.tags if tag.name.startswith(flt)]
         return [tag for tag in self.repo.tags if tag.name.startswith(flt)]
 
-    def tool_releases(self, name: Optional[str] = None, as_names: Optional[bool] = False) -> Union[List[TagReference], List[str]]:
+    def tool_releases(
+        self, name: Optional[str] = None, as_names: Optional[bool] = False
+    ) -> Union[List[TagReference], List[str]]:
         flt = self.get_tag_filter("tool", name)
         if as_names:
             return [tag.name for tag in self.repo.tags if tag.name.startswith(flt)]

@@ -1,7 +1,11 @@
 from dataclasses import dataclass
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenvController
-from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+from pytoolbelt.core.data_classes.pytoolbelt_config import (
+    PytoolbeltConfig,
+    pytoolbelt_config,
+)
 
 
 @dataclass
