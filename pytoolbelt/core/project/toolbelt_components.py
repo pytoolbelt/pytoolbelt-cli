@@ -92,8 +92,12 @@ class ToolbeltPaths(BasePaths):
         return PYTOOLBELT_TOOLS_INSTALL_DIR
 
     @property
-    def toolbelt_install_dir(self) -> Path:
+    def toolbelt_install_root_dir(self) -> Path:
         return PYTOOLBELT_TOOLBELT_INSTALL_DIR
+
+    @property
+    def toolbelt_install_dir(self) -> Path:
+        return self.toolbelt_install_root_dir / self.name
 
     def is_pytoolbelt_project(self, repo: Repo) -> bool:
         if self.git_dir.exists():

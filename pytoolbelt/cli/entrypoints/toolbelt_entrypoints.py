@@ -10,6 +10,7 @@ class ToolbeltParameters(BaseEntrypointParameters):
     name: str
     owner: str
     this_toolbelt: bool
+    fetch: bool
 
     def __post_init__(self):
         if self.action == "add":
@@ -32,6 +33,9 @@ class ToolbeltParameters(BaseEntrypointParameters):
         if (self.name or self.owner) and self.url:
             raise ValueError("Cannot provide both --url and --name/--owner flags.")
 
+        if (self.name and not self.owner) or (not self.name and self.owner):
+            raise ValueError("Must provide both --name and --owner flags if either is provided.")
+
 
 def new(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
@@ -40,7 +44,7 @@ def new(params: ToolbeltParameters) -> int:
 
 def add(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
-    return controller.add(params.url, params.this_toolbelt)
+    return controller.add(params.url, params.this_toolbelt, params.fetch)
 
 
 def remove(params: ToolbeltParameters) -> int:
@@ -51,6 +55,11 @@ def remove(params: ToolbeltParameters) -> int:
 def show(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
     return controller.show()
+
+
+def fetch(params: ToolbeltParameters) -> int:
+    controller = ToolbeltController()
+    return controller.fetch(params.name)
 
 
 COMMON_FLAGS = {}
@@ -66,6 +75,11 @@ ACTIONS = {
             },
             "--this-toolbelt": {
                 "help": "Add the origin remote config for this pytoolbelt repo to the global config.",
+                "action": "store_true",
+                "default": False,
+            },
+            "--fetch": {
+                "help": "Fetch the toolbelt after adding it to the global config.",
                 "action": "store_true",
                 "default": False,
             },
@@ -103,5 +117,15 @@ ACTIONS = {
         "func": show,
         "help": "Show all toolbelts in the global config.",
         "flags": {},
+    },
+    "fetch": {
+        "func": fetch,
+        "help": "Fetch the toolbelt from the global config.",
+        "flags": {
+            "--name": {
+                "help": "The name of the toolbelt to fetch.",
+                "required": True,
+            }
+        },
     },
 }

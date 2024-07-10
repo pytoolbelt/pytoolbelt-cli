@@ -18,7 +18,7 @@ PYTOOLBELT_DEFAULT_ENV_FILE = PYTOOLBELT_TOOLBELT_ROOT / ".env"
 # environment paths used for installation
 PYTOOLBELT_VENV_INSTALL_DIR = Path.home() / ".pytoolbelt" / "environments"
 PYTOOLBELT_TOOLS_INSTALL_DIR = Path.home() / ".pytoolbelt" / "tools"
-PYTOOLBELT_TOOLBELT_INSTALL_DIR = Path.home() / ".pytoolbelt" / "toolbelts"
+PYTOOLBELT_TOOLBELT_INSTALL_DIR = Path.home() / "pytoolbelt" / "toolbelts"
 PYTOOLBELT_TOOLBELT_CONFIG_FILE = Path.home() / ".pytoolbelt" / "toolbelt.yml"
 
 

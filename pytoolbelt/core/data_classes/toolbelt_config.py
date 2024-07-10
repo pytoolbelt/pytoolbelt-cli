@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, Optional
 
 import giturlparse
 import yaml
@@ -13,16 +13,18 @@ class ToolbeltConfig(BaseModel):
     url: str
     owner: str
     name: str
+    release_branch: str = "main"
+    path: Optional[str] = ""
 
     @classmethod
-    def from_url(cls, url: str) -> "ToolbeltConfig":
+    def from_url(cls, url: str, path: Optional[str] = "") -> "ToolbeltConfig":
         parsed_url = giturlparse.parse(url)
-        return cls(url=url, owner=parsed_url.owner, name=parsed_url.name)
+        return cls(url=url, owner=parsed_url.owner, name=parsed_url.name, path=path)
 
     @classmethod
     def from_name_owner(cls, name: str, owner: str) -> "ToolbeltConfig":
         return cls(
-            url=f"https://github.com/{owner}/{name}.git",
+            url=f"git@github.com:{owner}/{name}.git",
             owner=owner,
             name=name,
         )
@@ -45,7 +47,7 @@ class ToolbeltConfigs(BaseModel):
         try:
             return self.repos[key]
         except KeyError:
-            raise RepoConfigNotFoundError(f"Repo {key} not found in pytoolbelt-config.yml file")
+            raise RepoConfigNotFoundError(f"Repo {key} not found in toolbelts.yml file")
 
     def add(self, repo: ToolbeltConfig) -> None:
         self.repos[repo.name] = repo
