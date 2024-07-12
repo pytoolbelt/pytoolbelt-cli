@@ -10,7 +10,7 @@ def entrypoint(cliargs: Namespace) -> int:
     params = ReleasesParameters.from_cliargs(cliargs)
     controller = ReleasesController()
     controller.releases(
-        name=params.name,
+        name=params.toolbelt,
         ptvenv=params.ptvenv,
         tools=params.tools,
         _all=params.all

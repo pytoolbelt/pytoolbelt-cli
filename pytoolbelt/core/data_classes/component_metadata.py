@@ -49,8 +49,11 @@ class ComponentMetadata:
         return cls(name, version, "ptvenv")
 
     @classmethod
-    def as_tool(cls, string: str) -> "ComponentMetadata":
-        return cls.from_string(string, "tool")
+    def as_tool(cls, string: str, version: Optional[Version] = None) -> "ComponentMetadata":
+        inst = cls.from_string(string, "tool")
+        if version:
+            inst.version = version
+        return inst
 
     @classmethod
     def from_release_tag(cls, tag: str) -> "ComponentMetadata":

@@ -1,32 +1,18 @@
 from dataclasses import dataclass
 
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
-from pytoolbelt.core.project import Tool
+from pytoolbelt.cli.controllers.tool_controller import ToolController
 
 
 @dataclass
 class ToolParameters(BaseEntrypointParameters):
     name: str
-    repo_config: str
     dev_mode: bool
 
 
 def new(params: ToolParameters) -> int:
-    paths = Tool.from_cli(params.name, creation=True)
-    paths.create()
-    return 0
-
-
-def install(params: ToolParameters) -> int:
-    tool = Tool.from_cli(params.name, release=True)
-    tool.install(dev_mode=params.dev_mode)
-    return 0
-
-
-def installed(params: ToolParameters) -> int:
-    tool = Tool.from_cli("")
-    tool.installed()
-    return 0
+    tool = ToolController.for_creation(params.name)
+    return tool.create()
 
 
 def remove(params: ToolParameters) -> int:
@@ -35,15 +21,20 @@ def remove(params: ToolParameters) -> int:
     return 0
 
 
-def release(params: ToolParameters) -> int:
-    tool = Tool.from_cli(params.name, release=True)
-    tool.release()
+def install(params: ToolParameters) -> int:
+    tool = ToolController.for_installation(params.name)
+    return tool.install(dev_mode=params.dev_mode)
+
+
+def installed(params: ToolParameters) -> int:
+    tool = Tool.from_cli("")
+    tool.installed()
     return 0
 
 
-def releases(params: ToolParameters) -> int:
+def release(params: ToolParameters) -> int:
     tool = Tool.from_cli(params.name, release=True)
-    tool.releases()
+    tool.release()
     return 0
 
 
@@ -100,9 +91,5 @@ ACTIONS = {
                 "required": True,
             }
         },
-    },
-    "releases": {
-        "func": releases,
-        "help": "List all releases",
     },
 }

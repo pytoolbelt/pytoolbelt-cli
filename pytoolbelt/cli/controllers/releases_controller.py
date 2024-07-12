@@ -22,7 +22,7 @@ class ReleasesParameters(BaseEntrypointParameters):
 
 
 COMMON_FLAGS = {
-    "--name": {
+    "--toolbelt": {
         "required": True,
         "help": "The help for toolbelt"
     },
@@ -43,7 +43,6 @@ COMMON_FLAGS = {
     }
 }
 
-
 class ReleasesController:
 
     def __init__(self) -> None:
@@ -55,21 +54,22 @@ class ReleasesController:
         self.toolbelt_paths.name = name
         git_client = GitClient.from_path(self.toolbelt_paths.toolbelt_install_dir, toolbelt)
 
-        print("fetching remote tags...")
         git_client.repo.remotes.origin.fetch()
 
-        table = ReleasesTableView(toolbelt=toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
         releases = []
 
         if ptvenv:
-            releases = [ComponentMetadata.from_release_tag(t.name) for t in git_client.ptvenv_releases()]
+            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.ptvenv_releases()]
 
         if tools:
-            releases = [ComponentMetadata.from_release_tag(t.name) for t in git_client.tool_releases()]
+            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.tool_releases()]
 
-        import pdb; pdb.set_trace()
-        if not _all:
-            releases = 0
+        if not releases:
+            print("No releases found for this toolbelt.")
+            return 0
 
         # otherwise just do all the releases
         table = ReleasesTableView(toolbelt=toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
+        for r, t in releases:
+            table.add_row(r.name, r.version, str(t.commit.committed_datetime.date()), t.commit.hexsha)
+        table.print_table()

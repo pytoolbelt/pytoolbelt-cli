@@ -6,6 +6,7 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 
 
 @dataclass
@@ -23,7 +24,7 @@ def new(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
 
 
 def build(params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build_and_release(params.name)
+    ptvenv = PtVenvController.for_build(params.name)
     return ptvenv.build(params.force)
 
 
@@ -34,7 +35,7 @@ def remove(params: PtVenvParameters) -> int:
 
 @pytoolbelt_config
 def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build_and_release(params.name)
+    ptvenv = PtVenvController.for_build(params.name)
     if params.part == "config":
         return ptvenv.bump(ptc.bump)
     return ptvenv.bump(params.part)
@@ -42,8 +43,14 @@ def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
 
 @pytoolbelt_config
 def release(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build_and_release(params.name)
+    ptvenv = PtVenvController.for_release(params.name)
     return ptvenv.release(ptc)
+
+
+def installed(params: PtVenvParameters) -> int:
+    meta = ComponentMetadata.as_ptvenv("")
+    ptvenv = PtVenvController(meta)
+    return ptvenv.installed()
 
 
 COMMON_FLAGS = {}

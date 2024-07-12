@@ -40,3 +40,15 @@ class ToolCreationError(Exception):
 
 class ToolbeltConfigNotFound(Exception):
     pass
+
+
+class NotPytoolbeltProjectError(Exception):
+    pass
+
+
+class PytoolbeltConfigNotFoundError(Exception):
+    pass
+
+
+class CreateReleaseError(Exception):
+    pass

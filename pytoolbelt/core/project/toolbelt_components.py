@@ -8,6 +8,7 @@ from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.error_handling.exceptions import NotPytoolbeltProjectError
 from pytoolbelt.environment.config import (
     PYTOOLBELT_TOOLBELT_CONFIG_FILE,
     PYTOOLBELT_TOOLBELT_INSTALL_DIR,
@@ -111,7 +112,7 @@ class ToolbeltPaths(BasePaths):
 
     def raise_if_not_pytoolbelt_project(self, repo: Repo) -> None:
         if not self.is_pytoolbelt_project(repo):
-            raise ValueError("This is not a pytoolbelt project.")
+            raise NotPytoolbeltProjectError("This directory is not the root of a pytoolbelt project.")
 
     def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()
