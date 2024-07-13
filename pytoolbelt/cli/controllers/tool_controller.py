@@ -1,24 +1,19 @@
-import tempfile
 from pathlib import Path
 from typing import Optional
 
 from semver import Version
 
 from pytoolbelt.cli.views.tool_views import (
-    ToolInstalledTableView,
-    ToolReleasesTableView,
+    ToolInstalledTableView
 )
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import ToolCreationError
-from pytoolbelt.core.prompts import exit_on_no
 from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
-from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder
 from pytoolbelt.core.error_handling.exceptions import CreateReleaseError
 from pytoolbelt.core.project.tool_components import ToolPaths, ToolTemplater, ToolInstaller, ToolConfig
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltConfigs
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
-from pytoolbelt.cli.controllers.ptvenv_controller import PtVenvController
 from pytoolbelt.cli.controllers.common import release
 
 """
