@@ -51,15 +51,6 @@ def release(ptc: PytoolbeltConfig, params: ToolParameters) -> int:
     return 0
 
 
-def installed(params: ToolParameters) -> int:
-    tool = Tool.from_cli("")
-    tool.installed()
-    return 0
-
-
-
-
-
 COMMON_FLAGS = {}
 
 ACTIONS = {
@@ -107,17 +98,6 @@ ACTIONS = {
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
                 "default": "config"
             },
-        },
-    },
-    "installed": {
-        "func": installed,
-        "help": "List installed tools",
-        "flags": {
-            "--name": {
-                "help": "Name of the tool to list",
-                "required": False,
-                "default": "",
-            }
         },
     },
     "remove": {
