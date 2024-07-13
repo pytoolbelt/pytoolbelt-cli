@@ -5,6 +5,7 @@ from pytoolbelt.cli.views.releases_view import ReleasesTableView
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pathlib import Path
 
 
 @dataclass
@@ -20,11 +21,15 @@ class ReleasesParameters(BaseEntrypointParameters):
         if self.ptvenv and self.tools:
             raise ValueError("Cannot specify both --ptvenv and --tools")
 
+        if not self.ptvenv and not self.tools:
+            raise ValueError("Must specify either --ptvenv or --tools")
+
 
 COMMON_FLAGS = {
     "--toolbelt": {
-        "required": True,
-        "help": "The help for toolbelt"
+        "required": False,
+        "help": "The help for toolbelt",
+        "default": Path.cwd().name
     },
     "--ptvenv": {
         "required": False,
@@ -43,13 +48,14 @@ COMMON_FLAGS = {
     }
 }
 
+
 class ReleasesController:
 
     def __init__(self) -> None:
         self.toolbelts = ToolbeltConfigs.load()
         self.toolbelt_paths = ToolbeltPaths()
 
-    def releases(self, name: str, ptvenv: bool, tools: bool, _all: bool) -> None:
+    def releases(self, name: str, ptvenv: bool, tools: bool, _all: bool) -> int:
         toolbelt = self.toolbelts.get(name)
         self.toolbelt_paths.name = name
         git_client = GitClient.from_path(self.toolbelt_paths.toolbelt_install_dir, toolbelt)

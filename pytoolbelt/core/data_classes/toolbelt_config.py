@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Optional
-
+from pathlib import Path
 import giturlparse
 import yaml
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ class ToolbeltConfig(BaseModel):
     owner: str
     name: str
     release_branch: str = "main"
-    path: Optional[str] = ""
+    path: Optional[Path] = ""
 
     @classmethod
     def from_url(cls, url: str, path: Optional[str] = "") -> "ToolbeltConfig":

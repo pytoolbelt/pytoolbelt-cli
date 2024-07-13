@@ -14,6 +14,12 @@ class PtVenv(BaseModel):
     name: str
     version: str
 
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "version": self.version,
+        }
+
 
 class ToolConfig(BaseModel):
     name: str
@@ -26,6 +32,20 @@ class ToolConfig(BaseModel):
             raw_yaml = yaml.safe_load(f)["tool"]
             ptvenv = PtVenv(**raw_yaml["ptvenv"])
             return cls(name=raw_yaml["name"], version=raw_yaml["version"], ptvenv=ptvenv)
+
+    def to_dict(self) -> dict:
+        return {
+            "tool": {
+                "name": self.name,
+                "version": str(self.version),
+                "ptvenv": self.ptvenv.to_dict(),
+            }
+        }
+
+
+class IndentedSafeDumper(yaml.SafeDumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(IndentedSafeDumper, self).increase_indent(flow, False)
 
 
 class ToolPaths(BasePaths):
@@ -138,6 +158,10 @@ class ToolPaths(BasePaths):
     def remove_installed_dev_tool(self) -> None:
         self.dev_symlink_path.unlink()
         self.dev_install_path.unlink()
+
+    def write_to_config_file(self, config: ToolConfig) -> None:
+        with self.tool_config_file.open("w") as f:
+            yaml.dump(config.to_dict(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
 
 
 class EntrypointShimTemplater(BaseTemplater):

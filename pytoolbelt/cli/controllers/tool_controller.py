@@ -1,3 +1,4 @@
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -10,8 +11,8 @@ from pytoolbelt.cli.views.tool_views import (
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import ToolCreationError
 from pytoolbelt.core.prompts import exit_on_no
-from pytoolbelt.core.tools.git_client import GitClient
-
+from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
+from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder
 from pytoolbelt.core.error_handling.exceptions import CreateReleaseError
 from pytoolbelt.core.project.tool_components import ToolPaths, ToolTemplater, ToolInstaller, ToolConfig
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltConfigs
@@ -56,7 +57,7 @@ class ToolController:
             raise CreateReleaseError(f"Cannot release tool {inst.paths.meta.name} with version {inst.paths.meta.version}. Versions must be bumped in the tool config file.")
 
         config = ToolConfig.from_file(inst.paths.tool_config_file)
-        inst.paths.meta.version = config.version
+        inst.paths.meta.version = Version.parse(config.version)
         return inst
 
     @classmethod
@@ -88,22 +89,56 @@ class ToolController:
         self.templater.template_new_tool_files()
         return 0
 
-    def install(self, dev_mode: bool) -> int:
-        tool_config = ToolConfig.from_file(self.paths.tool_config_file)
-        ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.toolbelt_paths)
-
+    @staticmethod
+    def _raise_if_ptvenv_is_not_installed(ptvenv_paths: PtVenvPaths) -> None:
         if not ptvenv_paths.install_dir.exists():
-            exit_on_no(
-                prompt_message=f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed. Install it now?",
-                exit_message="Unable to install tool. Exiting.",
-            )
-            ptvenv = PtVenvController.from_ptvenv_paths(ptvenv_paths)
-            ptvenv.build(force=False)
+            raise ToolCreationError(f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed.")
 
+    def _run_installer(self, ptvenv_paths: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None) -> None:
+        installer = installer or self.installer
         if dev_mode:
-            self.installer.install_shim(ptvenv_paths.python_executable_path.as_posix())
+            installer.install_shim(ptvenv_paths.python_executable_path.as_posix())
         else:
-            self.installer.install(ptvenv_paths.python_executable_path.as_posix())
+            installer.install(ptvenv_paths.python_executable_path.as_posix())
+
+    def install(self, dev_mode: bool, path: Path, toolbelt: str, from_config: bool) -> int:
+        # TODO: This can be DRYed out. Check teh build method of the PtVenvController.
+        with TemporaryGitClient(path, toolbelt) as (repo_path, git_client):
+
+            tool_config = ToolConfig.from_file(self.paths.tool_config_file)
+            ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.toolbelt_paths)
+
+            if not from_config and not dev_mode:
+                git_client.raise_if_uncommitted_changes()
+
+            if from_config or dev_mode:
+                self._raise_if_ptvenv_is_not_installed(ptvenv_paths)
+                self._run_installer(ptvenv_paths, dev_mode)
+                return 0
+
+            elif self.paths.meta.is_latest_version:
+                tags = git_client.tool_releases(name=self.paths.meta.name, as_names=True)
+                latest_meta = ComponentMetadata.get_latest_release(tags)
+
+            else:
+                latest_meta = self.paths.meta
+
+            try:
+                tag_reference = git_client.get_tag_reference(latest_meta.release_tag)
+            except IndexError:
+                raise ToolCreationError(f"Tool {latest_meta.name} version {latest_meta.version} does not exist.")
+
+            # check out from the release tag
+            print(f"Checking out {latest_meta.release_tag}...")
+            git_client.checkout(tag_reference)
+
+            # create new temp paths
+            tmp_project_paths = ToolbeltPaths(repo_path.tmp_dir)
+            tmp_paths = ToolPaths(latest_meta, tmp_project_paths)
+
+            tmp_installer = ToolInstaller(tmp_paths)
+            self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
+
         return 0
 
     def installed(self) -> None:
@@ -116,11 +151,19 @@ class ToolController:
             table.add_row(installed_tool.name, installed_tool.version, tool_paths.display_install_path)
         table.print_table()
 
-    def remove(self) -> None:
+    def bump(self, part: str) -> int:
+        config = ToolConfig.from_file(self.paths.tool_config_file)
+        next_version = self.paths.meta.version.next_version(part)
+        config.version = next_version
+        self.paths.write_to_config_file(config)
+        return 0
+
+    def remove(self) -> int:
         if self.paths.install_path.exists():
             self.paths.install_path.unlink()
         else:
             raise ToolCreationError(f"Tool {self.paths.meta.name} does not exist.")
+        return 0
 
     def release(self, ptc: PytoolbeltConfig) -> int:
         return release(ptc=ptc, toolbelt_paths=self.toolbelt_paths, component_paths=self.paths)

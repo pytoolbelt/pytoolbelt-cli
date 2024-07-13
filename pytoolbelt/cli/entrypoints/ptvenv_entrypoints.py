@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenvController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
@@ -7,14 +8,17 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import (
     pytoolbelt_config,
 )
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
 @dataclass
 class PtVenvParameters(BaseEntrypointParameters):
     name: str
+    toolbelt: str
     all: bool
     force: bool
     part: str
+    from_config: bool
 
 
 @pytoolbelt_config
@@ -24,8 +28,14 @@ def new(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
 
 
 def build(params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build(params.name)
-    return ptvenv.build(params.force)
+    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
+    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
+    return ptvenv.build(
+        force=params.force,
+        path=toolbelt_config.path,
+        toolbelt=toolbelt_config.name,
+        from_config=params.from_config
+    )
 
 
 def remove(params: PtVenvParameters) -> int:
@@ -76,6 +86,16 @@ ACTIONS = {
             },
             "--force": {
                 "help": "Force rebuild of the ptvenv even if it already exists or has been changed.",
+                "action": "store_true",
+                "default": False,
+            },
+            "--toolbelt": {
+                "help": "Name of the toolbelt to build the ptvenv with.",
+                "required": False,
+                "default": Path.cwd().name,
+            },
+            "--from-config": {
+                "help": "Build the ptvenv from the current pytoolbelt configuration.",
                 "action": "store_true",
                 "default": False,
             },

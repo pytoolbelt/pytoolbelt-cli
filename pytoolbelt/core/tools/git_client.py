@@ -1,14 +1,14 @@
 from pathlib import Path
-from typing import List, Optional, Union
-
+from typing import List, Optional, Union, Tuple
 from git import Repo, TagReference
-
+import shutil
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import (
     NotOnReleaseBranchError,
     UnableToReleaseError,
     UncommittedChangesError,
 )
+import tempfile
 
 
 class GitClient:
@@ -141,3 +141,30 @@ class GitClient:
 
     def checkout_tag(self, tag_ref: TagReference) -> None:
         self.repo.git.checkout(tag_ref)
+
+
+class TemporaryGitClient:
+
+    def __init__(self, src: Path, toolbelt: str):
+        self._root_tmp_dir = tempfile.TemporaryDirectory()
+        self.toolbelt = toolbelt
+        self.src = src
+
+    @property
+    def tmp_dir(self):
+        return Path(self._root_tmp_dir.name) / "pytoolbelt" / self.toolbelt
+
+    def __enter__(self) -> Tuple["TemporaryGitClient", GitClient]:
+        shutil.copytree(src=self.src, dst=self.tmp_dir)
+        return self, GitClient.from_path(self.tmp_dir)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        #TODO: Implement logging....
+        try:
+            self._root_tmp_dir.cleanup()
+        except (PermissionError, OSError):
+            pass
+
+        if exc_type:
+            return False
+        return True

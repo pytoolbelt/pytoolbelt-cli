@@ -11,7 +11,7 @@ from pytoolbelt.cli.views.ptvenv_views import (
 )
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import (
     PtVenvCreationError,
     PtVenvNotFoundError,
@@ -25,7 +25,7 @@ from pytoolbelt.core.project.ptvenv_components import (
 )
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools import hash_config
-from pytoolbelt.core.tools.git_client import GitClient
+from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_ROOT
 from pytoolbelt.cli.controllers.common import release
 
@@ -118,57 +118,63 @@ class PtVenvController:
         self.templater.template_new_venvdef_file(ptc=ptc)
         return 0
 
-    def build(self, force: bool) -> int:
-        ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
+    def build(self, force: bool, path: Path, toolbelt: str, from_config: bool) -> int:
+        # TODO: This can be DRYed out with the tool controller...
+        with TemporaryGitClient(path, toolbelt) as (repo_path, git_client):
 
-        # this means we passed in some version number in the format name==version
-        # we need to get the current tags from the repo, if a suitable tag is found
-        # we need to copy the entire repo to a temp dir, and check out the tag.
-        # we can then install the environment from the temp dir, but we must construct new PtVenvPaths and a builder.
-        if ptvenv_config.version != self.paths.meta.version:
-            git_client = GitClient.from_path(self.toolbelt_paths.root_path)
+            # if we have uncommitted changes and are not installing from the file, raise an error
+            if not from_config and not force:
+                git_client.raise_if_uncommitted_changes()
 
+            # if we are installing from file and not forcing, then check if the installation can proceed
+            # otherwise, just run the builder and install what is in the file.
+            if from_config:
+
+                # only check the config / installed hash if we are not forcing the build
+                if not force:
+                    ptvenv_config = PtVenvConfig.from_file(self.paths.ptvenv_config_file)
+                    self._installation_can_proceed(ptvenv_config)
+
+                # run the builder for this ptvenv
+                self.builder.build()
+                return 0
+
+            # if we did not pass in a version in the cli, and we are not installing from file, this means
+            # we need to get the latest release from the repo, and create the metadata.
+            elif self.paths.meta.is_latest_version:
+                tags = git_client.ptvenv_releases(name=self.paths.meta.name, as_names=True)
+                latest_meta = ComponentMetadata.get_latest_release(tags)
+
+            # in all other cases, this means we passed in a version in the cli,
+            # so just go with whatever was passed in.
+            else:
+                latest_meta = self.paths.meta
+
+            # get the tag reference for the latest release. If it is not found
+            # in the repo, we will raise an error and exit as we don't know what to install.
             try:
-                tag_reference = git_client.get_tag_reference(self.paths.meta.release_tag)
+                tag_reference = git_client.get_tag_reference(latest_meta.release_tag)
             except IndexError:
                 raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
 
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                tmp_path = Path(tmp_dir) / "pytoolbelt"
+            # check out from the release tag in the temp repo
+            print(f"Checking out tag {tag_reference}")
+            git_client.checkout_tag(tag_reference)
 
-                # first thing to do is copy the repo over
-                print(f"Copying {PYTOOLBELT_TOOLBELT_ROOT} to {tmp_path}")
-                shutil.copytree(src=PYTOOLBELT_TOOLBELT_ROOT, dst=tmp_path)
+            # create new paths and builder pointed to the temp repo
+            tmp_project_paths = ToolbeltPaths(repo_path.tmp_dir)
+            tmp_paths = PtVenvPaths(latest_meta, tmp_project_paths)
 
-                # get the git commands pointed at the temp repo
-                tmp_git_client = GitClient.from_path(path=tmp_path)
-
-                # check out the tag in the temp repo
-                print(f"Checking out tag {tag_reference}")
-                tmp_git_client.checkout_tag(tag_reference)
-
-                # create new paths and builder pointed to the temp repo
-                tmp_project_paths = ToolbeltPaths(tmp_path)
-                tmp_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
+            if not force:
                 tmp_ptvenv_config = PtVenvConfig.from_file(tmp_paths.ptvenv_config_file)
+                self._installation_can_proceed(tmp_ptvenv_config)
 
-                if not self._installation_can_proceed(tmp_ptvenv_config):
-                    if not force:
-                        return 0
-
-                tmp_builder = PtVenvBuilder(tmp_paths)
-                print(f"Building {self.paths.meta.name} version {self.paths.meta.version} from {tag_reference}")
-                tmp_builder.build()
-                return 0
-
-        else:
-            if not self._installation_can_proceed(ptvenv_config):
-                if not force:
-                    return 0
-            self.builder.build()
+            tmp_builder = PtVenvBuilder(tmp_paths)
+            print(f"Building {self.paths.meta.name} version {self.paths.meta.version} from {tag_reference}")
+            tmp_builder.build()
             return 0
 
-    def _installation_can_proceed(self, current_config: PtVenvConfig) -> bool:
+    def _installation_can_proceed(self, current_config: PtVenvConfig) -> None:
         # the installation directory exists, so we need to check if the configuration has changed
         # if it has, we need to warn the user that the environment definition has changed, however
         # the version has not been updated. This could lead to unexpected behavior.
@@ -195,11 +201,7 @@ class PtVenvController:
                 )
 
             if hashed_current_config == hashed_installed_config:
-                print(
-                    f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date."
-                )
-                return False
-        return True
+                raise PtVenvCreationError(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
 
     def delete(self, _all: bool) -> int:
         if self.paths.install_dir.exists():
@@ -243,58 +245,3 @@ class PtVenvController:
             table.add_row(installed_ptvenv.name, installed_ptvenv.version, ptvenv_paths.display_install_dir)
         table.print_table()
         return 0
-
-    # def fetch(self, repo_config_name: str, keep: bool, build: bool, force: bool) -> None:
-    #
-    #     if not keep and not build:
-    #         print("the ptvenv must be either kept with --keep, or built with --build or both, but not none")
-    #         return
-    #
-    #     if not build and force:
-    #         print("the --force flag is only valid when building the ptvenv")
-    #         return
-    #
-    #     if keep:
-    #         self.raise_if_exists()
-    #
-    #     repo_config = self.toolbelt_paths.get_pytoolbelt_config().get_repo_config(repo_config_name)
-    #
-    #     with tempfile.TemporaryDirectory() as tmpdir:
-    #         print("setting up temp dir...")
-    #         tmpdir_path = Path(tmpdir)
-    #
-    #         print("cloning repo...")
-    #         tmp_git_client = GitClient.clone_from_url(repo_config.url, tmpdir_path)
-    #
-    #         if isinstance(self.paths.meta.version, str) and self.paths.meta.version == "latest":
-    #             print("latest version being fetched....")
-    #
-    #             tags = tmp_git_client.ptvenv_releases(name=self.paths.meta.name, as_names=True)
-    #             latest_meta = ComponentMetadata.get_latest_release(tags)
-    #             latest_release = tmp_git_client.get_tag_reference(latest_meta.release_tag)
-    #
-    #         # otherwise we got a version passed in the cli so just assume it exists and check it out and if not... poop.
-    #         else:
-    #             print("passed in version being fetched.")
-    #             try:
-    #                 latest_release = tmp_git_client.get_tag_reference(self.paths.meta.release_tag)
-    #             except IndexError:
-    #                 raise PtVenvCreationError(f"Version {self.paths.meta.version} not found in the repository.")
-    #
-    #         tmp_git_client.checkout_tag(latest_release)
-    #         tmp_project_paths = ToolbeltPaths(tmpdir_path)
-    #         tmp_ptvenv_paths = PtVenvPaths(self.paths.meta, tmp_project_paths)
-    #
-    #         self.paths.ptvenv_dir.mkdir(parents=True, exist_ok=True)
-    #
-    #         # we should only do this when we keep...
-    #         shutil.copytree(tmp_ptvenv_paths.ptvenv_dir, self.paths.ptvenv_dir, dirs_exist_ok=True)
-    #
-    #         if build:
-    #             builder = PtVenvBuilder(tmp_ptvenv_paths)
-    #             builder.build()
-    #
-    #         # TODO: you need to fix this. gets deleted if already exists.... not good.
-    #         if keep:
-    #             if not self.paths.ptvenv_dir.exists():
-    #                 shutil.rmtree(self.paths.ptvenv_dir)

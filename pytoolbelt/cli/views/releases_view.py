@@ -11,8 +11,10 @@ class ReleasesTableView(BaseTableView):
 
         if self.ptvenv:
             title = f"PtVenv Releases for {toolbelt.name} {toolbelt.url}"
+            self.component = "ptvenv"
         elif self.tools:
             title = f"Tools Releases for {toolbelt.name} {toolbelt.url}"
+            self.component = "tools"
         else:
             raise ValueError("Must specify either --ptvenv or --tools")
 
@@ -31,6 +33,6 @@ class ReleasesTableView(BaseTableView):
         super().add_row(name, str(version), release_date, url)
 
     def format_commit_url(self, name: str, version: str, commit: str) -> str:
-        url = f"https://github.com/{self.toolbelt.owner}/{self.toolbelt.name}/tree/{commit}/ptvenv/{name}"
+        url = f"https://github.com/{self.toolbelt.owner}/{self.toolbelt.name}/tree/{commit}/{self.component}/{name}"
         display_text = f"View Release -- {name}-{version}"
         return f"[link={url}]{display_text}[/link]"
