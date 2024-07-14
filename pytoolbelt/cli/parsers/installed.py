@@ -9,11 +9,10 @@ from pytoolbelt.cli.controllers.installed_controller import InstalledController,
 def entrypoint(cliargs: Namespace) -> int:
     params = InstalledParameters.from_cliargs(cliargs)
     controller = InstalledController()
-    controller.installed(
+    return controller.installed(
         ptvenv=params.ptvenv,
         tools=params.tools
     )
-    return 0
 
 
 def configure_parser(subparser: Any) -> None:

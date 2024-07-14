@@ -125,7 +125,7 @@ class ToolController:
 
             # check out from the release tag
             print(f"Checking out {latest_meta.release_tag}...")
-            git_client.checkout(tag_reference)
+            git_client.checkout_tag(tag_reference)
 
             # create new temp paths
             tmp_project_paths = ToolbeltPaths(repo_path.tmp_dir)

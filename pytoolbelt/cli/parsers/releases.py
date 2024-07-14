@@ -9,13 +9,12 @@ from pytoolbelt.cli.controllers.releases_controller import ReleasesController, R
 def entrypoint(cliargs: Namespace) -> int:
     params = ReleasesParameters.from_cliargs(cliargs)
     controller = ReleasesController()
-    controller.releases(
+    return controller.releases(
         name=params.toolbelt,
         ptvenv=params.ptvenv,
         tools=params.tools,
         _all=params.all
     )
-    return 0
 
 
 def configure_parser(subparser: Any) -> None:

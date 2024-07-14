@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 import giturlparse
 from git import Repo
@@ -117,6 +117,16 @@ class ToolbeltPaths(BasePaths):
     def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()
         return ToolbeltConfigs.from_yml(raw_data)
+
+    def iter_tools(self) -> Iterator[str]:
+        for tool in self.tools_dir.iterdir():
+            if tool.is_dir():
+                yield tool.name
+
+    def iter_ptvenvs(self) -> Iterator[str]:
+        for ptvenv in self.ptvenvs_dir.iterdir():
+            if ptvenv.is_dir():
+                yield ptvenv.name
 
     def iter_installed_ptvenvs(self, name: Optional[str] = None) -> List[ComponentMetadata]:
         for venv in self.venv_install_dir.iterdir():
