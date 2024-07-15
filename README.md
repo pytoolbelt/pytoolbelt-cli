@@ -1,4 +1,1 @@
-# pytoolbelt
-####  -- VERSION {version} --
-
-Describe your amazing new tool here!
+![Logo](docs/assets/logo.png)

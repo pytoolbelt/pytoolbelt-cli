@@ -18,6 +18,12 @@ venv:                  ## Create local python venv for development
 	. venv/bin/activate pip install --upgrade pip setuptools wheel build
 
 
+.PHONY: docvenv
+docvenv:               ## Create local python venv for documentation
+	if [[ -d ./docvenv ]]; then rm -rf docvenv; fi
+	python -m venv docvenv && pip install --upgrade pip
+
+
 .PHONY: install
 install:               ## Install project locally in development mode - without dev tools
 	. venv/bin/activate && pip install -e .
@@ -26,6 +32,22 @@ install:               ## Install project locally in development mode - without 
 .PHONY: install-dev
 install-dev:           ## Install project locally in development mode - with dev tools
 	. venv/bin/activate && pip install -e ".[dev]"
+
+
+.PHONY: install-docs
+install-docs:          ## Install project locally in development mode - with docs tools
+	. docvenv/bin/activate && pip install -e ".[docs]"
+
+
+.PHONY: build-mkdocs
+build-mkdocs:          ## Build mkdocs documentation
+	. docvenv/bin/activate && mkdocs build
+
+
+.PHONY: release
+release:               ## Install only the dependencies to make a semantic release
+	. venv/bin/activate semantic-release publish
+
 
 ######################### RUN TESTS AND LINTER ####################################
 

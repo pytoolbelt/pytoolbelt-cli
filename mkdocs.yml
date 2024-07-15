@@ -1,0 +1,9 @@
+site_name: "Pytoolbelt Documentation"
+
+plugins:
+  - mkdocstrings
+  - search:
+      lang: en
+
+theme:
+  name: "material"
