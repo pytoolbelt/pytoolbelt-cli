@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pytoolbelt"
+name = "pytoolbelt-cli"
 version = "0.0.0"
 description = "A CLI tool to help teams share internal tooling written in python."
 readme = "README.md"
