@@ -50,6 +50,8 @@ match = "main"
 prerelease_token = "pre"
 
 [tool.semantic_release]
+changelog_file = "CHANGELOG.md"
+changelog_generate = true
 version_variables = [
     "pytoolbelt/cli/__init__.py:__version__"
 ]
