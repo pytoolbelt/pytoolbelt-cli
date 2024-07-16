@@ -78,6 +78,7 @@ Checking out tool-whoiam-0.1.0...
 zsh: /Users/maitland/.pytoolbelt/tools/whoiam: bad interpreter: /Users/maitland/.pytoolbelt/environments/jeff/0.1.0/venv/bin/python: no such file or directory
 
 
+
 -- cli argument error
 
 usage: pytoolbelt toolbelt new [-h] [--name NAME] [--owner OWNER] [--url URL]
