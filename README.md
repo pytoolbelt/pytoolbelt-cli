@@ -2,7 +2,6 @@
 
 # Currently in BETA Development - Not production ready
 
-
 ### Sharing python tooling within your organization, the easy way.
 
 ## What is Pytoolbelt?
@@ -19,7 +18,6 @@ Python is a wonderful language for writing scripts and small tools, but sharing 
 
 Pytoolbelt takes care of all of that for you. It leverages
 best practices and existing tools in the python ecosystem to make it easy to share your tools with your colleagues.
-
 
 ## Getting Started
 pytoolbelt can be installed via pip:
