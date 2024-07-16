@@ -43,7 +43,9 @@ def init_home():
         directory.mkdir(parents=True, exist_ok=True)
 
     for file in [PYTOOLBELT_TOOLBELT_CONFIG_FILE]:
-        file.touch(exist_ok=True)
+        if not file.exists():
+            file.touch(exist_ok=True)
+            file.write_text("repos: {}\n")
 
 
 def add_path() -> None:

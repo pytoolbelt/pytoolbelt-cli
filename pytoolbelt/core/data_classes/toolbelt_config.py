@@ -30,6 +30,16 @@ class ToolbeltConfig(BaseModel):
             name=name,
         )
 
+    def to_dict(self) -> Dict[str, str]:
+        return {
+            "url": self.url,
+            "owner": self.owner,
+            "name": self.name,
+            "release_branch": self.release_branch,
+            "path": str(self.path),
+
+        }
+
 
 class ToolbeltConfigs(BaseModel):
     repos: Dict[str, ToolbeltConfig]
@@ -55,4 +65,4 @@ class ToolbeltConfigs(BaseModel):
 
     def save(self) -> None:
         with PYTOOLBELT_TOOLBELT_CONFIG_FILE.open("w") as file:
-            yaml.safe_dump({"repos": {name: dict(repo) for name, repo in self.repos.items()}}, file)
+            yaml.safe_dump({"repos": {name: repo.to_dict() for name, repo in self.repos.items()}}, file)

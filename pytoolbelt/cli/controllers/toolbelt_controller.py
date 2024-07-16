@@ -10,7 +10,7 @@ from pytoolbelt.core.error_handling.exceptions import ToolbeltConfigNotFound
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_INSTALL_DIR
-
+from pytoolbelt.core.error_handling.exceptions import ToolbeltExistsError
 
 class ToolbeltController:
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:
@@ -54,12 +54,18 @@ class ToolbeltController:
         toolbelt_paths.name = toolbelt_config.name
         toolbelt_config.path = toolbelt_paths.toolbelt_dir.as_posix()
 
+        if toolbelt_paths.toolbelt_dir.exists():
+            raise ToolbeltExistsError(f"Toolbelt {toolbelt_config.name} already exists.")
+
         self.toolbelt.add(toolbelt_config)
 
         toolbelt_paths.create()
+        self.templater.paths = toolbelt_paths
         self.templater.template_new_toolbelt_files()
         repo = GitClient.init_if_not_exists(toolbelt_paths.toolbelt_dir)
-        repo.create_remote(name="origin", url=toolbelt_config.url)
+
+        if repo:
+            repo.create_remote(name="origin", url=toolbelt_config.url)
         self.toolbelt.save()
         return 0
 

@@ -52,3 +52,7 @@ class PytoolbeltConfigNotFoundError(Exception):
 
 class CreateReleaseError(Exception):
     pass
+
+
+class ToolbeltExistsError(Exception):
+    pass
