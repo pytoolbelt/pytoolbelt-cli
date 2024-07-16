@@ -44,6 +44,7 @@ docs = [
 [project.scripts]
 pytoolbelt = "pytoolbelt.__main__:main"
 
+
 [tool.semantic_release.branches.main]
 match = "main"
 prerelease_token = "pre"
