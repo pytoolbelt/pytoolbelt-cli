@@ -1,9 +1,20 @@
 site_name: "Pytoolbelt Documentation"
 
+markdown_extensions:
+  - markdown_include.include
+
 plugins:
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          show_source: false
   - search:
       lang: en
 
 theme:
   name: "material"
+  features:
+    - content.code.copy
+
+  nav:
+    - Home: index.md
