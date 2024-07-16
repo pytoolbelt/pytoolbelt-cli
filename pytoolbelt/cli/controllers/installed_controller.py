@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.views.installed_view import InstalledTableView
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolPaths
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
 
 @dataclass
@@ -33,7 +34,6 @@ COMMON_FLAGS = {
 
 
 class InstalledController:
-
     def __init__(self) -> None:
         self.toolbelts = ToolbeltConfigs.load()
         self.toolbelt_paths = ToolbeltPaths()

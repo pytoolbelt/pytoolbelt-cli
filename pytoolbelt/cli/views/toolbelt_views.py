@@ -11,7 +11,7 @@ class ToolbeltConfigView(BaseTableView):
                 {"header": "Name", "style": "cyan", "justify": "right"},
                 {"header": "Owner", "style": "magenta", "justify": "center"},
                 {"header": "URL", "style": "green"},
-                {"header": "Path", "style": "yellow"}
+                {"header": "Path", "style": "yellow"},
             ],
         )
 

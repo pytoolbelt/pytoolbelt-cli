@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 from pathlib import Path
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+
 from pytoolbelt.cli.controllers.tool_controller import ToolController
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+from pytoolbelt.core.data_classes.pytoolbelt_config import (
+    PytoolbeltConfig,
+    pytoolbelt_config,
+)
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
-from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
 
 
 @dataclass
@@ -32,7 +36,7 @@ def install(params: ToolParameters) -> int:
         dev_mode=params.dev_mode,
         path=toolbelt_config.path,
         toolbelt=toolbelt_config.name,
-        from_config=params.from_config
+        from_config=params.from_config,
     )
 
 
@@ -96,7 +100,7 @@ ACTIONS = {
                 "help": "Part of the version to bump",
                 "required": False,
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
-                "default": "config"
+                "default": "config",
             },
         },
     },

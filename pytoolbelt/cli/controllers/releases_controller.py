@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pathlib import Path
+
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.views.releases_view import ReleasesTableView
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pathlib import Path
 
 
 @dataclass
@@ -26,11 +27,7 @@ class ReleasesParameters(BaseEntrypointParameters):
 
 
 COMMON_FLAGS = {
-    "--toolbelt": {
-        "required": False,
-        "help": "The help for toolbelt",
-        "default": Path.cwd().name
-    },
+    "--toolbelt": {"required": False, "help": "The help for toolbelt", "default": Path.cwd().name},
     "--ptvenv": {
         "required": False,
         "help": "The help for the ptvenv flag",
@@ -45,12 +42,11 @@ COMMON_FLAGS = {
         "required": False,
         "help": "The help for the all flag",
         "action": "store_true",
-    }
+    },
 }
 
 
 class ReleasesController:
-
     def __init__(self) -> None:
         self.toolbelts = ToolbeltConfigs.load()
         self.toolbelt_paths = ToolbeltPaths()

@@ -1,7 +1,8 @@
 from argparse import Namespace
 from typing import Any
-from pytoolbelt.core.error_handling.error_handler import handle_cli_errors
+
 from pytoolbelt.cli.controllers.release_controller import ReleaseController
+from pytoolbelt.core.error_handling.error_handler import handle_cli_errors
 from pytoolbelt.core.tools import build_entrypoint_parsers
 
 
@@ -14,8 +15,5 @@ def entrypoint(cliargs: Namespace) -> int:
 
 def configure_parser(subparser: Any) -> None:
     build_entrypoint_parsers(
-        subparser=subparser,
-        name="release",
-        root_help="Make releases for a pytoolbelt.",
-        entrypoint=entrypoint
+        subparser=subparser, name="release", root_help="Make releases for a pytoolbelt.", entrypoint=entrypoint
     )

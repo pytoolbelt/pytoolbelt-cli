@@ -3,8 +3,8 @@ from functools import wraps
 import yaml
 from pydantic import BaseModel
 
-from pytoolbelt.environment.config import PYTOOLBELT_DEFAULT_CONFIG_FILE
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltConfigNotFoundError
+from pytoolbelt.environment.config import PYTOOLBELT_DEFAULT_CONFIG_FILE
 
 
 class PytoolbeltConfig(BaseModel):
@@ -28,4 +28,5 @@ def pytoolbelt_config(func):
     def wrapper(*args, **kwargs):
         ptc = PytoolbeltConfig.load()
         return func(*args, **kwargs, ptc=ptc)
+
     return wrapper

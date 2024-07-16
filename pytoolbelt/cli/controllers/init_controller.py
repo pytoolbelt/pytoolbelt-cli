@@ -1,8 +1,7 @@
-from pytoolbelt.environment.config import init_home, add_path
+from pytoolbelt.environment.config import add_path, init_home
 
 
 class InitController:
-
     @staticmethod
     def init_project(path: bool) -> int:
         init_home()

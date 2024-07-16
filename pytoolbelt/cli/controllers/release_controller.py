@@ -1,13 +1,15 @@
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.project.tool_components import ToolPaths, ToolConfig
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.project.ptvenv_components import PtVenvPaths, PtVenvConfig
+from pytoolbelt.core.data_classes.pytoolbelt_config import (
+    PytoolbeltConfig,
+    pytoolbelt_config,
+)
+from pytoolbelt.core.project.ptvenv_components import PtVenvConfig, PtVenvPaths
+from pytoolbelt.core.project.tool_components import ToolConfig, ToolPaths
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
-from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig, pytoolbelt_config
 
 
 class ReleaseController:
-
     def __init__(self) -> None:
         self.toolbelt_paths = ToolbeltPaths()
 

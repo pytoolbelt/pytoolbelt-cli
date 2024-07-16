@@ -3,14 +3,20 @@ TODO:
 this is ugly, we need to refactor this into likely a base class that the controllers can inherit from.
 """
 from typing import Union
-from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config, PytoolbeltConfig
+
+from pytoolbelt.core.data_classes.pytoolbelt_config import (
+    PytoolbeltConfig,
+    pytoolbelt_config,
+)
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolPaths
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
 
 
-def release(ptc: PytoolbeltConfig, toolbelt_paths: ToolbeltPaths, component_paths: Union[PtVenvPaths, ToolPaths]) -> int:
+def release(
+    ptc: PytoolbeltConfig, toolbelt_paths: ToolbeltPaths, component_paths: Union[PtVenvPaths, ToolPaths]
+) -> int:
 
     if isinstance(component_paths, PtVenvPaths):
         kind = "ptvenv"

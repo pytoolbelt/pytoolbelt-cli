@@ -3,11 +3,11 @@ from pathlib import Path
 
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenvController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
@@ -31,10 +31,7 @@ def build(params: PtVenvParameters) -> int:
     toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
     ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
     return ptvenv.build(
-        force=params.force,
-        path=toolbelt_config.path,
-        toolbelt=toolbelt_config.name,
-        from_config=params.from_config
+        force=params.force, path=toolbelt_config.path, toolbelt=toolbelt_config.name, from_config=params.from_config
     )
 
 

@@ -5,17 +5,18 @@ from typing import Optional
 
 from semver import Version
 
+from pytoolbelt.cli.controllers.common import release
 from pytoolbelt.cli.views.ptvenv_views import (
     PtVenvInstalledTableView,
     PtVenvReleasesTableView,
 )
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig, ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import (
+    CreateReleaseError,
     PtVenvCreationError,
     PtVenvNotFoundError,
-    CreateReleaseError,
 )
 from pytoolbelt.core.project.ptvenv_components import (
     PtVenvBuilder,
@@ -27,8 +28,6 @@ from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools import hash_config
 from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_ROOT
-from pytoolbelt.cli.controllers.common import release
-
 
 """
     TODO: This controller's constructors are quite similar to that of the tool controller. 
@@ -73,7 +72,9 @@ class PtVenvController:
         # we passed in some type of version in the format name==version and this
         # is not allowed, when making a release.
         if isinstance(meta.version, Version):
-            raise CreateReleaseError(f"Cannot release ptvenv {inst.paths.meta.name} with version {inst.paths.meta.version} versions must be bumps in the ptvenv config file.")
+            raise CreateReleaseError(
+                f"Cannot release ptvenv {inst.paths.meta.name} with version {inst.paths.meta.version} versions must be bumps in the ptvenv config file."
+            )
 
         # otherwise get the latest version number from the config file
         config = PtVenvConfig.from_file(inst.paths.ptvenv_config_file)
@@ -201,7 +202,9 @@ class PtVenvController:
                 )
 
             if hashed_current_config == hashed_installed_config:
-                raise PtVenvCreationError(f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date.")
+                raise PtVenvCreationError(
+                    f"Python environment {self.paths.meta.name} version {self.paths.meta.version} is already up to date."
+                )
 
     def delete(self, _all: bool) -> int:
         if self.paths.install_dir.exists():

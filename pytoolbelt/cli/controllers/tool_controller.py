@@ -3,18 +3,23 @@ from typing import Optional
 
 from semver import Version
 
-from pytoolbelt.cli.views.tool_views import (
-    ToolInstalledTableView
-)
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.error_handling.exceptions import ToolCreationError
-from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
-from pytoolbelt.core.error_handling.exceptions import CreateReleaseError
-from pytoolbelt.core.project.tool_components import ToolPaths, ToolTemplater, ToolInstaller, ToolConfig
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.cli.controllers.common import release
+from pytoolbelt.cli.views.tool_views import ToolInstalledTableView
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
+from pytoolbelt.core.error_handling.exceptions import (
+    CreateReleaseError,
+    ToolCreationError,
+)
+from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
+from pytoolbelt.core.project.tool_components import (
+    ToolConfig,
+    ToolInstaller,
+    ToolPaths,
+    ToolTemplater,
+)
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
+from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
 
 """
     TODO: This controller's constructors are quite similar to that of the tool controller. 
@@ -24,6 +29,7 @@ from pytoolbelt.cli.controllers.common import release
 
 class ToolController:
     """Controller for managing tools."""
+
     def __init__(self, meta: ComponentMetadata, root_path: Optional[Path] = None, **kwargs) -> None:
         self.toolbelt_paths = kwargs.get("toolbelt_paths", ToolbeltPaths(root_path))
         self.paths = kwargs.get("paths", ToolPaths(meta, self.toolbelt_paths))
@@ -49,7 +55,9 @@ class ToolController:
         # this means we passed in a version number, which should not be allowed.
         # Versions must always be bumped in the tool config file.
         if isinstance(meta.version, Version):
-            raise CreateReleaseError(f"Cannot release tool {inst.paths.meta.name} with version {inst.paths.meta.version}. Versions must be bumped in the tool config file.")
+            raise CreateReleaseError(
+                f"Cannot release tool {inst.paths.meta.name} with version {inst.paths.meta.version}. Versions must be bumped in the tool config file."
+            )
 
         config = ToolConfig.from_file(inst.paths.tool_config_file)
         inst.paths.meta.version = Version.parse(config.version)
@@ -87,9 +95,13 @@ class ToolController:
     @staticmethod
     def _raise_if_ptvenv_is_not_installed(ptvenv_paths: PtVenvPaths) -> None:
         if not ptvenv_paths.install_dir.exists():
-            raise ToolCreationError(f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed.")
+            raise ToolCreationError(
+                f"Python environment {ptvenv_paths.meta.name} version {ptvenv_paths.meta.version} is not installed."
+            )
 
-    def _run_installer(self, ptvenv_paths: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None) -> None:
+    def _run_installer(
+        self, ptvenv_paths: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None
+    ) -> None:
         installer = installer or self.installer
         if dev_mode:
             installer.install_shim(ptvenv_paths.python_executable_path.as_posix())

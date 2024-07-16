@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Iterator
+from typing import Iterator, List, Optional
 
 import giturlparse
 from git import Repo
