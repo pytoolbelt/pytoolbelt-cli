@@ -29,7 +29,9 @@ dev = [
     "build==1.2.1",
     "python-semantic-release==9.8.5",
     "pytest==8.2.2",
-    "black==24.4.2"
+    "black==24.4.2",
+    "isort==5.13.2"
+
 ]
 
 docs = [

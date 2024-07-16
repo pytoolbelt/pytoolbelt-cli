@@ -2,6 +2,7 @@
 TODO:
 this is ugly, we need to refactor this into likely a base class that the controllers can inherit from.
 """
+
 from typing import Union
 
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
