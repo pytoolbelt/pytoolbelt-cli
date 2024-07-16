@@ -54,3 +54,5 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 venv
+site
+docvenv
