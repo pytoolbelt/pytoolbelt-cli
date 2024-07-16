@@ -1,8 +1,10 @@
 # CHANGELOG
 
-## Unreleased
+## v0.1.1 (2024-07-16)
 
 ### Feature
+
+* feat(changelog): added changelog to project ([`60bede4`](https://github.com/pytoolbelt/pytoolbelt-cli/commit/60bede43876e2f050a5335c64b5ca4feda40b5ca))
 
 * feat(release): make a new release ([`7492d3d`](https://github.com/pytoolbelt/pytoolbelt-cli/commit/7492d3de4c8a1a63e05942572f40cb9984d6265f))
 
