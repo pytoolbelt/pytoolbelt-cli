@@ -40,3 +40,135 @@ pytoolbelt ptvenv new --name myenv --python 3.8  --bump minor
 after ptvenv creation, store the config and a hash of the config file with the venv. when installing / building,
 load the hash and compare it to the current config file. if it's different and the version is the same
 then throw some error and prevent this from happening.
+
+
+
+
+-- first user test
+
+-- install works
+-- pytoolbelt init
+
+toolbelt.yml .. must add the "repos" root node to the file on init
+
+rich error when running pytoolbelt toolbelt show as "NOT RENDERABLE"
+
+looks like the saved path is wrong
+
+repos:
+  aws-toolbelt:
+    name: aws-toolbelt
+    owner: pytoolbelt
+    path: /Users/maitland/workspaces/dump/aws-toolbelt
+    release_branch: main
+    url: git@github.com:pytoolbelt/aws-toolbelt.git
+
+
+-- installing whoiam did not complain that the ptvenv did not exist
+(venv) ➜  dump pytoolbelt installed --ptvenv
+                              Installed PtVenvs
+┏━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Name ┃ Version ┃ Path                                                     ┃
+┡━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ jeff │  0.1.2  │ /Users/maitland/.pytoolbelt/environments/jeff/0.1.2/venv │
+└──────┴─────────┴──────────────────────────────────────────────────────────┘
+(venv) ➜  dump pytoolbelt tool install --toolbelt aws-toolbelt --name whoiam
+Checking out tool-whoiam-0.1.0...
+(venv) ➜  dump whoiam -h
+zsh: /Users/maitland/.pytoolbelt/tools/whoiam: bad interpreter: /Users/maitland/.pytoolbelt/environments/jeff/0.1.0/venv/bin/python: no such file or directory
+
+
+-- cli argument error
+
+usage: pytoolbelt toolbelt new [-h] [--name NAME] [--owner OWNER] [--url URL]
+
+options:
+  -h, --help     show this help message and exit
+  --name NAME    The name of the new project. (git repo name)
+  --owner OWNER  The owner of the new project. (git repo owner)
+  --url URL      The git url of the new project.
+(venv) ➜  dump pytoolbelt toolbelt new --name foo-toolbelt
+Traceback (most recent call last):
+  File "/Users/maitland/workspaces/dump/venv/bin/pytoolbelt", line 8, in <module>
+    sys.exit(main())
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/__main__.py", line 12, in main
+    cliargs.func(cliargs=cliargs)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/error_handling/error_handler.py", line 28, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/parsers/toolbelt.py", line 11, in entrypoint
+    params = toolbelt_entrypoints.ToolbeltParameters.from_cliargs(cliargs)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/entrypoints/bases/base_parameters.py", line 14, in from_cliargs
+    return cls(**kwargs)
+  File "<string>", line 9, in __init__
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/entrypoints/toolbelt_entrypoints.py", line 20, in __post_init__
+    self._validate_on_new_action()
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/entrypoints/toolbelt_entrypoints.py", line 37, in _validate_on_new_action
+    raise ValueError("Must provide both --name and --owner flags if either is provided.")
+ValueError: Must provide both --name and --owner flags if either is provided.
+(venv) ➜  dump
+
+
+new toolbelt not being created in correct location
+(venv) ➜  dump pytoolbelt toolbelt new --name foo-toolbelt --owner pytoolbelt
+pytoolbelt :: Unable to perform action :: File not found
+Traceback (most recent call last):
+  File "/Users/maitland/workspaces/dump/venv/bin/pytoolbelt", line 8, in <module>
+    sys.exit(main())
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/__main__.py", line 12, in main
+    cliargs.func(cliargs=cliargs)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/error_handling/error_handler.py", line 34, in wrapper
+    return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: File not found")
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/error_handling/error_handler.py", line 12, in handle
+    return self.reraise_if_debug(exception)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/error_handling/error_handler.py", line 17, in reraise_if_debug
+    raise exception
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/error_handling/error_handler.py", line 28, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/parsers/toolbelt.py", line 13, in entrypoint
+    return action(params=params)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/entrypoints/toolbelt_entrypoints.py", line 42, in new
+    return controller.create(url=params.url, name=params.name, owner=params.owner)
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/cli/controllers/toolbelt_controller.py", line 60, in create
+    self.templater.template_new_toolbelt_files()
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/project/toolbelt_components.py", line 156, in template_new_toolbelt_files
+    for file in self.paths.new_files:
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/project/toolbelt_components.py", line 63, in new_files
+    if self.dir_empty(self.ptvenvs_dir):
+  File "/Users/maitland/workspaces/dump/venv/lib/python3.10/site-packages/pytoolbelt/core/bases/base_paths.py", line 32, in dir_empty
+    return not any(directory.iterdir())
+  File "/Users/maitland/.pyenv/versions/3.10.13/lib/python3.10/pathlib.py", line 1017, in iterdir
+    for name in self._accessor.listdir(self):
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/maitland/workspaces/dump/ptvenv'
+
+
+pytoolbelt.yml not being templated on new toolbelt creation
+
+
+
+--------------
+
+if the repo has not been fetched, then we need to deal with this error
+Traceback (most recent call last):
+  File "/Users/maitland/workspaces/dump/venv/bin/pytoolbelt", line 8, in <module>
+    sys.exit(main())
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/__main__.py", line 12, in main
+    cliargs.func(cliargs=cliargs)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/core/error_handling/error_handler.py", line 34, in wrapper
+    return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: File not found")
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/core/error_handling/error_handler.py", line 12, in handle
+    return self.reraise_if_debug(exception)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/core/error_handling/error_handler.py", line 17, in reraise_if_debug
+    raise exception
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/core/error_handling/error_handler.py", line 28, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/cli/parsers/tool.py", line 13, in entrypoint
+    return action(params=params)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/cli/entrypoints/tool_entrypoints.py", line 34, in install
+    tool = ToolController.for_installation(params.name, root_path=toolbelt_config.path)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/cli/controllers/tool_controller.py", line 73, in for_installation
+    config = ToolConfig.from_file(inst.paths.tool_config_file)
+  File "/Users/maitland/workspaces/pytoolbelt/pytoolbelt/core/project/tool_components.py", line 31, in from_file
+    with file.open("r") as f:
+  File "/Users/maitland/.pyenv/versions/3.10.13/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/maitland/pytoolbelt/toolbelts/aws-toolbelt/tools/whoiam/config.yml'

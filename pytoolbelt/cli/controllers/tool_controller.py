@@ -118,8 +118,9 @@ class ToolController:
             if not from_config and not dev_mode:
                 git_client.raise_if_uncommitted_changes()
 
+            self._raise_if_ptvenv_is_not_installed(ptvenv_paths)
+
             if from_config or dev_mode:
-                self._raise_if_ptvenv_is_not_installed(ptvenv_paths)
                 self._run_installer(ptvenv_paths, dev_mode)
                 return 0
 

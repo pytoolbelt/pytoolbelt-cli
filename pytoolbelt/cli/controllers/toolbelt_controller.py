@@ -71,7 +71,7 @@ class ToolbeltController:
         self.toolbelt_paths.name = toolbelt_config.name
 
         # now we have the toolbelt name, we can set the path
-        toolbelt_config.path = self.toolbelt_paths.toolbelt_dir.as_posix()
+        toolbelt_config.path = self.toolbelt_paths.toolbelt_install_dir.as_posix()
         self.toolbelt.add(toolbelt_config)
         self.toolbelt.save()
 
