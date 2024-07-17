@@ -6,11 +6,14 @@ from git import Repo
 
 from pytoolbelt.cli.views.toolbelt_views import ToolbeltConfigView
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig, ToolbeltConfigs
-from pytoolbelt.core.error_handling.exceptions import ToolbeltConfigNotFound
+from pytoolbelt.core.error_handling.exceptions import (
+    ToolbeltConfigNotFound,
+    ToolbeltExistsError,
+)
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltTemplater
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_INSTALL_DIR
-from pytoolbelt.core.error_handling.exceptions import ToolbeltExistsError
+
 
 class ToolbeltController:
     def __init__(self, root_path: Optional[Path] = None, **kwargs) -> None:

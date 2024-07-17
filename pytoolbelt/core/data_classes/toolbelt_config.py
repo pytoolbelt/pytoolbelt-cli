@@ -37,7 +37,6 @@ class ToolbeltConfig(BaseModel):
             "name": self.name,
             "release_branch": self.release_branch,
             "path": str(self.path),
-
         }
 
 
