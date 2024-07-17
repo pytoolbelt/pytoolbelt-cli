@@ -35,12 +35,13 @@ class ToolController:
         self.paths = kwargs.get("paths", ToolPaths(meta, self.toolbelt_paths))
         self.templater = kwargs.get("templater", ToolTemplater(self.paths))
         self.installer = kwargs.get("installer", ToolInstaller(self.paths))
+        self.toolbelt_paths.raise_if_not_exists()
 
     @classmethod
     def for_creation(cls, string: str, root_path: Optional[Path] = None) -> "ToolController":
         version = Version.parse("0.0.1")
         meta = ComponentMetadata.as_tool(string, version)
-        return cls(meta, root_path)
+        return cls(meta, root_path=root_path)
 
     @classmethod
     def for_deletion(cls, string: str, root_path: Optional[Path] = None) -> "ToolController":
@@ -66,7 +67,7 @@ class ToolController:
     @classmethod
     def for_installation(cls, string: str, root_path: Optional[Path] = None) -> "ToolController":
         meta = ComponentMetadata.as_tool(string)
-        inst = cls(meta, root_path)
+        inst = cls(meta, root_path=root_path)
 
         # no version was passed in, so we are installing the latest version as declared in the tool config file
         if inst.paths.meta.is_latest_version:
@@ -109,7 +110,7 @@ class ToolController:
             installer.install(ptvenv_paths.python_executable_path.as_posix())
 
     def install(self, dev_mode: bool, path: Path, toolbelt: str, from_config: bool) -> int:
-        # TODO: This can be DRYed out. Check teh build method of the PtVenvController.
+        # TODO: This can be DRYed out. Check the build method of the PtVenvController.
         with TemporaryGitClient(path, toolbelt) as (repo_path, git_client):
 
             tool_config = ToolConfig.from_file(self.paths.tool_config_file)

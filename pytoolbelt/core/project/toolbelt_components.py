@@ -20,22 +20,11 @@ from pytoolbelt.environment.config import (
 
 class ToolbeltPaths(BasePaths):
     def __init__(self, toolbelt_root: Optional[Path] = None) -> None:
-        self._name = None
         toolbelt_root = toolbelt_root or PYTOOLBELT_TOOLBELT_ROOT
         super().__init__(root_path=toolbelt_root)
 
     @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        self._name = value
-
-    @property
     def toolbelt_dir(self) -> Path:
-        if self.name:
-            return self.root_path / self.name
         return self.root_path
 
     @property
@@ -98,7 +87,7 @@ class ToolbeltPaths(BasePaths):
 
     @property
     def toolbelt_install_dir(self) -> Path:
-        return self.toolbelt_install_root_dir / self.name
+        return self.toolbelt_install_root_dir
 
     def is_pytoolbelt_project(self, repo: Repo) -> bool:
         if self.git_dir.exists():
@@ -113,6 +102,10 @@ class ToolbeltPaths(BasePaths):
     def raise_if_not_pytoolbelt_project(self, repo: Repo) -> None:
         if not self.is_pytoolbelt_project(repo):
             raise NotPytoolbeltProjectError("This directory is not the root of a pytoolbelt project.")
+
+    def raise_if_not_exists(self) -> None:
+        if not self.toolbelt_install_dir.exists():
+            raise NotPytoolbeltProjectError(f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt.")
 
     def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()

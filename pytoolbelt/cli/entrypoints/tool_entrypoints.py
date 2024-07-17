@@ -7,7 +7,7 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 @dataclass
@@ -19,8 +19,9 @@ class ToolParameters(BaseEntrypointParameters):
     from_config: bool
 
 
-def new(params: ToolParameters) -> int:
-    tool = ToolController.for_creation(params.name)
+@pytoolbelt_config
+def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_creation(params.name, root_path=toolbelt.path)
     return tool.create()
 
 
@@ -29,28 +30,28 @@ def remove(params: ToolParameters) -> int:
     return tool.remove()
 
 
-def install(params: ToolParameters) -> int:
-    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
-    tool = ToolController.for_installation(params.name, root_path=toolbelt_config.path)
+@pytoolbelt_config
+def install(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_installation(params.name, root_path=toolbelt.path)
     return tool.install(
         dev_mode=params.dev_mode,
-        path=toolbelt_config.path,
-        toolbelt=toolbelt_config.name,
+        path=toolbelt.path,
+        toolbelt=toolbelt.name,
         from_config=params.from_config,
     )
 
 
 @pytoolbelt_config
-def bump(ptc: PytoolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_release(params.name)
+def bump(ptc: PytoolbeltConfig, toolbelt: PytoolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_release(params.name, root_path=toolbelt.path)
     if params.part == "config":
         return tool.bump(ptc.bump)
     return tool.bump(params.part)
 
 
 @pytoolbelt_config
-def release(ptc: PytoolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_release(params.name)
+def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_release(params.name, root_path=toolbelt.path)
     tool.release(ptc)
     return 0
 
@@ -61,7 +62,17 @@ ACTIONS = {
     "new": {
         "func": new,
         "help": "Create a new tool",
-        "flags": {"--name": {"help": "Name of the tool", "required": True}},
+        "flags": {
+            "--name": {
+                "help": "Name of the tool",
+                "required": True
+            },
+            "--toolbelt": {
+                "help": "The help for toolbelt",
+                "required": False,
+                "default": Path.cwd().name,
+            },
+        },
     },
     "install": {
         "func": install,
@@ -102,6 +113,11 @@ ACTIONS = {
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
                 "default": "config",
             },
+            "--toolbelt": {
+                "help": "The help for toolbelt",
+                "required": False,
+                "default": Path.cwd().name,
+            },
         },
     },
     "remove": {
@@ -121,7 +137,12 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the tool",
                 "required": True,
-            }
+            },
+            "--toolbelt": {
+                "help": "The help for toolbelt",
+                "required": False,
+                "default": Path.cwd().name,
+            },
         },
     },
 }

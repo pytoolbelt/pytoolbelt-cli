@@ -49,14 +49,14 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class ToolPaths(BasePaths):
-    def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
+    def __init__(self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths") -> None:
         self._meta = meta
-        self._project_paths = project_paths
-        super().__init__(project_paths.root_path)
+        self._toolbelt_paths = toolbelt_paths
+        super().__init__(toolbelt_paths.root_path)
 
     @property
-    def project_paths(self) -> "ProjectPaths":
-        return self._project_paths
+    def toolbelt_paths(self) -> "ToolbeltPaths":
+        return self._toolbelt_paths
 
     @property
     def meta(self) -> ComponentMetadata:
@@ -64,7 +64,7 @@ class ToolPaths(BasePaths):
 
     @property
     def tool_dir(self) -> Path:
-        return self.project_paths.tools_dir / self.meta.name
+        return self.toolbelt_paths.tools_dir / self.meta.name
 
     @property
     def tool_code_dir(self) -> Path:
@@ -190,8 +190,10 @@ class ToolTemplater(BaseTemplater):
 
     def template_new_tool_files(self) -> None:
         for file in self.paths.new_files:
+            if file.parent.name == self.paths.meta.name and file.name == "__init__.py":
+                continue
             template_name = self.format_template_name(file.name)
-            rendered = self.render(template_name, paths=self.paths)
+            rendered = self.render(template_name, paths=self.paths, name=self.paths.meta.name)
             file.write_text(rendered)
 
 

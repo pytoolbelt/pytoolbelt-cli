@@ -54,6 +54,7 @@ class ReleasesController:
     def releases(self, name: str, ptvenv: bool, tools: bool, _all: bool) -> int:
         toolbelt = self.toolbelts.get(name)
         self.toolbelt_paths.name = name
+        self.toolbelt_paths.raise_if_not_exists()
         git_client = GitClient.from_path(self.toolbelt_paths.toolbelt_install_dir, toolbelt)
 
         git_client.repo.remotes.origin.fetch()

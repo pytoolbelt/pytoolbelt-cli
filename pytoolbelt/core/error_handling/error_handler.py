@@ -1,6 +1,7 @@
 import functools
 
 from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
+from pytoolbelt.core.error_handling import exceptions
 
 
 class ErrorHandler:
@@ -35,5 +36,8 @@ def handle_cli_errors(func):
 
         except OSError as e:
             return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: Unknown error")
+
+        except exceptions.NotPytoolbeltProjectError as e:
+            return error_handler.handle(e, f"pytoolbelt :: ERROR :: {e.args[0]}")
 
     return wrapper

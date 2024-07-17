@@ -8,7 +8,7 @@ from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
 
 
 @dataclass
@@ -22,12 +22,12 @@ class PtVenvParameters(BaseEntrypointParameters):
 
 
 @pytoolbelt_config
-def new(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_creation(params.name)
+def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_creation(params.name, root_path=toolbelt.path)
     return ptvenv.create(ptc)
 
 
-def build(params: PtVenvParameters) -> int:
+def install(params: PtVenvParameters) -> int:
     toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
     ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
     return ptvenv.build(
@@ -42,7 +42,8 @@ def remove(params: PtVenvParameters) -> int:
 
 @pytoolbelt_config
 def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build(params.name)
+    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
+    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
     if params.part == "config":
         return ptvenv.bump(ptc.bump)
     return ptvenv.bump(params.part)
@@ -50,7 +51,8 @@ def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
 
 @pytoolbelt_config
 def release(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_release(params.name)
+    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
+    ptvenv = PtVenvController.for_release(params.name, root_path=toolbelt_config.path)
     return ptvenv.release(ptc)
 
 
@@ -70,12 +72,17 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the ptvenv definition to create",
                 "required": True,
-            }
+            },
+            "--toolbelt": {
+                "help": "Name of the toolbelt to create a new ptvenv in.",
+                "required": False,
+                "default": Path.cwd().name,
+            },
         },
     },
-    "build": {
-        "func": build,
-        "help": "Build a pytoolbelt ptvenv from a ptvenv definition yml file.",
+    "install": {
+        "func": install,
+        "help": "Install a pytoolbelt ptvenv from a ptvenv definition yml file.",
         "flags": {
             "--name": {
                 "help": "Name of the ptvenv to build.",
@@ -127,6 +134,11 @@ ACTIONS = {
                 "default": "config",
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
             },
+            "--toolbelt": {
+                "help": "Name of the toolbelt to bump the ptvenv version in.",
+                "required": False,
+                "default": Path.cwd().name,
+            },
         },
     },
     "release": {
@@ -136,6 +148,11 @@ ACTIONS = {
             "--name": {
                 "help": "Name of the ptvenv definition to release.",
                 "required": True,
+            },
+            "--toolbelt": {
+                "help": "Name of the toolbelt to release the ptvenv from.",
+                "required": False,
+                "default": Path.cwd().name,
             },
         },
     },
