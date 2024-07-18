@@ -105,7 +105,9 @@ class ToolbeltPaths(BasePaths):
 
     def raise_if_not_exists(self) -> None:
         if not self.toolbelt_install_dir.exists():
-            raise NotPytoolbeltProjectError(f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt.")
+            raise NotPytoolbeltProjectError(
+                f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt."
+            )
 
     def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()

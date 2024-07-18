@@ -63,10 +63,7 @@ ACTIONS = {
         "func": new,
         "help": "Create a new tool",
         "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True
-            },
+            "--name": {"help": "Name of the tool", "required": True},
             "--toolbelt": {
                 "help": "The help for toolbelt",
                 "required": False,

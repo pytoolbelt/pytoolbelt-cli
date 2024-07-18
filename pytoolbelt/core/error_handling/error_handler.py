@@ -1,7 +1,7 @@
 import functools
 
-from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
 from pytoolbelt.core.error_handling import exceptions
+from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
 
 
 class ErrorHandler:

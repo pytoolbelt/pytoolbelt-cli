@@ -1,11 +1,12 @@
 from functools import wraps
 from pathlib import Path
+
 import yaml
 from pydantic import BaseModel
 
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltConfigNotFoundError
 from pytoolbelt.environment.config import PYTOOLBELT_DEFAULT_CONFIG_FILE
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 
 
 class PytoolbeltConfig(BaseModel):
@@ -31,4 +32,5 @@ def pytoolbelt_config(func):
         toolbelt = ToolbeltConfigs.load().get(kwargs["params"].toolbelt)
         ptc = PytoolbeltConfig.load(toolbelt.path)
         return func(*args, **kwargs, ptc=ptc, toolbelt=toolbelt)
+
     return wrapper

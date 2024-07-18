@@ -3,12 +3,11 @@ from pathlib import Path
 
 from pytoolbelt.cli.controllers.ptvenv_controller import PtVenvController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs, ToolbeltConfig
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 @dataclass
@@ -27,12 +26,10 @@ def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameter
     return ptvenv.create(ptc)
 
 
-def install(params: PtVenvParameters) -> int:
-    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
-    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
-    return ptvenv.build(
-        force=params.force, path=toolbelt_config.path, toolbelt=toolbelt_config.name, from_config=params.from_config
-    )
+@pytoolbelt_config
+def install(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt.path)
+    return ptvenv.build(force=params.force, path=toolbelt.path, toolbelt=toolbelt.name, from_config=params.from_config)
 
 
 def remove(params: PtVenvParameters) -> int:
@@ -41,25 +38,17 @@ def remove(params: PtVenvParameters) -> int:
 
 
 @pytoolbelt_config
-def bump(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
-    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt_config.path)
+def bump(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt.path)
     if params.part == "config":
         return ptvenv.bump(ptc.bump)
     return ptvenv.bump(params.part)
 
 
 @pytoolbelt_config
-def release(ptc: PytoolbeltConfig, params: PtVenvParameters) -> int:
-    toolbelt_config = ToolbeltConfigs.load().get(params.toolbelt)
-    ptvenv = PtVenvController.for_release(params.name, root_path=toolbelt_config.path)
+def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_release(params.name, root_path=toolbelt.path)
     return ptvenv.release(ptc)
-
-
-def installed(params: PtVenvParameters) -> int:
-    meta = ComponentMetadata.as_ptvenv("")
-    ptvenv = PtVenvController(meta)
-    return ptvenv.installed()
 
 
 COMMON_FLAGS = {}
