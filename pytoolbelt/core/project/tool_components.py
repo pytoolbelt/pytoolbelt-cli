@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 
 class PtVenv(BaseModel):
@@ -163,6 +164,10 @@ class ToolPaths(BasePaths):
         with self.tool_config_file.open("w") as f:
             yaml.dump(config.to_dict(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
 
+    def raise_if_exists(self) -> None:
+        if self.tool_dir.exists():
+            raise PytoolbeltError(f"A tool named '{self.meta.name}' already exists in this project.")
+
 
 class EntrypointShimTemplater(BaseTemplater):
     def __init__(self, tool_paths: ToolPaths, interpreter: str) -> None:
@@ -201,7 +206,7 @@ class ToolInstaller:
     def __init__(self, paths: ToolPaths) -> None:
         self.paths = paths
 
-    def install(self, interpreter: str) -> None:
+    def install(self, interpreter: str) -> int:
         with self.paths.zipapp_path.open("wb") as target:
             zipapp.create_archive(
                 source=self.paths.tool_dir,
@@ -211,9 +216,11 @@ class ToolInstaller:
             )
         self.paths.create_install_symlink()
         self.paths.zipapp_path.chmod(0o755)
+        return 0
 
-    def install_shim(self, interpreter: str) -> None:
+    def install_shim(self, interpreter: str) -> int:
         shim_templater = EntrypointShimTemplater(self.paths, interpreter)
         shim_templater.write_entrypoint_shim()
         self.paths.create_dev_sym_link()
         self.paths.install_path.chmod(0o755)
+        return 0

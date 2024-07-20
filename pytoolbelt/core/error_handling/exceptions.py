@@ -56,3 +56,10 @@ class CreateReleaseError(Exception):
 
 class ToolbeltExistsError(Exception):
     pass
+
+
+class ToolbeltFetchError(Exception):
+    pass
+
+class PytoolbeltError(Exception):
+    pass

@@ -8,7 +8,7 @@ from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
-from pytoolbelt.core.error_handling.exceptions import NotPytoolbeltProjectError
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 from pytoolbelt.environment.config import (
     PYTOOLBELT_TOOLBELT_CONFIG_FILE,
     PYTOOLBELT_TOOLBELT_INSTALL_DIR,
@@ -89,23 +89,27 @@ class ToolbeltPaths(BasePaths):
     def toolbelt_install_dir(self) -> Path:
         return self.toolbelt_install_root_dir
 
-    def is_pytoolbelt_project(self, repo: Repo) -> bool:
+    def is_pytoolbelt_project(self) -> bool:
         if self.git_dir.exists():
             if self.pytoolbelt_config.exists():
                 if self.tools_dir.exists():
                     if self.ptvenvs_dir.exists():
-                        parsed_url = giturlparse.parse(repo.remote("origin").url)
-                        if parsed_url.name.endswith("toolbelt"):
-                            return True
+                        return True
         return False
 
-    def raise_if_not_pytoolbelt_project(self, repo: Repo) -> None:
-        if not self.is_pytoolbelt_project(repo):
-            raise NotPytoolbeltProjectError("This directory is not the root of a pytoolbelt project.")
+    def raise_if_not_pytoolbelt_project(self) -> None:
+        if not self.is_pytoolbelt_project():
+            raise PytoolbeltError("This directory is not the root of a pytoolbelt project.")
+
+    def raise_if_exists(self) -> None:
+        if self.toolbelt_install_dir.exists():
+            raise PytoolbeltError(
+                f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt."
+            )
 
     def raise_if_not_exists(self) -> None:
         if not self.toolbelt_install_dir.exists():
-            raise NotPytoolbeltProjectError(
+            raise PytoolbeltError(
                 f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt."
             )
 

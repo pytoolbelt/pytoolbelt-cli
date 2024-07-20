@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltConfigNotFoundError
-from pytoolbelt.environment.config import PYTOOLBELT_DEFAULT_CONFIG_FILE
+from typing import Optional
 
 
 class PytoolbeltConfig(BaseModel):
@@ -26,11 +26,14 @@ class PytoolbeltConfig(BaseModel):
         return cls(**config)
 
 
-def pytoolbelt_config(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        toolbelt = ToolbeltConfigs.load().get(kwargs["params"].toolbelt)
-        ptc = PytoolbeltConfig.load(toolbelt.path)
-        return func(*args, **kwargs, ptc=ptc, toolbelt=toolbelt)
-
-    return wrapper
+def pytoolbelt_config(provide_ptc: Optional[bool] = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            toolbelt = ToolbeltConfigs.load().get(kwargs["params"].toolbelt)
+            if provide_ptc:
+                ptc = PytoolbeltConfig.load(toolbelt.path)
+                kwargs['ptc'] = ptc
+            return func(*args, **kwargs, toolbelt=toolbelt)
+        return wrapper
+    return decorator

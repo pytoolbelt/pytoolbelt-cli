@@ -7,7 +7,7 @@ import yaml
 from pydantic import BaseModel
 
 from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
-from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE
+from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE, PYTOOLBELT_TOOLBELT_INSTALL_DIR
 
 
 class ToolbeltConfig(BaseModel):
@@ -15,11 +15,13 @@ class ToolbeltConfig(BaseModel):
     owner: str
     name: str
     release_branch: str = "main"
-    path: Optional[Path] = ""
+    path: Path
 
     @classmethod
-    def from_url(cls, url: str, path: Optional[str] = "") -> "ToolbeltConfig":
+    def from_url(cls, url: str, path: Optional[Path] = None) -> "ToolbeltConfig":
         parsed_url = giturlparse.parse(url)
+        if not path:
+            path = PYTOOLBELT_TOOLBELT_INSTALL_DIR / parsed_url.name
         return cls(url=url, owner=parsed_url.owner, name=parsed_url.name, path=path)
 
     @classmethod

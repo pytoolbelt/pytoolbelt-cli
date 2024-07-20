@@ -40,4 +40,6 @@ def handle_cli_errors(func):
         except exceptions.NotPytoolbeltProjectError as e:
             return error_handler.handle(e, f"pytoolbelt :: ERROR :: {e.args[0]}")
 
+        except exceptions.ToolbeltFetchError as e:
+            return error_handler.handle(e, f"pytoolbelt :: ERROR :: {e.args[0]}")
     return wrapper

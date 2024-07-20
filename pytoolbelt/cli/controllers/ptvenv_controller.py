@@ -44,7 +44,7 @@ class PtVenvController:
 
     @classmethod
     def from_ptvenv_paths(cls, paths: PtVenvPaths) -> "PtVenvController":
-        return cls(paths.meta, paths.project_paths, paths=paths)
+        return cls(paths.meta, paths.toolbelt_paths, paths=paths)
 
     @classmethod
     def for_creation(cls, string: str, root_path: Optional[Path] = None) -> "PtVenvController":

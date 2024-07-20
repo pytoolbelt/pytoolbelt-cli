@@ -13,6 +13,7 @@ from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import PythonEnvBuildError
 from pytoolbelt.core.tools import hash_config
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 
 class PtVenvConfig(BaseModel):
@@ -46,10 +47,10 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class PtVenvPaths(BasePaths):
-    def __init__(self, meta: ComponentMetadata, project_paths: "ProjectPaths") -> None:
+    def __init__(self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths") -> None:
         self._meta = meta
-        self._project_paths = project_paths
-        super().__init__(project_paths.root_path)
+        self._toolbelt_paths = toolbelt_paths
+        super().__init__(toolbelt_paths.root_path)
 
     @classmethod
     def from_tool_config(cls, tool_config: "ToolConfig", project_paths: "ProjectPaths") -> "PtVenvPaths":
@@ -71,12 +72,12 @@ class PtVenvPaths(BasePaths):
         return self._meta
 
     @property
-    def project_paths(self) -> "ProjectPaths":
-        return self._project_paths
+    def toolbelt_paths(self) -> "ToolbeltPaths":
+        return self._toolbelt_paths
 
     @property
     def ptvenv_dir(self) -> Path:
-        return self.project_paths.ptvenvs_dir / self.meta.name
+        return self.toolbelt_paths.ptvenvs_dir / self.meta.name
 
     @property
     def ptvenv_config_file(self) -> Path:
@@ -96,7 +97,7 @@ class PtVenvPaths(BasePaths):
 
     @property
     def install_root_dir(self) -> Path:
-        return self.project_paths.venv_install_dir / self.meta.name
+        return self.toolbelt_paths.venv_install_dir / self.meta.name
 
     @property
     def install_version_dir(self) -> Path:
@@ -125,6 +126,10 @@ class PtVenvPaths(BasePaths):
     @property
     def pip_executable_path(self) -> Path:
         return self.install_dir / "bin" / "pip"
+
+    def raise_if_ptvenv_is_not_installed(self) -> None:
+        if not self.install_dir.exists():
+            raise PytoolbeltError(f"ptvenv {self.meta.name} version {self.meta.version} is not installed.")
 
     def copy_config_to_install_dir(self) -> None:
         destination = self.install_version_dir / f"{self.meta.name}.yml"

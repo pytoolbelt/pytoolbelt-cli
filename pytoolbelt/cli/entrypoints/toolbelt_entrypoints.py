@@ -1,14 +1,15 @@
 from dataclasses import dataclass
-
+from pathlib import Path
 from pytoolbelt.cli.controllers.toolbelt_controller import ToolbeltController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 @dataclass
 class ToolbeltParameters(BaseEntrypointParameters):
     url: str
-    name: str
-    owner: str
+    toolbelt: str
     this_toolbelt: bool
     fetch: bool
 
@@ -16,10 +17,7 @@ class ToolbeltParameters(BaseEntrypointParameters):
         if self.action == "add":
             self._validate_on_add_action()
 
-        if self.action == "new":
-            self._validate_on_new_action()
-
-        if self.name and not self.name.endswith("-toolbelt"):
+        if self.toolbelt and not self.toolbelt.endswith("-toolbelt"):
             raise ValueError("Toolbelt name must end with '-toolbelt'.")
 
     def _validate_on_add_action(self) -> None:
@@ -29,27 +27,20 @@ class ToolbeltParameters(BaseEntrypointParameters):
         if not self.this_toolbelt and not self.url:
             raise ValueError("Must provide either --url or --this-repo flag.")
 
-    def _validate_on_new_action(self) -> None:
-        if (self.name or self.owner) and self.url:
-            raise ValueError("Cannot provide both --url and --name/--owner flags.")
-
-        if (self.name and not self.owner) or (not self.name and self.owner):
-            raise ValueError("Must provide both --name and --owner flags if either is provided.")
-
 
 def new(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
-    return controller.create(url=params.url, name=params.name, owner=params.owner)
+    return controller.create(url=params.url)
 
 
 def add(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
-    return controller.add(params.url, params.this_toolbelt, params.fetch)
+    return controller.add(params.url, params.this_toolbelt)
 
 
 def remove(params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
-    return controller.remove(params.name)
+    return controller.remove(params.toolbelt)
 
 
 def show(params: ToolbeltParameters) -> int:
@@ -57,9 +48,10 @@ def show(params: ToolbeltParameters) -> int:
     return controller.show()
 
 
-def fetch(params: ToolbeltParameters) -> int:
+@pytoolbelt_config()
+def fetch(toolbelt: ToolbeltConfig, params: ToolbeltParameters) -> int:
     controller = ToolbeltController()
-    return controller.fetch(params.name)
+    return controller.fetch(toolbelt=toolbelt)
 
 
 COMMON_FLAGS = {}
@@ -78,25 +70,12 @@ ACTIONS = {
                 "action": "store_true",
                 "default": False,
             },
-            "--fetch": {
-                "help": "Fetch the toolbelt after adding it to the global config.",
-                "action": "store_true",
-                "default": False,
-            },
         },
     },
     "new": {
         "func": new,
         "help": "Create a new pytoolbelt.",
         "flags": {
-            "--name": {
-                "help": "The name of the new project. (git repo name)",
-                "required": False,
-            },
-            "--owner": {
-                "help": "The owner of the new project. (git repo owner)",
-                "required": False,
-            },
             "--url": {
                 "help": "The git url of the new project.",
                 "required": False,
@@ -122,9 +101,10 @@ ACTIONS = {
         "func": fetch,
         "help": "Fetch the toolbelt from the global config.",
         "flags": {
-            "--name": {
+            "--toolbelt": {
                 "help": "The name of the toolbelt to fetch.",
-                "required": True,
+                "required": False,
+                "default": Path.cwd().name,
             }
         },
     },

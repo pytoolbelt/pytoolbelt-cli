@@ -19,7 +19,7 @@ class ToolParameters(BaseEntrypointParameters):
     from_config: bool
 
 
-@pytoolbelt_config
+@pytoolbelt_config()
 def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
     tool = ToolController.for_creation(params.name, root_path=toolbelt.path)
     return tool.create()
