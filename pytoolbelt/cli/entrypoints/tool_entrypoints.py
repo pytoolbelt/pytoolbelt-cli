@@ -20,77 +20,65 @@ class ToolParameters(BaseEntrypointParameters):
 
 
 @pytoolbelt_config()
-def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_creation(params.name, root_path=toolbelt.path)
+def new(toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_creation(params.name, toolbelt)
     return tool.create()
 
 
-def remove(params: ToolParameters) -> int:
-    tool = ToolController.for_deletion(params.name)
+@pytoolbelt_config()
+def remove(toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_deletion(params.name, toolbelt)
     return tool.remove()
 
 
-@pytoolbelt_config
-def install(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_installation(params.name, root_path=toolbelt.path)
-    return tool.install(
-        dev_mode=params.dev_mode,
-        path=toolbelt.path,
-        toolbelt=toolbelt.name,
-        from_config=params.from_config,
-    )
+@pytoolbelt_config()
+def install(toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_installation(params.name, toolbelt)
+    return tool.install(dev_mode=params.dev_mode, from_config=params.from_config)
 
 
-@pytoolbelt_config
-def bump(ptc: PytoolbeltConfig, toolbelt: PytoolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_release(params.name, root_path=toolbelt.path)
-    if params.part == "config":
-        return tool.bump(ptc.bump)
-    return tool.bump(params.part)
+@pytoolbelt_config(provide_ptc=True)
+def bump(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
+    tool = ToolController.for_release(params.name, toolbelt)
+    return tool.bump(ptc, params.part)
 
 
-@pytoolbelt_config
+@pytoolbelt_config(provide_ptc=True)
 def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
-    tool = ToolController.for_release(params.name, root_path=toolbelt.path)
-    tool.release(ptc)
-    return 0
+    tool = ToolController.for_release(params.name, toolbelt)
+    return tool.release(ptc)
 
 
-COMMON_FLAGS = {}
+COMMON_FLAGS = {
+    "--name": {
+        "help": "Name of the tool",
+        "required": True,
+    },
+
+    "--toolbelt": {
+        "help": "The name of the toolbelt to target.",
+        "required": False,
+        "default": Path.cwd().name,
+    },
+}
+
 
 ACTIONS = {
     "new": {
         "func": new,
-        "help": "Create a new tool",
-        "flags": {
-            "--name": {"help": "Name of the tool", "required": True},
-            "--toolbelt": {
-                "help": "The help for toolbelt",
-                "required": False,
-                "default": Path.cwd().name,
-            },
-        },
+        "help": "Create a new tool in the toolbelt",
     },
     "install": {
         "func": install,
         "help": "Install the tool",
         "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True,
-            },
             "--dev-mode": {
-                "help": "Install in dev mode",
+                "help": "Install the tool in development mode",
                 "action": "store_true",
                 "default": False,
             },
-            "--toolbelt": {
-                "help": "The help for toolbelt",
-                "required": False,
-                "default": Path.cwd().name,
-            },
             "--from-config": {
-                "help": "Install from the toolbelt config",
+                "help": "Install from the tool config, regardless of version",
                 "action": "store_true",
                 "default": False,
             },
@@ -98,48 +86,22 @@ ACTIONS = {
     },
     "bump": {
         "func": bump,
-        "help": "Bump the tool",
+        "help": "Bump the tool semantic version.",
         "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True,
-            },
             "--part": {
                 "help": "Part of the version to bump",
                 "required": False,
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
                 "default": "config",
             },
-            "--toolbelt": {
-                "help": "The help for toolbelt",
-                "required": False,
-                "default": Path.cwd().name,
-            },
         },
     },
     "remove": {
         "func": remove,
-        "help": "Remove the tool",
-        "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True,
-            }
-        },
+        "help": "Remove an installed tool",
     },
     "release": {
         "func": release,
         "help": "Release the tool",
-        "flags": {
-            "--name": {
-                "help": "Name of the tool",
-                "required": True,
-            },
-            "--toolbelt": {
-                "help": "The help for toolbelt",
-                "required": False,
-                "default": Path.cwd().name,
-            },
-        },
     },
 }

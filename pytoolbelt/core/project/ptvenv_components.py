@@ -127,6 +127,10 @@ class PtVenvPaths(BasePaths):
     def pip_executable_path(self) -> Path:
         return self.install_dir / "bin" / "pip"
 
+    def raise_if_exists(self) -> None:
+        if self.ptvenv_dir.exists():
+            raise PytoolbeltError(f"ptvenv {self.meta.name} already exists.")
+
     def raise_if_ptvenv_is_not_installed(self) -> None:
         if not self.install_dir.exists():
             raise PytoolbeltError(f"ptvenv {self.meta.name} version {self.meta.version} is not installed.")
