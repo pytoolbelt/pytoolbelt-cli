@@ -13,8 +13,8 @@ from pytoolbelt.core.tools import build_entrypoint_parsers
 @handle_cli_errors
 def entrypoint(cliargs: Namespace) -> int:
     params = ReleasesParameters.from_cliargs(cliargs)
-    controller = ReleasesController()
-    return controller.releases(name=params.toolbelt, ptvenv=params.ptvenv, tools=params.tools, _all=params.all)
+    controller = ReleasesController(toolbelt=params.toolbelt)
+    return controller.releases(ptvenv=params.ptvenv, tools=params.tools, _all=params.all)
 
 
 def configure_parser(subparser: Any) -> None:

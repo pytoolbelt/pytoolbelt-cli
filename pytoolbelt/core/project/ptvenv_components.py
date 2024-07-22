@@ -11,9 +11,11 @@ from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.error_handling.exceptions import PythonEnvBuildError
+from pytoolbelt.core.error_handling.exceptions import (
+    PythonEnvBuildError,
+    PytoolbeltError,
+)
 from pytoolbelt.core.tools import hash_config
-from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 
 class PtVenvConfig(BaseModel):
@@ -126,6 +128,10 @@ class PtVenvPaths(BasePaths):
     @property
     def pip_executable_path(self) -> Path:
         return self.install_dir / "bin" / "pip"
+
+    def raise_if_exists(self) -> None:
+        if self.ptvenv_dir.exists():
+            raise PytoolbeltError(f"ptvenv {self.meta.name} already exists.")
 
     def raise_if_ptvenv_is_not_installed(self) -> None:
         if not self.install_dir.exists():

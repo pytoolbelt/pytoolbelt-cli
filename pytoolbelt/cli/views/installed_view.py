@@ -1,4 +1,5 @@
 from pytoolbelt.cli.views.base_view import BaseTableView
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 
 class InstalledTableView(BaseTableView):
@@ -11,7 +12,7 @@ class InstalledTableView(BaseTableView):
         elif self.tools:
             title = "Installed Tools"
         else:
-            raise ValueError("Must specify either --ptvenv or --tools")
+            raise PytoolbeltError("Must specify either --ptvenv or --tools")
 
         super().__init__(
             title=title,

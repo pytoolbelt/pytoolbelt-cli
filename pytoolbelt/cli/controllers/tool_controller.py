@@ -4,14 +4,10 @@ from typing import Optional
 from semver import Version
 
 from pytoolbelt.cli.controllers.common import release
-from pytoolbelt.cli.views.tool_views import ToolInstalledTableView
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
-from pytoolbelt.core.error_handling.exceptions import (
-    ToolCreationError,
-    PytoolbeltError
-)
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError, ToolCreationError
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import (
     ToolConfig,
@@ -98,9 +94,9 @@ class ToolController:
             return installer.install_shim(p.python_executable_path.as_posix())
         return installer.install(p.python_executable_path.as_posix())
 
-    def install(self, dev_mode: bool, path: Path, toolbelt: str, from_config: bool) -> int:
+    def install(self, dev_mode: bool, from_config: bool) -> int:
         # TODO: This can be DRYed out. Check the build method of the PtVenvController.
-        with TemporaryGitClient(path, toolbelt) as (repo_path, git_client):
+        with TemporaryGitClient(self.toolbelt.path, self.toolbelt.name) as (repo_path, git_client):
 
             tool_config = ToolConfig.from_file(self.tool_paths.tool_config_file)
 
@@ -136,7 +132,11 @@ class ToolController:
             tmp_installer = ToolInstaller(tmp_paths)
             return self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
 
-    def bump(self, part: str) -> int:
+    def bump(self, ptc: PytoolbeltConfig, part: str) -> int:
+
+        if part == "config":
+            part = ptc.bump
+
         config = ToolConfig.from_file(self.tool_paths.tool_config_file)
         next_version = self.tool_paths.meta.version.next_version(part)
         config.version = next_version

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+
 from pytoolbelt.cli.controllers.toolbelt_controller import ToolbeltController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config

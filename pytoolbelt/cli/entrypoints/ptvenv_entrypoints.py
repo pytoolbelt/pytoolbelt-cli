@@ -20,16 +20,16 @@ class PtVenvParameters(BaseEntrypointParameters):
     from_config: bool
 
 
-@pytoolbelt_config
+@pytoolbelt_config(provide_ptc=True)
 def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_creation(params.name, root_path=toolbelt.path)
+    ptvenv = PtVenvController.for_creation(params.name, toolbelt)
     return ptvenv.create(ptc)
 
 
-@pytoolbelt_config
-def install(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt.path)
-    return ptvenv.build(force=params.force, path=toolbelt.path, toolbelt=toolbelt.name, from_config=params.from_config)
+@pytoolbelt_config()
+def install(toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_build(params.name, toolbelt)
+    return ptvenv.build(force=params.force, from_config=params.from_config)
 
 
 def remove(params: PtVenvParameters) -> int:
@@ -37,55 +37,44 @@ def remove(params: PtVenvParameters) -> int:
     return ptvenv.delete(params.all)
 
 
-@pytoolbelt_config
+@pytoolbelt_config(provide_ptc=True)
 def bump(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_build(params.name, root_path=toolbelt.path)
-    if params.part == "config":
-        return ptvenv.bump(ptc.bump)
-    return ptvenv.bump(params.part)
+    ptvenv = PtVenvController.for_build(params.name, toolbelt)
+    return ptvenv.bump(ptc, params.part)
 
 
-@pytoolbelt_config
+@pytoolbelt_config(provide_ptc=True)
 def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_release(params.name, root_path=toolbelt.path)
+    ptvenv = PtVenvController.for_release(params.name, toolbelt)
     return ptvenv.release(ptc)
 
 
-COMMON_FLAGS = {}
+COMMON_FLAGS = {
+    "--name": {
+        "help": "Name of the ptvenv definition.",
+        "required": True,
+    },
+    "--toolbelt": {
+        "help": "Name of the toolbelt.",
+        "required": False,
+        "default": Path.cwd().name,
+    },
+}
+
 
 ACTIONS = {
     "new": {
         "func": new,
         "help": "Create a new ptvenv definition file, or bump an existing one to a new version.",
-        "flags": {
-            "--name": {
-                "help": "Name of the ptvenv definition to create",
-                "required": True,
-            },
-            "--toolbelt": {
-                "help": "Name of the toolbelt to create a new ptvenv in.",
-                "required": False,
-                "default": Path.cwd().name,
-            },
-        },
     },
     "install": {
         "func": install,
         "help": "Install a pytoolbelt ptvenv from a ptvenv definition yml file.",
         "flags": {
-            "--name": {
-                "help": "Name of the ptvenv to build.",
-                "required": True,
-            },
             "--force": {
                 "help": "Force rebuild of the ptvenv even if it already exists or has been changed.",
                 "action": "store_true",
                 "default": False,
-            },
-            "--toolbelt": {
-                "help": "Name of the toolbelt to build the ptvenv with.",
-                "required": False,
-                "default": Path.cwd().name,
             },
             "--from-config": {
                 "help": "Build the ptvenv from the current pytoolbelt configuration.",
@@ -98,10 +87,6 @@ ACTIONS = {
         "func": remove,
         "help": "Remove a ptvenv definition from the local project.",
         "flags": {
-            "--name": {
-                "help": "Name of the ptvenv to remove. If no version provided, the most recent version will be removed.",
-                "required": True,
-            },
             "--all": {
                 "help": "Remove all versions of the ptvenv definition.",
                 "action": "store_true",
@@ -113,36 +98,16 @@ ACTIONS = {
         "func": bump,
         "help": "Bump a ptvenv definition to a new version.",
         "flags": {
-            "--name": {
-                "help": "Name of the ptvenv definition to bump.",
-                "required": True,
-            },
             "--part": {
                 "help": "Part of the version to bump. (major, minor, patch, prerelease)",
                 "required": False,
                 "default": "config",
                 "choices": ["major", "minor", "patch", "prerelease", "config"],
             },
-            "--toolbelt": {
-                "help": "Name of the toolbelt to bump the ptvenv version in.",
-                "required": False,
-                "default": Path.cwd().name,
-            },
         },
     },
     "release": {
         "func": release,
         "help": "Release a ptvenv definition to a remote git repository.",
-        "flags": {
-            "--name": {
-                "help": "Name of the ptvenv definition to release.",
-                "required": True,
-            },
-            "--toolbelt": {
-                "help": "Name of the toolbelt to release the ptvenv from.",
-                "required": False,
-                "default": Path.cwd().name,
-            },
-        },
     },
 }

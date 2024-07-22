@@ -47,15 +47,14 @@ COMMON_FLAGS = {
 
 
 class ReleasesController:
-    def __init__(self) -> None:
-        self.toolbelts = ToolbeltConfigs.load()
-        self.toolbelt_paths = ToolbeltPaths()
+    def __init__(self, toolbelt: str) -> None:
+        self.toolbelt_configs = ToolbeltConfigs.load()
+        self.toolbelt = self.toolbelt_configs.get(toolbelt)
+        self.toolbelt_paths = ToolbeltPaths(self.toolbelt.path)
 
-    def releases(self, name: str, ptvenv: bool, tools: bool, _all: bool) -> int:
-        toolbelt = self.toolbelts.get(name)
-        self.toolbelt_paths.name = name
+    def releases(self, ptvenv: bool, tools: bool, _all: bool) -> int:
         self.toolbelt_paths.raise_if_not_exists()
-        git_client = GitClient.from_path(self.toolbelt_paths.toolbelt_install_dir, toolbelt)
+        git_client = GitClient.from_path(self.toolbelt.path, self.toolbelt)
 
         git_client.repo.remotes.origin.fetch()
 
@@ -68,11 +67,11 @@ class ReleasesController:
             releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.tool_releases()]
 
         if not releases:
-            print("No releases found for this toolbelt.")
+            print(f"No releases found for toolbelt {self.toolbelt.name}")
             return 0
 
         # otherwise just do all the releases
-        table = ReleasesTableView(toolbelt=toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
+        table = ReleasesTableView(toolbelt=self.toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
         for r, t in releases:
             table.add_row(r.name, r.version, str(t.commit.committed_datetime.date()), t.commit.hexsha)
         table.print_table()
