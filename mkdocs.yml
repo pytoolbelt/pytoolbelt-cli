@@ -16,5 +16,8 @@ theme:
   features:
     - content.code.copy
 
-  nav:
-    - Home: index.md
+nav:
+  - Home: index.md
+  - Initialize Pytoolbelt: install_dirs.md
+  - Toolbelt: toolbelt.md
+  - CLI: commands.md
