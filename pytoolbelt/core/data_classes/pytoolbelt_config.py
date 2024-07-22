@@ -1,12 +1,12 @@
 from functools import wraps
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from pydantic import BaseModel
 
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltConfigNotFoundError
-from typing import Optional
 
 
 class PytoolbeltConfig(BaseModel):
@@ -33,7 +33,9 @@ def pytoolbelt_config(provide_ptc: Optional[bool] = False):
             toolbelt = ToolbeltConfigs.load().get(kwargs["params"].toolbelt)
             if provide_ptc:
                 ptc = PytoolbeltConfig.load(toolbelt.path)
-                kwargs['ptc'] = ptc
+                kwargs["ptc"] = ptc
             return func(*args, **kwargs, toolbelt=toolbelt)
+
         return wrapper
+
     return decorator

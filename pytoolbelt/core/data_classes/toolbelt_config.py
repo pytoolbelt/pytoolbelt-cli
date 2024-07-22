@@ -7,7 +7,10 @@ import yaml
 from pydantic import BaseModel
 
 from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
-from pytoolbelt.environment.config import PYTOOLBELT_TOOLBELT_CONFIG_FILE, PYTOOLBELT_TOOLBELT_INSTALL_DIR
+from pytoolbelt.environment.config import (
+    PYTOOLBELT_TOOLBELT_CONFIG_FILE,
+    PYTOOLBELT_TOOLBELT_INSTALL_DIR,
+)
 
 
 class ToolbeltConfig(BaseModel):

@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.cli.views.installed_view import InstalledTableView
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolPaths
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
+
 
 @dataclass
 class InstalledParameters(BaseEntrypointParameters):

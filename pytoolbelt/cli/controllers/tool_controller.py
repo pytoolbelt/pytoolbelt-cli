@@ -7,10 +7,7 @@ from pytoolbelt.cli.controllers.common import release
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
-from pytoolbelt.core.error_handling.exceptions import (
-    ToolCreationError,
-    PytoolbeltError
-)
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError, ToolCreationError
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import (
     ToolConfig,

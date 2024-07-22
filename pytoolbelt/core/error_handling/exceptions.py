@@ -61,5 +61,6 @@ class ToolbeltExistsError(Exception):
 class ToolbeltFetchError(Exception):
     pass
 
+
 class PytoolbeltError(Exception):
     pass

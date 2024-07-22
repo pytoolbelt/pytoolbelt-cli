@@ -1,6 +1,8 @@
-import giturlparse
 from pathlib import Path
+
+import giturlparse
 from git import Repo, exc
+
 from pytoolbelt.cli.views.toolbelt_views import ToolbeltConfigView
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig, ToolbeltConfigs
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltError

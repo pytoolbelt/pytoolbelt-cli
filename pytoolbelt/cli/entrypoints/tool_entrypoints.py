@@ -54,7 +54,6 @@ COMMON_FLAGS = {
         "help": "Name of the tool",
         "required": True,
     },
-
     "--toolbelt": {
         "help": "The name of the toolbelt to target.",
         "required": False,
