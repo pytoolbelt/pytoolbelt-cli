@@ -6,7 +6,7 @@ import giturlparse
 import yaml
 from pydantic import BaseModel
 
-from pytoolbelt.core.error_handling.exceptions import RepoConfigNotFoundError
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 from pytoolbelt.environment.config import (
     PYTOOLBELT_TOOLBELT_CONFIG_FILE,
     PYTOOLBELT_TOOLBELT_INSTALL_DIR,
@@ -62,7 +62,7 @@ class ToolbeltConfigs(BaseModel):
         try:
             return self.repos[key]
         except KeyError:
-            raise RepoConfigNotFoundError(f"Repo {key} not found in toolbelts.yml file")
+            raise PytoolbeltError(f"Directory {key} not in toolbelts.yml file. Did you provide the --toolbelt flag?")
 
     def add(self, repo: ToolbeltConfig) -> None:
         self.repos[repo.name] = repo
