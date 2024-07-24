@@ -21,3 +21,5 @@ nav:
   - Initialize Pytoolbelt: install_dirs.md
   - Toolbelt: toolbelt.md
   - CLI: commands.md
+  - ptvenv: ptvenv.md
+  - tools: tool.md
