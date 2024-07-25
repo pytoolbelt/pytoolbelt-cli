@@ -1,8 +1,14 @@
-version: '3.8'
+x-base-service: &base-service
+  image: thekevjames/nox
+  volumes:
+    - .:/app
+  working_dir: /app
+
 services:
-  nox:
-    image: thekevjames/nox
-    volumes:
-      - .:/app  # Mount the current directory to /app in the container
-    working_dir: /app  # Set working directory to /app
-    command: nox  # Run nox; adjust as needed for specific sessions or arguments
+  nox-test-all:
+    <<: *base-service
+    command: nox
+
+  nox-tests-3.10:
+    <<: *base-service
+    command: nox --session tests-3.10

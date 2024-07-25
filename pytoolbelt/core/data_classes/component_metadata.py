@@ -43,12 +43,6 @@ class ComponentMetadata:
         return inst
 
     @classmethod
-    def from_ptvenv_install_path(cls, path: Path) -> "ComponentMetadata":
-        version = Version.parse(path.parent.name)
-        name = path.parent.parent.name
-        return cls(name, version, "ptvenv")
-
-    @classmethod
     def as_tool(cls, string: str, version: Optional[Version] = None) -> "ComponentMetadata":
         inst = cls.from_string(string, "tool")
         if version:
@@ -68,15 +62,17 @@ class ComponentMetadata:
         return max(releases, key=lambda x: x.version)
 
     def is_not_prerelease(self) -> bool:
-        if isinstance(self.version, str):
-            return False
-        return not self.version.prerelease
+        try:
+            return self.version == "latest"
+        except ValueError:
+            return not bool(self.version.prerelease)
 
     @property
     def version(self) -> Union[Version, str]:
         if isinstance(self._version, str):
             if self._version == "latest":
                 return self._version
+            return Version.parse(self._version)
         return self._version
 
     @version.setter

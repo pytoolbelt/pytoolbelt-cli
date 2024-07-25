@@ -1,9 +1,10 @@
 from rich.console import Console
 from rich.table import Table
+from typing import List, Dict
 
 
 class BaseTableView:
-    def __init__(self, title: str, headers: list[dict[str, str]]):
+    def __init__(self, title: str, headers: List[Dict[str, str]]):
         self.title = title
         self.table = Table(title=title)
 
