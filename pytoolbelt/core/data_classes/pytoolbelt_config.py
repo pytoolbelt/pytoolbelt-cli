@@ -35,5 +35,7 @@ def pytoolbelt_config(provide_ptc: Optional[bool] = False):
                 ptc = PytoolbeltConfig.load(toolbelt.path)
                 kwargs["ptc"] = ptc
             return func(*args, **kwargs, toolbelt=toolbelt)
+
         return wrapper
+
     return decorator

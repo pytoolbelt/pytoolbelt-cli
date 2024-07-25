@@ -1,5 +1,6 @@
 import pytest
 from jinja2 import PackageLoader
+
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 
 

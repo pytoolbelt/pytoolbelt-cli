@@ -1,5 +1,6 @@
 import pytest
 from semver import Version
+
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import CliArgumentError
 

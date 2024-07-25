@@ -1,7 +1,9 @@
-import pytest
 from pathlib import Path
-from pytoolbelt.core.bases.base_paths import BasePaths
 from typing import List
+
+import pytest
+
+from pytoolbelt.core.bases.base_paths import BasePaths
 
 
 class MockBasePaths(BasePaths):

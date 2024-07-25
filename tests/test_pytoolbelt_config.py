@@ -1,7 +1,12 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config
-from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig, PytoolbeltError
+
+import pytest
+
+from pytoolbelt.core.data_classes.pytoolbelt_config import (
+    PytoolbeltConfig,
+    PytoolbeltError,
+    pytoolbelt_config,
+)
 
 
 class MockParams:
@@ -12,13 +17,15 @@ class MockParams:
 
 def test_pytoolbelt_config_loads_with_valid_config(tmp_path):
     config_file = tmp_path / "pytoolbelt.yml"
-    config_file.write_text("""
+    config_file.write_text(
+        """
 project-config:
   python: "3.8"
   bump: "patch"
   envfile: ".env"
   release_branch: "main"
-""")
+"""
+    )
     config = PytoolbeltConfig.load(tmp_path)
     assert config.python == "3.8"
     assert config.bump == "patch"
@@ -39,7 +46,7 @@ def test_pytoolbelt_config_decorator_without_ptc():
     toolbelt_mock = MagicMock()
     toolbelt_mock.path = "mock_path"
 
-    with patch('pytoolbelt.core.data_classes.toolbelt_config.ToolbeltConfigs.load') as mock_load:
+    with patch("pytoolbelt.core.data_classes.toolbelt_config.ToolbeltConfigs.load") as mock_load:
         mock_load.return_value.get.return_value = toolbelt_mock
         ptc, toolbelt = sample_function(params=MockParams())
 
@@ -56,8 +63,10 @@ def test_pytoolbelt_config_decorator_with_ptc():
     toolbelt_mock.path = "mock_path"
     ptc_mock = PytoolbeltConfig(python="3.8", bump="patch", envfile=".env", release_branch="main")
 
-    with patch('pytoolbelt.core.data_classes.toolbelt_config.ToolbeltConfigs.load') as mock_load, \
-            patch('pytoolbelt.core.data_classes.pytoolbelt_config.PytoolbeltConfig.load') as mock_load_ptc:
+    with (
+        patch("pytoolbelt.core.data_classes.toolbelt_config.ToolbeltConfigs.load") as mock_load,
+        patch("pytoolbelt.core.data_classes.pytoolbelt_config.PytoolbeltConfig.load") as mock_load_ptc,
+    ):
         mock_load.return_value.get.return_value = toolbelt_mock
         mock_load_ptc.return_value = ptc_mock
         ptc, toolbelt = sample_function(params=MockParams())

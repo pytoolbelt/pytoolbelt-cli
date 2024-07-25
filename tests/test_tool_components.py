@@ -1,14 +1,12 @@
-import pytest
 from pathlib import Path
-from unittest.mock import mock_open, patch, MagicMock
-from pytoolbelt.core.project.tool_components import (
-    PtVenv,
-    ToolConfig,
-    ToolPaths,
-)
-from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
+
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
+from pytoolbelt.core.project.tool_components import PtVenv, ToolConfig, ToolPaths
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
 
 def test_ptvenv_to_dict_returns_correct_dict():
@@ -38,17 +36,15 @@ tool:
     name: "env"
     version: "3.8"
 """
-    with patch("builtins.open", mock_open(read_data=yaml_content)), \
-            patch("yaml.safe_load", return_value={
-                "tool": {
-                    "name": "SampleTool",
-                    "version": "1.0",
-                    "ptvenv": {
-                        "name": "env",
-                        "version": "3.8"
-                    }
-                }
-            }):
+    with (
+        patch("builtins.open", mock_open(read_data=yaml_content)),
+        patch(
+            "yaml.safe_load",
+            return_value={
+                "tool": {"name": "SampleTool", "version": "1.0", "ptvenv": {"name": "env", "version": "3.8"}}
+            },
+        ),
+    ):
         tool_config = ToolConfig.from_file(MagicMock())
 
         assert tool_config.name == "SampleTool"
@@ -61,16 +57,7 @@ tool:
 def test_toolconfig_to_dict_returns_correct_structure():
     ptvenv = PtVenv(name="env", version="3.8")
     tool_config = ToolConfig(name="SampleTool", version="1.0", ptvenv=ptvenv)
-    expected_dict = {
-        "tool": {
-            "name": "SampleTool",
-            "version": "1.0",
-            "ptvenv": {
-                "name": "env",
-                "version": "3.8"
-            }
-        }
-    }
+    expected_dict = {"tool": {"name": "SampleTool", "version": "1.0", "ptvenv": {"name": "env", "version": "3.8"}}}
     assert tool_config.to_dict() == expected_dict
 
 
@@ -106,7 +93,8 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
     assert tool_paths_instance.install_path == Path.home() / ".pytoolbelt" / "tools" / mock_component_metadata.name
     assert tool_paths_instance.display_install_path == f"~/.pytoolbelt/tools/{mock_component_metadata.name}"
     assert tool_paths_instance.zipapp_path == Path(
-        f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
+        f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}"
+    )
     assert tool_paths_instance.dev_install_path == Path(f"{tool_paths_instance.install_path.as_posix()}-dev")
     assert tool_paths_instance.dev_symlink_path == tool_paths_instance.install_path
     assert tool_paths_instance.new_directories == [
