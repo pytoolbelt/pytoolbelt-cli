@@ -32,10 +32,14 @@ pipx install pytoolbelt-cli
 Pipx is a tool that can be considered a "homebrew" for tools written in python. More information on `pipx` can be found [here](https://pipx.pypa.io/stable/installation/)
 
 ### Initialize pytoolbelt
-To initialize a new pytoolbelt project, run the following command:
+To initialize a new pytoolbelt project and add the required directories to your `$PATH`, run the following command:
 ```bash
-pytoolbelt init
+pytoolbelt init --path
 ```
+
+### Video Tutorials
+Head over to the pytoolbelt YouTube channel for video tutorials on how to use pytoolbelt:
+[Pytoolbelt YouTube Channel](https://www.youtube.com/channel/UCRz_AcS2QLVIUvh2nfBWgRQ)
 
 As pytoolbelt allows the installation of python tools from a `toolbelt`, it must also be added to your `$PATH` by running
 ```bash
