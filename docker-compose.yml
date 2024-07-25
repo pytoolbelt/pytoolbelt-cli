@@ -5,7 +5,7 @@ x-base-service: &base-service
   working_dir: /app
 
 services:
-  nox-test-all:
+  nox-tests-all:
     <<: *base-service
     command: nox
 
