@@ -12,3 +12,7 @@ services:
   nox-tests-3.10:
     <<: *base-service
     command: nox --session tests-3.10
+
+  nox-check-formatting:
+    <<: *base-service
+    command: nox --session check_formating

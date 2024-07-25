@@ -7,7 +7,7 @@ name = "pytoolbelt-cli"
 version = "0.3.0"
 description = "A CLI tool to help teams share internal tooling written in python."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "requests>=2.26.0",
     "pydantic>=1.8.2",
@@ -39,6 +39,11 @@ docs = [
     "mkdocstrings-python==1.10.5",
     "mkdocs-material==9.5.29",
     "markdown-include==0.8.1"
+]
+
+fmt = [
+    "black==24.4.2",
+    "isort==5.13.2"
 ]
 
 [project.scripts]
