@@ -6,7 +6,7 @@ import yaml
 from pydantic import BaseModel
 
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
-from pytoolbelt.core.error_handling.exceptions import PytoolbeltConfigNotFoundError
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 
 class PytoolbeltConfig(BaseModel):
@@ -22,7 +22,7 @@ class PytoolbeltConfig(BaseModel):
             with config_path.open("r") as file:
                 config = yaml.safe_load(file)["project-config"]
         except FileNotFoundError:
-            raise PytoolbeltConfigNotFoundError("Pytoolbelt config file not found")
+            raise PytoolbeltError("Pytoolbelt config file not found")
         return cls(**config)
 
 
@@ -35,7 +35,5 @@ def pytoolbelt_config(provide_ptc: Optional[bool] = False):
                 ptc = PytoolbeltConfig.load(toolbelt.path)
                 kwargs["ptc"] = ptc
             return func(*args, **kwargs, toolbelt=toolbelt)
-
         return wrapper
-
     return decorator
