@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytoolbelt-cli"
-version = "0.3.1"
+version = "0.3.2"
 description = "A CLI tool to help teams share internal tooling written in python."
 readme = "README.md"
 requires-python = ">=3.9"
