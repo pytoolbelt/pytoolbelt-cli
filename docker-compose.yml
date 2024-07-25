@@ -10,7 +10,7 @@ services:
 
   nox-tests-all:
     <<: *base-service
-    command: nox --session tests-*
+    command: nox --session tests
 
   nox-tests-3.10:
     <<: *base-service
