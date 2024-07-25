@@ -10,7 +10,7 @@ from pytoolbelt.cli.parsers import (
     toolbelt,
 )
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
 def parse_args():
