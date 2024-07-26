@@ -5,7 +5,8 @@ from pytoolbelt.cli.controllers.toolbelt_controller import ToolbeltController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
-
+from pytoolbelt.environment.config import get_logger
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 @dataclass
 class ToolbeltParameters(BaseEntrypointParameters):
@@ -19,14 +20,14 @@ class ToolbeltParameters(BaseEntrypointParameters):
             self._validate_on_add_action()
 
         if self.toolbelt and not self.toolbelt.endswith("-toolbelt"):
-            raise ValueError("Toolbelt name must end with '-toolbelt'.")
+            raise PytoolbeltError("Toolbelt name must end with '-toolbelt'.")
 
     def _validate_on_add_action(self) -> None:
         if self.this_toolbelt and self.url:
-            raise ValueError("Cannot provide both --url and --this-repo flags.")
+            raise PytoolbeltError("Cannot provide both --url and --this-repo flags.")
 
         if not self.this_toolbelt and not self.url:
-            raise ValueError("Must provide either --url or --this-repo flag.")
+            raise PytoolbeltError("Must provide either --url or --this-repo flag.")
 
 
 def new(params: ToolbeltParameters) -> int:
@@ -87,7 +88,7 @@ ACTIONS = {
         "func": remove,
         "help": "Remove a toolbelt entry from the global config.",
         "flags": {
-            "--name": {
+            "--toolbelt": {
                 "help": "The name of the toolbelt to remove.",
                 "required": True,
             }

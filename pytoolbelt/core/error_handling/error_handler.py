@@ -1,16 +1,27 @@
 import functools
 
 from pytoolbelt.core.error_handling import exceptions
-from pytoolbelt.environment.config import PYTOOLBELT_DEBUG
+from pytoolbelt.environment.config import PYTOOLBELT_DEBUG, get_logger, PYTOOLBELT_ENABLE_FILE_LOGGING
+
+
+logger = get_logger(__name__)
 
 
 class ErrorHandler:
     def __init__(self) -> None:
         self.debug = PYTOOLBELT_DEBUG
 
-    def handle(self, exception: Exception, message: str) -> int:
-        print(message)
+    def handle(self, exception: Exception) -> int:
+        self.log_error(exception)
         return self.reraise_if_debug(exception)
+
+    @staticmethod
+    def log_error(exception: Exception) -> None:
+
+        if PYTOOLBELT_ENABLE_FILE_LOGGING:
+            error_logger = get_logger("error_logger", terminal_stream=False)
+            error_logger.exception(exception)
+        logger.info(exception.args[0])
 
     def reraise_if_debug(self, exception: Exception) -> int:
         """Reraise exception if we are debugging."""
@@ -29,15 +40,15 @@ def handle_cli_errors(func):
             return func(*args, **kwargs)
 
         except PermissionError as e:
-            return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: Permission denied")
+            return error_handler.handle(e)
 
         except FileNotFoundError as e:
-            return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: File not found")
+            return error_handler.handle(e)
 
         except OSError as e:
-            return error_handler.handle(e, f"pytoolbelt :: Unable to perform action :: Unknown error")
+            return error_handler.handle(e)
 
         except exceptions.PytoolbeltError as e:
-            return error_handler.handle(e, f"pytoolbelt :: ERROR :: {e.args[0]}")
+            return error_handler.handle(e)
 
     return wrapper
