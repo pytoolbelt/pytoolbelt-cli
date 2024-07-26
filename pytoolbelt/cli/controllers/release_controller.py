@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
@@ -7,21 +8,32 @@ from pytoolbelt.core.project.ptvenv_components import PtVenvConfig, PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolConfig, ToolPaths
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
+from pytoolbelt.environment.config import get_logger
+from pathlib import Path
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
+
+logger = get_logger(__name__)
+
+
+@dataclass
+class ReleaseParameters(BaseEntrypointParameters):
+    toolbelt: str
 
 
 class ReleaseController:
     def __init__(self) -> None:
         self.toolbelt_paths = ToolbeltPaths()
 
-    @pytoolbelt_config
-    def release(self, ptc: PytoolbeltConfig) -> int:
+    @pytoolbelt_config(provide_ptc=True)
+    def release(self, ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ReleaseParameters) -> int:
 
         git_client = GitClient.from_path(path=self.toolbelt_paths.root_path, release_branch=ptc.release_branch)
 
-        print("Fetching remote tags...")
+        logger.info("Fetching remote tags...")
         git_client.fetch_remote_tags()
 
-        print("checking git release requirements...")
+        logger.info("checking git release requirements...")
         git_client.raise_on_release_attempt()
 
         component_versions = []
@@ -49,13 +61,18 @@ class ReleaseController:
                 releases.append(component_version)
 
         if not releases:
-            print("No new releases to make. Exiting.")
+            logger.info(f"No new releases to make in toolbelt {self.toolbelt_paths.toolbelt_dir.name}.")
             return 0
 
         for release in releases:
-            print(f"tagging release {release.release_tag}...")
+            logger.info(f"tagging release {release.release_tag}...")
             git_client.tag_release(release.release_tag)
 
-        print("Pushing tags to remote...")
+        logger.info("Pushing tags to remote...")
         git_client.push_tags_to_remote()
         return 0
+
+
+COMMON_FLAGS = {
+    "--toolbelt": {"required": False, "help": "The help for toolbelt", "default": Path.cwd().name},
+}

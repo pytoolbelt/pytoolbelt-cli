@@ -7,6 +7,10 @@ from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
+from pytoolbelt.environment.config import get_logger
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -20,10 +24,10 @@ class ReleasesParameters(BaseEntrypointParameters):
     def __post_init__(self) -> None:
 
         if self.ptvenv and self.tools:
-            raise ValueError("Cannot specify both --ptvenv and --tools")
+            raise PytoolbeltError("Cannot specify both --ptvenv and --tools")
 
         if not self.ptvenv and not self.tools:
-            raise ValueError("Must specify either --ptvenv or --tools")
+            raise PytoolbeltError("Must specify either --ptvenv or --tools")
 
 
 COMMON_FLAGS = {
@@ -67,7 +71,7 @@ class ReleasesController:
             releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.tool_releases()]
 
         if not releases:
-            print(f"No releases found for toolbelt {self.toolbelt.name}")
+            logger.info(f"No releases found for toolbelt {self.toolbelt.name}")
             return 0
 
         # otherwise just do all the releases

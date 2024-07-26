@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Optional
 
 from semver import Version
@@ -24,8 +23,8 @@ from pytoolbelt.environment.config import get_logger
     this should be reviewed as a good candidate for DRY out refactoring.
 """
 
-
 logger = get_logger(__name__)
+
 
 class ToolController:
     """Controller for managing tools."""
@@ -76,11 +75,13 @@ class ToolController:
         if inst.meta.is_latest_version:
             config = ToolConfig.from_file(inst.tool_paths.tool_config_file)
             inst.meta.version = config.version
-            logger.debug(f"Creating tool controller for_installation for {inst.meta.name} with version {inst.meta.version}.")
+            logger.debug(
+                f"Creating tool controller for_installation for {inst.meta.name} with version {inst.meta.version}.")
             return inst
 
         # a version was passed in, so we are installing that specific version
-        logger.debug(f"Creating tool controller for_installation for {inst.meta.name} with passed in version {inst.meta.version}.")
+        logger.debug(
+            f"Creating tool controller for_installation for {inst.meta.name} with passed in version {inst.meta.version}.")
         return inst
 
     def get_templater(self) -> ToolTemplater:
@@ -146,7 +147,8 @@ class ToolController:
 
             tmp_installer = ToolInstaller(tmp_paths)
             result = self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
-            logger.info(f"Tool {latest_meta.name} version {latest_meta.version} installed using ptvenv {ptvenv_paths.ptvenv_dir}.")
+            logger.info(
+                f"Tool {latest_meta.name} version {latest_meta.version} installed using ptvenv {ptvenv_paths.ptvenv_dir}.")
 
             return result
 
@@ -163,11 +165,14 @@ class ToolController:
         return 0
 
     def remove(self) -> int:
+        logger.info(f"Removing tool {self.meta.name} from toolbelt {self.toolbelt.name}.")
         if self.tool_paths.install_path.exists():
             self.tool_paths.install_path.unlink()
         else:
             raise ToolCreationError(f"Tool {self.meta.name} does not exist.")
+        logger.info(f"Tool {self.meta.name} removed.")
         return 0
 
     def release(self, ptc: PytoolbeltConfig) -> int:
+        logger.info(f"Releasing tool {self.meta.name} version {self.meta.version} in toolbelt {self.toolbelt.name}.")
         return release(ptc=ptc, toolbelt_paths=self.toolbelt_paths, component_paths=self.tool_paths)
