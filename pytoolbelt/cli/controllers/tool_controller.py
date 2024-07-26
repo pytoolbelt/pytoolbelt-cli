@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Optional
 
 from semver import Version
@@ -16,12 +15,15 @@ from pytoolbelt.core.project.tool_components import (
     ToolTemplater,
 )
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.tools.git_client import GitClient, TemporaryGitClient
+from pytoolbelt.core.tools.git_client import TemporaryGitClient
+from pytoolbelt.environment.config import get_logger
 
 """
     TODO: This controller's constructors are quite similar to that of the tool controller. 
     this should be reviewed as a good candidate for DRY out refactoring.
 """
+
+logger = get_logger(__name__)
 
 
 class ToolController:
@@ -37,11 +39,13 @@ class ToolController:
     def for_creation(cls, string: str, toolbelt: ToolbeltConfig) -> "ToolController":
         version = Version.parse("0.0.1")
         meta = ComponentMetadata.as_tool(string, version)
+        logger.debug(f"Creating tool controller for_creation for {meta.name} with version {meta.version}.")
         return cls(meta, toolbelt)
 
     @classmethod
     def for_deletion(cls, string: str, toolbelt: ToolbeltConfig) -> "ToolController":
         meta = ComponentMetadata.as_tool(string)
+        logger.debug(f"Creating tool controller for_deletion for {meta.name} with version {meta.version}.")
         return cls(meta, toolbelt)
 
     @classmethod
@@ -59,6 +63,7 @@ class ToolController:
 
         config = ToolConfig.from_file(inst.tool_paths.tool_config_file)
         inst.meta.version = Version.parse(config.version)
+        logger.debug(f"Creating tool controller for_release for {inst.meta.name} with version {inst.meta.version}.")
         return inst
 
     @classmethod
@@ -70,9 +75,15 @@ class ToolController:
         if inst.meta.is_latest_version:
             config = ToolConfig.from_file(inst.tool_paths.tool_config_file)
             inst.meta.version = config.version
+            logger.debug(
+                f"Creating tool controller for_installation for {inst.meta.name} with version {inst.meta.version}."
+            )
             return inst
 
         # a version was passed in, so we are installing that specific version
+        logger.debug(
+            f"Creating tool controller for_installation for {inst.meta.name} with passed in version {inst.meta.version}."
+        )
         return inst
 
     def get_templater(self) -> ToolTemplater:
@@ -86,17 +97,24 @@ class ToolController:
         self.tool_paths.raise_if_exists()
         self.tool_paths.create()
         self.get_templater().template_new_tool_files()
+        logger.info(f"Tool {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}.")
         return 0
 
     def _run_installer(self, p: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None) -> int:
         installer = installer or self.get_installer()
         if dev_mode:
+            logger.debug(f"Installing {self.meta.name} in dev mode.")
             return installer.install_shim(p.python_executable_path.as_posix())
+        logger.debug(f"Installing {self.meta.name} in production mode.")
         return installer.install(p.python_executable_path.as_posix())
 
     def install(self, dev_mode: bool, from_config: bool) -> int:
         # TODO: This can be DRYed out. Check the build method of the PtVenvController.
+
+        logger.info(f"Installing {self.meta.name} from toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}.")
+
         with TemporaryGitClient(self.toolbelt.path, self.toolbelt.name) as (repo_path, git_client):
+            logger.debug(f"toolbelt copied to temp dir: {repo_path.tmp_dir}")
 
             tool_config = ToolConfig.from_file(self.tool_paths.tool_config_file)
 
@@ -122,7 +140,7 @@ class ToolController:
                 raise ToolCreationError(f"Tool {latest_meta.name} version {latest_meta.version} does not exist.")
 
             # check out from the release tag
-            print(f"Checking out {latest_meta.release_tag}...")
+            logger.debug(f"Checking out {latest_meta.release_tag}...")
             git_client.checkout_tag(tag_reference)
 
             # create new temp paths
@@ -130,10 +148,15 @@ class ToolController:
             tmp_paths = ToolPaths(latest_meta, tmp_project_paths)
 
             tmp_installer = ToolInstaller(tmp_paths)
-            return self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
+            result = self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
+            logger.info(
+                f"Tool {latest_meta.name} version {latest_meta.version} installed using ptvenv {ptvenv_paths.ptvenv_dir}."
+            )
+
+            return result
 
     def bump(self, ptc: PytoolbeltConfig, part: str) -> int:
-
+        logger.info(f"Bumping version of tool {self.meta.name} in toolbelt {self.toolbelt.name}.")
         if part == "config":
             part = ptc.bump
 
@@ -141,14 +164,18 @@ class ToolController:
         next_version = self.tool_paths.meta.version.next_version(part)
         config.version = next_version
         self.tool_paths.write_to_config_file(config)
+        logger.info(f"Tool {self.meta.name} bumped to version {next_version}.")
         return 0
 
     def remove(self) -> int:
+        logger.info(f"Removing tool {self.meta.name} from toolbelt {self.toolbelt.name}.")
         if self.tool_paths.install_path.exists():
             self.tool_paths.install_path.unlink()
         else:
             raise ToolCreationError(f"Tool {self.meta.name} does not exist.")
+        logger.info(f"Tool {self.meta.name} removed.")
         return 0
 
     def release(self, ptc: PytoolbeltConfig) -> int:
+        logger.info(f"Releasing tool {self.meta.name} version {self.meta.version} in toolbelt {self.toolbelt.name}.")
         return release(ptc=ptc, toolbelt_paths=self.toolbelt_paths, component_paths=self.tool_paths)
