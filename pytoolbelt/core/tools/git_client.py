@@ -88,9 +88,7 @@ class GitClient:
 
     def raise_if_uncommitted_changes(self) -> None:
         if self.repo.is_dirty():
-            raise PytoolbeltError(
-                "Repo has uncommited changes. Please commit your changes before tagging a release."
-            )
+            raise PytoolbeltError("Repo has uncommited changes. Please commit your changes before tagging a release.")
 
     def raise_if_local_and_remote_head_are_different(self) -> None:
         self.repo.remotes.origin.fetch()

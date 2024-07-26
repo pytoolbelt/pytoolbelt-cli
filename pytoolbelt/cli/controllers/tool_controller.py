@@ -76,12 +76,14 @@ class ToolController:
             config = ToolConfig.from_file(inst.tool_paths.tool_config_file)
             inst.meta.version = config.version
             logger.debug(
-                f"Creating tool controller for_installation for {inst.meta.name} with version {inst.meta.version}.")
+                f"Creating tool controller for_installation for {inst.meta.name} with version {inst.meta.version}."
+            )
             return inst
 
         # a version was passed in, so we are installing that specific version
         logger.debug(
-            f"Creating tool controller for_installation for {inst.meta.name} with passed in version {inst.meta.version}.")
+            f"Creating tool controller for_installation for {inst.meta.name} with passed in version {inst.meta.version}."
+        )
         return inst
 
     def get_templater(self) -> ToolTemplater:
@@ -148,7 +150,8 @@ class ToolController:
             tmp_installer = ToolInstaller(tmp_paths)
             result = self._run_installer(ptvenv_paths, dev_mode, tmp_installer)
             logger.info(
-                f"Tool {latest_meta.name} version {latest_meta.version} installed using ptvenv {ptvenv_paths.ptvenv_dir}.")
+                f"Tool {latest_meta.name} version {latest_meta.version} installed using ptvenv {ptvenv_paths.ptvenv_dir}."
+            )
 
             return result
 

@@ -5,10 +5,10 @@ from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParam
 from pytoolbelt.cli.views.releases_view import ReleasesTableView
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfigs
+from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.environment.config import get_logger
-from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 logger = get_logger(__name__)
 

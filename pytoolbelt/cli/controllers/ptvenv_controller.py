@@ -46,7 +46,9 @@ class PtVenvController:
         inst = cls(meta, toolbelt)
 
         if not inst.meta.is_latest_version:
-            logger.debug(f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}.")
+            logger.debug(
+                f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}."
+            )
             return inst
 
         latest_version = inst.ptvenv_paths.get_latest_installed_version()
@@ -77,7 +79,9 @@ class PtVenvController:
 
         # this means we passed in some version number in the format name==version
         if isinstance(meta.version, Version):
-            logger.debug(f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} passed in version {inst.meta.version}.")
+            logger.debug(
+                f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} passed in version {inst.meta.version}."
+            )
             return inst
 
         # this means we are building, or releasing a new / latest version,
@@ -97,7 +101,9 @@ class PtVenvController:
         self.ptvenv_paths.raise_if_exists()
         self.ptvenv_paths.create()
         self.get_templater().template_new_venvdef_file(ptc=ptc)
-        logger.info(f"Ptvenv {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.ptvenv_paths.ptvenv_dir}.")
+        logger.info(
+            f"Ptvenv {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.ptvenv_paths.ptvenv_dir}."
+        )
         return 0
 
     def build(self, force: bool, from_config: bool) -> int:

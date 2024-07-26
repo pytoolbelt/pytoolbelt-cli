@@ -1,11 +1,12 @@
-import os
-import logging
-from pathlib import Path
 import datetime
+import logging
+import os
+from pathlib import Path
+from typing import Optional
+
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from typing import Optional
 
 # project paths used for project creation and tool development
 PYTOOLBELT_TOOLBELT_ROOT = Path.cwd()
@@ -106,10 +107,7 @@ def get_logger(name: str, terminal_stream: Optional[bool] = True) -> logging.Log
     logger.propagate = False
 
     if PYTOOLBELT_ENABLE_FILE_LOGGING:
-        formatter = logging.Formatter(
-            fmt=PYTOOLBELT_LOG_MSG_FORMAT,
-            datefmt=PYTOOLBELT_LOG_DATE_FORMAT
-        )
+        formatter = logging.Formatter(fmt=PYTOOLBELT_LOG_MSG_FORMAT, datefmt=PYTOOLBELT_LOG_DATE_FORMAT)
 
         file_handler = logging.FileHandler(filename=PYTOOLBELT_LOG_FILE)
         file_handler.setLevel(logging.DEBUG)
@@ -123,10 +121,7 @@ def get_logger(name: str, terminal_stream: Optional[bool] = True) -> logging.Log
     if not terminal_stream:
         return logger
 
-    stream_formatter = logging.Formatter(
-        fmt=PYTOOLBELT_STREAM_FORMAT,
-        datefmt=PYTOOLBELT_LOG_DATE_FORMAT
-    )
+    stream_formatter = logging.Formatter(fmt=PYTOOLBELT_STREAM_FORMAT, datefmt=PYTOOLBELT_LOG_DATE_FORMAT)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(stream_formatter)

@@ -1,17 +1,18 @@
 from dataclasses import dataclass
+from pathlib import Path
+
+from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
+from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.project.ptvenv_components import PtVenvConfig, PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolConfig, ToolPaths
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.environment.config import get_logger
-from pathlib import Path
-from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
-from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 
 logger = get_logger(__name__)
 

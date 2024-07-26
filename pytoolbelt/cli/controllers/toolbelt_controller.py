@@ -10,7 +10,6 @@ from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths, ToolbeltT
 from pytoolbelt.core.tools.git_client import GitClient
 from pytoolbelt.environment.config import get_logger
 
-
 logger = get_logger(__name__)
 
 
