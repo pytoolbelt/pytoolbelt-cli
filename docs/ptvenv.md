@@ -1,12 +1,22 @@
 [![Blueprint fonts](https://see.fontimg.com/api/renderfont4/BWWo5/eyJyIjoiZnMiLCJoIjo4NywidyI6MTAwMCwiZnMiOjg3LCJmZ2MiOiIjMUNBN0ZGIiwiYmdjIjoiI0ZGRkZGRiIsInQiOjF9/UHl0b29sYmVsdA/typo-draft-demo.png)](https://www.fontspace.com/category/blueprint)
 
-# Ptvenv
-
 ## What is a ptvenv?
 A `ptvenv` is simply a `yaml` file that has a minimal python environment definition. This environment will be built using `pytoolbelt`, which will
 put the resulting python environment in a consistent location which can be referenced when developing and installing your tools. 
+This allows multiple tools to share the same python environment, reducing the development overhead of having to manage an environment
+for each tool, as with more traditional python virtual environments.
 
-## Directory Structure
+## Creating a ptvenv
+To create a `ptvenv` from the toolbelt directory of your project, simply run the following command
+```bash
+pytoolbelt ptvenv new --name my_ptvenv
+```
+or globally, you can specify the toolbelt to use
+```bash
+pytoolbelt ptvenv new --toolbelt my-toolbelt --name my_ptvenv
+```
+
+### Directory Structure
 An example of what a `ptvenv` directory structure looks like is as follows:
 
 ```
@@ -16,7 +26,7 @@ ptvenv
 │   └── README.md      -- A README file for the ptvenv
 ```
 
-## Example Definition
+### Example Definition
 ```yaml
 name: my_ptvenv
 version: "0.1.0"

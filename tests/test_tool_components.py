@@ -5,7 +5,7 @@ import pytest
 
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
-from pytoolbelt.core.project.tool_components import PtVenv, ToolConfig, ToolPaths
+from pytoolbelt.core.project.tool_components import PtVenv, ToolConfig, ToolPaths, EntrypointShimTemplater
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
 
@@ -140,3 +140,36 @@ def test_raise_if_exists(tool_paths_instance):
     with patch.object(Path, "exists", return_value=True):
         with pytest.raises(PytoolbeltError):
             tool_paths_instance.raise_if_exists()
+
+
+def test_entrypoint_shim_templater_get_template_kwargs_returns_correct_dict():
+    tool_paths = MagicMock()
+    tool_paths.tool_dir.as_posix.return_value = "/fake/tool/dir"
+    tool_paths.meta.name = "fake_tool"
+    interpreter = "/usr/bin/python3"
+    templater = EntrypointShimTemplater(tool_paths, interpreter)
+
+    expected_kwargs = {
+        "python_executable": interpreter,
+        "tool_path": "/fake/tool/dir",
+        "tool_name": "fake_tool",
+    }
+
+    assert templater.get_template_kwargs() == expected_kwargs
+
+
+@patch.object(EntrypointShimTemplater, 'render', return_value="rendered_content")
+@patch.object(Path, 'touch')
+@patch.object(Path, 'write_text')
+def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch, mock_render):
+    tool_paths = MagicMock()
+    tool_paths.dev_install_path = Path("/fake/dev/install/path")
+    interpreter = "/usr/bin/python3"
+    templater = EntrypointShimTemplater(tool_paths, interpreter)
+
+    templater.write_entrypoint_shim()
+
+    # mock_render.assert_called_once_with("entrypoint-shim.py.jinja2", python_executable=interpreter,
+    #                                     tool_path="/fake/tool/dir", tool_name="fake_tool")
+    mock_touch.assert_called_once_with(exist_ok=True)
+    mock_write_text.assert_called_once_with("rendered_content")

@@ -1,11 +1,9 @@
 [![Blueprint fonts](https://see.fontimg.com/api/renderfont4/BWWo5/eyJyIjoiZnMiLCJoIjo4NywidyI6MTAwMCwiZnMiOjg3LCJmZ2MiOiIjMUNBN0ZGIiwiYmdjIjoiI0ZGRkZGRiIsInQiOjF9/UHl0b29sYmVsdA/typo-draft-demo.png)](https://www.fontspace.com/category/blueprint)
 
-# Currently in BETA Development - Not production ready!
-
 ### Sharing python tooling within your organization, the easy way.
 
 ## What is Pytoolbelt?
-Pytoolbelt is a CLI, written in python, intended to remove the barrier to developing, sharing, testing and documenting internal tooling written in python
+Pytoolbelt is a CLI, intended to remove the barrier to developing, sharing, testing and documenting internal tooling written in python
 within your organization. 
 
 It treats a standard git repo as a `toolbelt`, which is basically a mono repo with all of your python tools and scripts that you want to share and document for use within your organization.
