@@ -9,6 +9,7 @@ from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
 
 class PtVenv(BaseModel):
@@ -52,15 +53,13 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class ToolPaths(BasePaths):
-    def __init__(
-        self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths"
-    ) -> None:
+    def __init__(self, meta: ComponentMetadata, toolbelt_paths: ToolbeltPaths) -> None:
         self._meta = meta
         self._toolbelt_paths = toolbelt_paths
         super().__init__(toolbelt_paths.root_path)
 
     @property
-    def toolbelt_paths(self) -> "ToolbeltPaths":
+    def toolbelt_paths(self) -> ToolbeltPaths:
         return self._toolbelt_paths
 
     @property

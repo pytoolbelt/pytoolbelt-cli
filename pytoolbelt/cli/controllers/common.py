@@ -7,7 +7,6 @@ from typing import Union
 
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
-    pytoolbelt_config,
 )
 from pytoolbelt.core.project.ptvenv_components import PtVenvPaths
 from pytoolbelt.core.project.tool_components import ToolPaths

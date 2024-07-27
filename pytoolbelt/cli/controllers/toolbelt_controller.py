@@ -57,7 +57,7 @@ class ToolbeltController:
             logger.debug(f"Adding remote origin {toolbelt.url}")
             repo.create_remote(name="origin", url=toolbelt.url)
 
-        logger.debug(f"Saving toolbelt config file")
+        logger.debug("Saving toolbelt config file")
         self.toolbelt_configs.save()
 
         logger.info(f"Toolbelt {toolbelt.name} created at {toolbelt.path}")

@@ -15,6 +15,8 @@ from pytoolbelt.core.error_handling.exceptions import (
     PythonEnvBuildError,
     PytoolbeltError,
 )
+from pytoolbelt.core.project.tool_components import ToolConfig
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 from pytoolbelt.core.tools import hash_config
 
 
@@ -58,7 +60,7 @@ class PtVenvPaths(BasePaths):
 
     @classmethod
     def from_tool_config(
-        cls, tool_config: "ToolConfig", project_paths: "ProjectPaths"
+        cls, tool_config: "ToolConfig", toolbelt_paths: "ToolbeltPaths"
     ) -> "PtVenvPaths":
         return cls(
             ComponentMetadata(
@@ -66,7 +68,7 @@ class PtVenvPaths(BasePaths):
                 version=tool_config.ptvenv.version,
                 kind="ptvenv",
             ),
-            project_paths,
+            toolbelt_paths,
         )
 
     @property

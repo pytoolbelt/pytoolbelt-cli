@@ -1,9 +1,6 @@
 from pathlib import Path
 from typing import Iterator, List, Optional
 
-import giturlparse
-from git import Repo
-
 from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata

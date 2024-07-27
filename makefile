@@ -53,11 +53,11 @@ release:               ## Install only the dependencies to make a semantic relea
 
 .PHONY: format
 format:                ## Run black python linter
-	. venv/bin/activate && python -m black ${PROJECT_DIR} ${TEST_DIR}
+	. venv/bin/activate && python -m ruff format ${PROJECT_DIR} ${TEST_DIR}
 
 .PHONY: check-format
 check-format:          ## Run black linter to check formatting of project files
-	. venv/bin/activate && python -m black --check ${PROJECT_DIR} ${TEST_DIR}
+	. venv/bin/activate && python -m ruff check ${PROJECT_DIR} ${TEST_DIR}
 
 .PHONY: test
 test:                  ## Run project tests using pytest
@@ -66,9 +66,9 @@ test:                  ## Run project tests using pytest
 
 .PHONY: sort-imports
 sort-imports:          ## Sort imports in project files
-	. venv/bin/activate && python -m isort ${PROJECT_DIR} ${TEST_DIR}
+	. venv/bin/activate && python -m ruff check ${PROJECT_DIR} ${TEST_DIR} --select I --fix
 
 
 .PHONY: check-sort-imports
-check-sort-imports:    ## Run isort linter to check sorting of imports in project files
-	. venv/bin/activate && python -m isort --check-only ${PROJECT_DIR} ${TEST_DIR}
+check-sort-imports:    ## Run ruff linter to check sorting of imports in project files
+	. venv/bin/activate && python -m ruff check ${PROJECT_DIR} ${TEST_DIR} --select I

@@ -1,6 +1,7 @@
 import argparse
 
 from pytoolbelt.cli.parsers import (
+    format,
     init,
     installed,
     ptvenv,
@@ -8,7 +9,6 @@ from pytoolbelt.cli.parsers import (
     releases,
     tool,
     toolbelt,
-    format
 )
 
 __version__ = "0.4.0"

@@ -71,7 +71,7 @@ class PtVenvController:
         # is not allowed, when making a release.
         if isinstance(meta.version, Version):
             raise PytoolbeltError(
-                f"Setting a version number is not allowed when releasing a ptvenv."
+                "Setting a version number is not allowed when releasing a ptvenv."
             )
 
         # otherwise get the latest version number from the config file
