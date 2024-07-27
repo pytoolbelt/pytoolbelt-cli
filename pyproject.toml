@@ -46,6 +46,11 @@ fmt = [
     "isort==5.13.2"
 ]
 
+[project.urls]
+homepage = "https://github.com/pytoolbelt/pytoolbelt-cli"
+documentation = "https://pytoolbelt.github.io/pytoolbelt-cli/"
+changelog = "https://github.com/pytoolbelt/pytoolbelt-cli/blob/main/CHANGELOG.md"
+
 [project.scripts]
 pytoolbelt = "pytoolbelt.__main__:main"
 
