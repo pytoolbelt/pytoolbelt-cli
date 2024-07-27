@@ -7,7 +7,6 @@ from pytoolbelt.core.error_handling.exceptions import CliArgumentError
 
 
 class ComponentMetadata:
-
     FORBIDDEN_NAME_CHARS = "!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~"
 
     def __init__(self, name: str, version: Union[Version, str], kind: str) -> None:
@@ -31,19 +30,25 @@ class ComponentMetadata:
             inst = cls(name, Version.parse(version), kind)
             inst.raise_if_forbidden_char_in_name()
         except ValueError:
-            raise CliArgumentError(f"Invalid Version :: {version} is not a valid version")
+            raise CliArgumentError(
+                f"Invalid Version :: {version} is not a valid version"
+            )
 
         return inst
 
     @classmethod
-    def as_ptvenv(cls, string: str, version: Optional[Version] = None) -> "ComponentMetadata":
+    def as_ptvenv(
+        cls, string: str, version: Optional[Version] = None
+    ) -> "ComponentMetadata":
         inst = cls.from_string(string, "ptvenv")
         if version:
             inst.version = version
         return inst
 
     @classmethod
-    def as_tool(cls, string: str, version: Optional[Version] = None) -> "ComponentMetadata":
+    def as_tool(
+        cls, string: str, version: Optional[Version] = None
+    ) -> "ComponentMetadata":
         inst = cls.from_string(string, "tool")
         if version:
             inst.version = version
@@ -58,7 +63,10 @@ class ComponentMetadata:
 
     @classmethod
     def get_latest_release(cls, tag_names: List[str]) -> "ComponentMetadata":
-        releases = filter(lambda x: x.is_not_prerelease(), [cls.from_release_tag(tag) for tag in tag_names])
+        releases = filter(
+            lambda x: x.is_not_prerelease(),
+            [cls.from_release_tag(tag) for tag in tag_names],
+        )
         return max(releases, key=lambda x: x.version)
 
     def is_not_prerelease(self) -> bool:

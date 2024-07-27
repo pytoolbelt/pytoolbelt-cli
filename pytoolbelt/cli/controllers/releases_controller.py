@@ -22,7 +22,6 @@ class ReleasesParameters(BaseEntrypointParameters):
     all: bool
 
     def __post_init__(self) -> None:
-
         if self.ptvenv and self.tools:
             raise PytoolbeltError("Cannot specify both --ptvenv and --tools")
 
@@ -31,7 +30,11 @@ class ReleasesParameters(BaseEntrypointParameters):
 
 
 COMMON_FLAGS = {
-    "--toolbelt": {"required": False, "help": "The help for toolbelt", "default": Path.cwd().name},
+    "--toolbelt": {
+        "required": False,
+        "help": "The help for toolbelt",
+        "default": Path.cwd().name,
+    },
     "--ptvenv": {
         "required": False,
         "help": "The help for the ptvenv flag",
@@ -65,17 +68,30 @@ class ReleasesController:
         releases = []
 
         if ptvenv:
-            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.ptvenv_releases()]
+            releases = [
+                (ComponentMetadata.from_release_tag(t.name), t)
+                for t in git_client.ptvenv_releases()
+            ]
 
         if tools:
-            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.tool_releases()]
+            releases = [
+                (ComponentMetadata.from_release_tag(t.name), t)
+                for t in git_client.tool_releases()
+            ]
 
         if not releases:
             logger.info(f"No releases found for toolbelt {self.toolbelt.name}")
             return 0
 
         # otherwise just do all the releases
-        table = ReleasesTableView(toolbelt=self.toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
+        table = ReleasesTableView(
+            toolbelt=self.toolbelt, ptvenv=ptvenv, tools=tools, _all=_all
+        )
         for r, t in releases:
-            table.add_row(r.name, r.version, str(t.commit.committed_datetime.date()), t.commit.hexsha)
+            table.add_row(
+                r.name,
+                r.version,
+                str(t.commit.committed_datetime.date()),
+                t.commit.hexsha,
+            )
         table.print_table()

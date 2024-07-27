@@ -16,9 +16,10 @@ from pytoolbelt.core.tools.git_client import GitClient
 
 
 def release(
-    ptc: PytoolbeltConfig, toolbelt_paths: ToolbeltPaths, component_paths: Union[PtVenvPaths, ToolPaths]
+    ptc: PytoolbeltConfig,
+    toolbelt_paths: ToolbeltPaths,
+    component_paths: Union[PtVenvPaths, ToolPaths],
 ) -> int:
-
     if isinstance(component_paths, PtVenvPaths):
         kind = "ptvenv"
     elif isinstance(component_paths, ToolPaths):
@@ -26,7 +27,9 @@ def release(
     else:
         raise ValueError("Invalid component paths passed to release method.")
 
-    git_client = GitClient.from_path(path=toolbelt_paths.root_path, release_branch=ptc.release_branch)
+    git_client = GitClient.from_path(
+        path=toolbelt_paths.root_path, release_branch=ptc.release_branch
+    )
 
     # first fetch all remote tags if we don't have them
     print("Fetching remote tags...")
@@ -42,7 +45,9 @@ def release(
         raise ValueError("Invalid kind passed to release method.")
 
     if component_paths.meta.release_tag in release_tags:
-        print(f"Release tag {component_paths.meta.release_tag} already exists. Nothing to do.")
+        print(
+            f"Release tag {component_paths.meta.release_tag} already exists. Nothing to do."
+        )
         return 0
 
     # otherwise release the component

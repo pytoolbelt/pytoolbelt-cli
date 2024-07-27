@@ -32,7 +32,9 @@ class ToolConfig(BaseModel):
         with file.open("r") as f:
             raw_yaml = yaml.safe_load(f)["tool"]
             ptvenv = PtVenv(**raw_yaml["ptvenv"])
-            return cls(name=raw_yaml["name"], version=raw_yaml["version"], ptvenv=ptvenv)
+            return cls(
+                name=raw_yaml["name"], version=raw_yaml["version"], ptvenv=ptvenv
+            )
 
     def to_dict(self) -> dict:
         return {
@@ -50,7 +52,9 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class ToolPaths(BasePaths):
-    def __init__(self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths") -> None:
+    def __init__(
+        self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths"
+    ) -> None:
         self._meta = meta
         self._toolbelt_paths = toolbelt_paths
         super().__init__(toolbelt_paths.root_path)
@@ -162,11 +166,19 @@ class ToolPaths(BasePaths):
 
     def write_to_config_file(self, config: ToolConfig) -> None:
         with self.tool_config_file.open("w") as f:
-            yaml.dump(config.to_dict(), f, Dumper=IndentedSafeDumper, sort_keys=False, indent=2)
+            yaml.dump(
+                config.to_dict(),
+                f,
+                Dumper=IndentedSafeDumper,
+                sort_keys=False,
+                indent=2,
+            )
 
     def raise_if_exists(self) -> None:
         if self.tool_dir.exists():
-            raise PytoolbeltError(f"A tool named '{self.meta.name}' already exists in this project.")
+            raise PytoolbeltError(
+                f"A tool named '{self.meta.name}' already exists in this project."
+            )
 
 
 class EntrypointShimTemplater(BaseTemplater):
@@ -198,7 +210,9 @@ class ToolTemplater(BaseTemplater):
             if file.parent.name == self.paths.meta.name and file.name == "__init__.py":
                 continue
             template_name = self.format_template_name(file.name)
-            rendered = self.render(template_name, paths=self.paths, name=self.paths.meta.name)
+            rendered = self.render(
+                template_name, paths=self.paths, name=self.paths.meta.name
+            )
             file.write_text(rendered)
 
 

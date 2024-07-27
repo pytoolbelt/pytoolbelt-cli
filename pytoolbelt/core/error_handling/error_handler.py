@@ -20,7 +20,6 @@ class ErrorHandler:
 
     @staticmethod
     def log_error(exception: Exception) -> None:
-
         if PYTOOLBELT_ENABLE_FILE_LOGGING:
             error_logger = get_logger("error_logger", terminal_stream=False)
             error_logger.exception(exception)

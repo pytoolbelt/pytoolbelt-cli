@@ -11,7 +11,10 @@ from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 
 class GitClient:
     def __init__(
-        self, repo: Repo, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None
+        self,
+        repo: Repo,
+        config: Optional[ToolbeltConfig] = None,
+        release_branch: Optional[str] = None,
     ) -> None:
         self._repo = repo
         self._config = config
@@ -19,7 +22,10 @@ class GitClient:
 
     @classmethod
     def from_path(
-        cls, path: Path, config: Optional[ToolbeltConfig] = None, release_branch: Optional[str] = None
+        cls,
+        path: Path,
+        config: Optional[ToolbeltConfig] = None,
+        release_branch: Optional[str] = None,
     ) -> "GitClient":
         return cls(Repo(path), config, release_branch)
 
@@ -74,7 +80,6 @@ class GitClient:
             )
 
     def raise_if_untracked_ptvenv(self) -> None:
-
         if self.has_untracked_files_in_directory("ptvenv"):
             raise PytoolbeltError(
                 "Repo has untracked files in the ptvenv directory. Please commit your changes before tagging a release."
@@ -88,11 +93,16 @@ class GitClient:
 
     def raise_if_uncommitted_changes(self) -> None:
         if self.repo.is_dirty():
-            raise PytoolbeltError("Repo has uncommited changes. Please commit your changes before tagging a release.")
+            raise PytoolbeltError(
+                "Repo has uncommited changes. Please commit your changes before tagging a release."
+            )
 
     def raise_if_local_and_remote_head_are_different(self) -> None:
         self.repo.remotes.origin.fetch()
-        if self.repo.head.commit.hexsha != self.repo.commit(f"origin/{self.current_branch}").hexsha:
+        if (
+            self.repo.head.commit.hexsha
+            != self.repo.commit(f"origin/{self.current_branch}").hexsha
+        ):
             raise PytoolbeltError(
                 "Local and remote HEAD are different. Please pull / push the latest changes before tagging a release."
             )

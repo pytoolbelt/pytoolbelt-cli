@@ -29,7 +29,9 @@ logger = get_logger(__name__)
 class ToolController:
     """Controller for managing tools."""
 
-    def __init__(self, meta: ComponentMetadata, toolbelt: ToolbeltConfig, **kwargs) -> None:
+    def __init__(
+        self, meta: ComponentMetadata, toolbelt: ToolbeltConfig, **kwargs
+    ) -> None:
         self.meta = meta
         self.toolbelt = toolbelt
         self.toolbelt_paths = kwargs.get("toolbelt_paths", ToolbeltPaths(toolbelt.path))
@@ -39,13 +41,17 @@ class ToolController:
     def for_creation(cls, string: str, toolbelt: ToolbeltConfig) -> "ToolController":
         version = Version.parse("0.0.1")
         meta = ComponentMetadata.as_tool(string, version)
-        logger.debug(f"Creating tool controller for_creation for {meta.name} with version {meta.version}.")
+        logger.debug(
+            f"Creating tool controller for_creation for {meta.name} with version {meta.version}."
+        )
         return cls(meta, toolbelt)
 
     @classmethod
     def for_deletion(cls, string: str, toolbelt: ToolbeltConfig) -> "ToolController":
         meta = ComponentMetadata.as_tool(string)
-        logger.debug(f"Creating tool controller for_deletion for {meta.name} with version {meta.version}.")
+        logger.debug(
+            f"Creating tool controller for_deletion for {meta.name} with version {meta.version}."
+        )
         return cls(meta, toolbelt)
 
     @classmethod
@@ -63,11 +69,15 @@ class ToolController:
 
         config = ToolConfig.from_file(inst.tool_paths.tool_config_file)
         inst.meta.version = Version.parse(config.version)
-        logger.debug(f"Creating tool controller for_release for {inst.meta.name} with version {inst.meta.version}.")
+        logger.debug(
+            f"Creating tool controller for_release for {inst.meta.name} with version {inst.meta.version}."
+        )
         return inst
 
     @classmethod
-    def for_installation(cls, string: str, toolbelt: ToolbeltConfig) -> "ToolController":
+    def for_installation(
+        cls, string: str, toolbelt: ToolbeltConfig
+    ) -> "ToolController":
         meta = ComponentMetadata.as_tool(string)
         inst = cls(meta, toolbelt)
 
@@ -97,10 +107,14 @@ class ToolController:
         self.tool_paths.raise_if_exists()
         self.tool_paths.create()
         self.get_templater().template_new_tool_files()
-        logger.info(f"Tool {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}.")
+        logger.info(
+            f"Tool {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}."
+        )
         return 0
 
-    def _run_installer(self, p: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None) -> int:
+    def _run_installer(
+        self, p: PtVenvPaths, dev_mode: bool, installer: Optional[ToolInstaller] = None
+    ) -> int:
         installer = installer or self.get_installer()
         if dev_mode:
             logger.debug(f"Installing {self.meta.name} in dev mode.")
@@ -111,14 +125,21 @@ class ToolController:
     def install(self, dev_mode: bool, from_config: bool) -> int:
         # TODO: This can be DRYed out. Check the build method of the PtVenvController.
 
-        logger.info(f"Installing {self.meta.name} from toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}.")
+        logger.info(
+            f"Installing {self.meta.name} from toolbelt {self.toolbelt.name} at {self.tool_paths.tool_dir}."
+        )
 
-        with TemporaryGitClient(self.toolbelt.path, self.toolbelt.name) as (repo_path, git_client):
+        with TemporaryGitClient(self.toolbelt.path, self.toolbelt.name) as (
+            repo_path,
+            git_client,
+        ):
             logger.debug(f"toolbelt copied to temp dir: {repo_path.tmp_dir}")
 
             tool_config = ToolConfig.from_file(self.tool_paths.tool_config_file)
 
-            ptvenv_paths = PtVenvPaths.from_tool_config(tool_config, self.toolbelt_paths)
+            ptvenv_paths = PtVenvPaths.from_tool_config(
+                tool_config, self.toolbelt_paths
+            )
             ptvenv_paths.raise_if_ptvenv_is_not_installed()
 
             if not from_config and not dev_mode:
@@ -137,7 +158,9 @@ class ToolController:
             try:
                 tag_reference = git_client.get_tag_reference(latest_meta.release_tag)
             except IndexError:
-                raise ToolCreationError(f"Tool {latest_meta.name} version {latest_meta.version} does not exist.")
+                raise ToolCreationError(
+                    f"Tool {latest_meta.name} version {latest_meta.version} does not exist."
+                )
 
             # check out from the release tag
             logger.debug(f"Checking out {latest_meta.release_tag}...")
@@ -156,7 +179,9 @@ class ToolController:
             return result
 
     def bump(self, ptc: PytoolbeltConfig, part: str) -> int:
-        logger.info(f"Bumping version of tool {self.meta.name} in toolbelt {self.toolbelt.name}.")
+        logger.info(
+            f"Bumping version of tool {self.meta.name} in toolbelt {self.toolbelt.name}."
+        )
         if part == "config":
             part = ptc.bump
 
@@ -168,7 +193,9 @@ class ToolController:
         return 0
 
     def remove(self) -> int:
-        logger.info(f"Removing tool {self.meta.name} from toolbelt {self.toolbelt.name}.")
+        logger.info(
+            f"Removing tool {self.meta.name} from toolbelt {self.toolbelt.name}."
+        )
         if self.tool_paths.install_path.exists():
             self.tool_paths.install_path.unlink()
         else:
@@ -177,5 +204,9 @@ class ToolController:
         return 0
 
     def release(self, ptc: PytoolbeltConfig) -> int:
-        logger.info(f"Releasing tool {self.meta.name} version {self.meta.version} in toolbelt {self.toolbelt.name}.")
-        return release(ptc=ptc, toolbelt_paths=self.toolbelt_paths, component_paths=self.tool_paths)
+        logger.info(
+            f"Releasing tool {self.meta.name} version {self.meta.version} in toolbelt {self.toolbelt.name}."
+        )
+        return release(
+            ptc=ptc, toolbelt_paths=self.toolbelt_paths, component_paths=self.tool_paths
+        )
