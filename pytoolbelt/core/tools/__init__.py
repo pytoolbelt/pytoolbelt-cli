@@ -1,12 +1,7 @@
 import hashlib
 import json
-import shutil
-import tempfile
-from contextlib import contextmanager
-from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
-from git import Repo
 from pydantic import BaseModel
 
 
@@ -43,7 +38,9 @@ def build_entrypoint_parsers(
 
         for sorted_action in sorted_actions:
             options = actions[sorted_action]
-            action_parser = root_subparsers.add_parser(sorted_action, help=options["help"])
+            action_parser = root_subparsers.add_parser(
+                sorted_action, help=options["help"]
+            )
             action_parser.set_defaults(func=entrypoint)
 
             if common_flags:

@@ -6,7 +6,6 @@ from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParam
 from pytoolbelt.core.data_classes.pytoolbelt_config import pytoolbelt_config
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
-from pytoolbelt.environment.config import get_logger
 
 
 @dataclass

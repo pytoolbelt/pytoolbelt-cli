@@ -1,9 +1,6 @@
 from pathlib import Path
 from typing import Iterator, List, Optional
 
-import giturlparse
-from git import Repo
-
 from pytoolbelt.core.bases.base_paths import BasePaths
 from pytoolbelt.core.bases.base_templater import BaseTemplater
 from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
@@ -99,7 +96,9 @@ class ToolbeltPaths(BasePaths):
 
     def raise_if_not_pytoolbelt_project(self) -> None:
         if not self.is_pytoolbelt_project():
-            raise PytoolbeltError("This directory is not the root of a pytoolbelt project.")
+            raise PytoolbeltError(
+                "This directory is not the root of a pytoolbelt project."
+            )
 
     def raise_if_exists(self) -> None:
         if self.toolbelt_install_dir.exists():
@@ -127,7 +126,9 @@ class ToolbeltPaths(BasePaths):
             if ptvenv.is_dir():
                 yield ptvenv.name
 
-    def iter_installed_ptvenvs(self, name: Optional[str] = None) -> List[ComponentMetadata]:
+    def iter_installed_ptvenvs(
+        self, name: Optional[str] = None
+    ) -> List[ComponentMetadata]:
         for venv in self.venv_install_dir.iterdir():
             if venv.is_dir():
                 for version in venv.iterdir():

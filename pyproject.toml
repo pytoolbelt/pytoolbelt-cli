@@ -20,7 +20,8 @@ dependencies = [
     "PyYAML==6.0.1",
     "semver==3.0.2",
     "giturlparse==0.12.0",
-    "rich==13.7.1"
+    "rich==13.7.1",
+    "ruff==0.5.5"
 ]
 
 [project.optional-dependencies]
@@ -29,9 +30,6 @@ dev = [
     "build==1.2.1",
     "python-semantic-release==9.8.5",
     "pytest==8.2.2",
-    "black==24.4.2",
-    "isort==5.13.2"
-
 ]
 
 docs = [
@@ -42,8 +40,7 @@ docs = [
 ]
 
 fmt = [
-    "black==24.4.2",
-    "isort==5.13.2"
+    "ruff==0.5.5"
 ]
 
 [project.urls]

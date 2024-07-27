@@ -66,11 +66,16 @@ class ToolbeltConfigs(BaseModel):
         try:
             return self.repos[key]
         except KeyError:
-            raise PytoolbeltError(f"Directory {key} not in toolbelts.yml file. Did you provide the --toolbelt flag?")
+            raise PytoolbeltError(
+                f"Directory {key} not in toolbelts.yml file. Did you provide the --toolbelt flag?"
+            )
 
     def add(self, repo: ToolbeltConfig) -> None:
         self.repos[repo.name] = repo
 
     def save(self) -> None:
         with PYTOOLBELT_TOOLBELT_CONFIG_FILE.open("w") as file:
-            yaml.safe_dump({"repos": {name: repo.to_dict() for name, repo in self.repos.items()}}, file)
+            yaml.safe_dump(
+                {"repos": {name: repo.to_dict() for name, repo in self.repos.items()}},
+                file,
+            )

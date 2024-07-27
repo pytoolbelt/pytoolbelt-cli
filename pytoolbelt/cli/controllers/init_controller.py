@@ -13,6 +13,6 @@ class InitController:
         else:
             print(
                 "To add .pytoolbelt/tools to $PATH, run `pytoolbelt init --path` "
-                f"or add the following to your shell configuration file: export PATH=~/.pytoolbelt/tools:$PATH"
+                "or add the following to your shell configuration file: export PATH=~/.pytoolbelt/tools:$PATH"
             )
         return 0

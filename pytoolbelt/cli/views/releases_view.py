@@ -3,7 +3,9 @@ from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 
 
 class ReleasesTableView(BaseTableView):
-    def __init__(self, toolbelt: ToolbeltConfig, ptvenv: bool, tools: bool, _all: bool) -> None:
+    def __init__(
+        self, toolbelt: ToolbeltConfig, ptvenv: bool, tools: bool, _all: bool
+    ) -> None:
         self.toolbelt = toolbelt
         self.ptvenv = ptvenv
         self.tools = tools
