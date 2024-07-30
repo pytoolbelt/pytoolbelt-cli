@@ -21,9 +21,7 @@ class PtVenvParameters(BaseEntrypointParameters):
 
 
 @pytoolbelt_config(provide_ptc=True)
-def new(
-    ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters
-) -> int:
+def new(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenvController.for_creation(params.name, toolbelt)
     return ptvenv.create(ptc)
 
@@ -40,17 +38,13 @@ def remove(params: PtVenvParameters) -> int:
 
 
 @pytoolbelt_config(provide_ptc=True)
-def bump(
-    ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters
-) -> int:
+def bump(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenvController.for_build(params.name, toolbelt)
     return ptvenv.bump(ptc, params.part)
 
 
 @pytoolbelt_config(provide_ptc=True)
-def release(
-    ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters
-) -> int:
+def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
     ptvenv = PtVenvController.for_release(params.name, toolbelt)
     return ptvenv.release(ptc)
 

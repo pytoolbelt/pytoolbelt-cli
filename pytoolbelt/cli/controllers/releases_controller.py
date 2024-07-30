@@ -68,25 +68,17 @@ class ReleasesController:
         releases = []
 
         if ptvenv:
-            releases = [
-                (ComponentMetadata.from_release_tag(t.name), t)
-                for t in git_client.ptvenv_releases()
-            ]
+            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.ptvenv_releases()]
 
         if tools:
-            releases = [
-                (ComponentMetadata.from_release_tag(t.name), t)
-                for t in git_client.tool_releases()
-            ]
+            releases = [(ComponentMetadata.from_release_tag(t.name), t) for t in git_client.tool_releases()]
 
         if not releases:
             logger.info(f"No releases found for toolbelt {self.toolbelt.name}")
             return 0
 
         # otherwise just do all the releases
-        table = ReleasesTableView(
-            toolbelt=self.toolbelt, ptvenv=ptvenv, tools=tools, _all=_all
-        )
+        table = ReleasesTableView(toolbelt=self.toolbelt, ptvenv=ptvenv, tools=tools, _all=_all)
         for r, t in releases:
             table.add_row(
                 r.name,

@@ -38,17 +38,13 @@ def install(toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
 
 
 @pytoolbelt_config(provide_ptc=True)
-def bump(
-    ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters
-) -> int:
+def bump(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
     tool = ToolController.for_release(params.name, toolbelt)
     return tool.bump(ptc, params.part)
 
 
 @pytoolbelt_config(provide_ptc=True)
-def release(
-    ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters
-) -> int:
+def release(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ToolParameters) -> int:
     tool = ToolController.for_release(params.name, toolbelt)
     return tool.release(ptc)
 

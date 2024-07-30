@@ -27,12 +27,8 @@ class ReleaseController:
         self.toolbelt_paths = ToolbeltPaths()
 
     @pytoolbelt_config(provide_ptc=True)
-    def release(
-        self, ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ReleaseParameters
-    ) -> int:
-        git_client = GitClient.from_path(
-            path=self.toolbelt_paths.root_path, release_branch=ptc.release_branch
-        )
+    def release(self, ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: ReleaseParameters) -> int:
+        git_client = GitClient.from_path(path=self.toolbelt_paths.root_path, release_branch=ptc.release_branch)
 
         logger.info("Fetching remote tags...")
         git_client.fetch_remote_tags()
@@ -65,9 +61,7 @@ class ReleaseController:
                 releases.append(component_version)
 
         if not releases:
-            logger.info(
-                f"No new releases to make in toolbelt {self.toolbelt_paths.toolbelt_dir.name}."
-            )
+            logger.info(f"No new releases to make in toolbelt {self.toolbelt_paths.toolbelt_dir.name}.")
             return 0
 
         for release in releases:

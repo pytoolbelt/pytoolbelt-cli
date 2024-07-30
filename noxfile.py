@@ -16,4 +16,4 @@ def tests(session):
     requirements = nox.project.load_toml("pyproject.toml")["project"]["dependencies"]
     session.install(*requirements)
     session.install("pytest")
-    session.run("pytest")
+    session.run("pytest", "tests")

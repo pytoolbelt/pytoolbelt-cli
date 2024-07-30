@@ -1,15 +1,6 @@
 import argparse
 
-from pytoolbelt.cli.parsers import (
-    format,
-    init,
-    installed,
-    ptvenv,
-    release,
-    releases,
-    tool,
-    toolbelt,
-)
+from pytoolbelt.cli.parsers import format, init, installed, ptvenv, release, releases, tool, toolbelt, test
 
 __version__ = "0.4.0"
 
@@ -17,14 +8,12 @@ __version__ = "0.4.0"
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        "--version", action="version", version=f"pytoolbelt :: Version :: {__version__}"
-    )
+    parser.add_argument("--version", action="version", version=f"pytoolbelt :: Version :: {__version__}")
 
     sub_parsers = parser.add_subparsers(dest="command")
     sub_parsers.required = True
 
-    commands = [ptvenv, toolbelt, tool, init, releases, installed, release, format]
+    commands = [ptvenv, toolbelt, tool, init, releases, installed, release, format, test]
     commands.sort(key=lambda x: x.__name__)
 
     for command in commands:

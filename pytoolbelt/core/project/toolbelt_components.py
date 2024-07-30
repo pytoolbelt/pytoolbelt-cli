@@ -44,7 +44,7 @@ class ToolbeltPaths(BasePaths):
 
     @property
     def new_files(self) -> List[Path]:
-        new_files = [self.gitignore, self.pytoolbelt_config, self.global_config_file]
+        new_files = [self.gitignore, self.pytoolbelt_config, self.global_config_file, self.noxfile]
 
         if self.dir_empty(self.ptvenvs_dir):
             new_files.append(self.ptvenvs_dir / ".gitkeep")
@@ -65,6 +65,10 @@ class ToolbeltPaths(BasePaths):
     @property
     def pytoolbelt_config(self) -> Path:
         return self.toolbelt_dir / "pytoolbelt.yml"
+
+    @property
+    def noxfile(self) -> Path:
+        return self.toolbelt_dir / "noxfile.py"
 
     @property
     def git_dir(self) -> Path:
@@ -96,21 +100,15 @@ class ToolbeltPaths(BasePaths):
 
     def raise_if_not_pytoolbelt_project(self) -> None:
         if not self.is_pytoolbelt_project():
-            raise PytoolbeltError(
-                "This directory is not the root of a pytoolbelt project."
-            )
+            raise PytoolbeltError("This directory is not the root of a pytoolbelt project.")
 
     def raise_if_exists(self) -> None:
         if self.toolbelt_install_dir.exists():
-            raise PytoolbeltError(
-                f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt."
-            )
+            raise PytoolbeltError(f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt.")
 
     def raise_if_not_exists(self) -> None:
         if not self.toolbelt_install_dir.exists():
-            raise PytoolbeltError(
-                f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt."
-            )
+            raise PytoolbeltError(f"Toolbelt not found at {self.toolbelt_install_dir}. Try fetching or creating a new toolbelt.")
 
     def get_pytoolbelt_config(self) -> ToolbeltConfigs:
         raw_data = self.pytoolbelt_config.read_text()
@@ -126,9 +124,7 @@ class ToolbeltPaths(BasePaths):
             if ptvenv.is_dir():
                 yield ptvenv.name
 
-    def iter_installed_ptvenvs(
-        self, name: Optional[str] = None
-    ) -> List[ComponentMetadata]:
+    def iter_installed_ptvenvs(self, name: Optional[str] = None) -> List[ComponentMetadata]:
         for venv in self.venv_install_dir.iterdir():
             if venv.is_dir():
                 for version in venv.iterdir():

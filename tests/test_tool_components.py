@@ -91,59 +91,24 @@ def tool_paths_instance(mock_component_metadata, mock_toolbelt_paths):
     return ToolPaths(meta=mock_component_metadata, toolbelt_paths=mock_toolbelt_paths)
 
 
-def test_tool_paths_properties(
-    tool_paths_instance, mock_component_metadata, mock_toolbelt_paths
-):
+def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, mock_toolbelt_paths):
     # Testing all properties of ToolPaths
     assert tool_paths_instance.toolbelt_paths == mock_toolbelt_paths
     assert tool_paths_instance.meta == mock_component_metadata
-    assert (
-        tool_paths_instance.tool_dir
-        == mock_toolbelt_paths.tools_dir / mock_component_metadata.name
-    )
-    assert (
-        tool_paths_instance.tool_code_dir
-        == tool_paths_instance.tool_dir / mock_component_metadata.name
-    )
+    assert tool_paths_instance.tool_dir == mock_toolbelt_paths.tools_dir / mock_component_metadata.name
+    assert tool_paths_instance.tool_code_dir == tool_paths_instance.tool_dir / mock_component_metadata.name
     assert tool_paths_instance.cli_dir == tool_paths_instance.tool_code_dir / "cli"
     assert tool_paths_instance.tests_dir == tool_paths_instance.tool_dir / "tests"
-    assert (
-        tool_paths_instance.tool_config_file
-        == tool_paths_instance.tool_dir / "config.yml"
-    )
-    assert (
-        tool_paths_instance.readme_md_file == tool_paths_instance.tool_dir / "README.md"
-    )
-    assert (
-        tool_paths_instance.dunder_main_file
-        == tool_paths_instance.tool_code_dir / "__main__.py"
-    )
-    assert (
-        tool_paths_instance.package_init_file
-        == tool_paths_instance.tool_code_dir / "__init__.py"
-    )
-    assert (
-        tool_paths_instance.dunder_cli_init_file
-        == tool_paths_instance.cli_dir / "__init__.py"
-    )
-    assert (
-        tool_paths_instance.cli_entrypoints_file
-        == tool_paths_instance.cli_dir / "entrypoints.py"
-    )
-    assert (
-        tool_paths_instance.install_path
-        == Path.home() / ".pytoolbelt" / "tools" / mock_component_metadata.name
-    )
-    assert (
-        tool_paths_instance.display_install_path
-        == f"~/.pytoolbelt/tools/{mock_component_metadata.name}"
-    )
-    assert tool_paths_instance.zipapp_path == Path(
-        f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}"
-    )
-    assert tool_paths_instance.dev_install_path == Path(
-        f"{tool_paths_instance.install_path.as_posix()}-dev"
-    )
+    assert tool_paths_instance.tool_config_file == tool_paths_instance.tool_dir / "config.yml"
+    assert tool_paths_instance.readme_md_file == tool_paths_instance.tool_dir / "README.md"
+    assert tool_paths_instance.dunder_main_file == tool_paths_instance.tool_code_dir / "__main__.py"
+    assert tool_paths_instance.package_init_file == tool_paths_instance.tool_code_dir / "__init__.py"
+    assert tool_paths_instance.dunder_cli_init_file == tool_paths_instance.cli_dir / "__init__.py"
+    assert tool_paths_instance.cli_entrypoints_file == tool_paths_instance.cli_dir / "entrypoints.py"
+    assert tool_paths_instance.install_path == Path.home() / ".pytoolbelt" / "tools" / mock_component_metadata.name
+    assert tool_paths_instance.display_install_path == f"~/.pytoolbelt/tools/{mock_component_metadata.name}"
+    assert tool_paths_instance.zipapp_path == Path(f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
+    assert tool_paths_instance.dev_install_path == Path(f"{tool_paths_instance.install_path.as_posix()}-dev")
     assert tool_paths_instance.dev_symlink_path == tool_paths_instance.install_path
     assert tool_paths_instance.new_directories == [
         tool_paths_instance.tool_dir,
@@ -163,9 +128,7 @@ def test_tool_paths_properties(
 @patch("pathlib.Path.exists")
 @patch("pathlib.Path.unlink")
 @patch("pathlib.Path.symlink_to")
-def test_create_install_symlink(
-    mock_symlink_to, mock_unlink, mock_exists, tool_paths_instance
-):
+def test_create_install_symlink(mock_symlink_to, mock_unlink, mock_exists, tool_paths_instance):
     mock_exists.return_value = False
     tool_paths_instance.create_install_symlink()
 
@@ -177,9 +140,7 @@ def test_create_install_symlink(
 @patch("pathlib.Path.exists")
 @patch("pathlib.Path.unlink")
 @patch("pathlib.Path.symlink_to")
-def test_create_install_symlink_symlink_exists(
-    mock_symlink_to, mock_unlink, mock_exists, tool_paths_instance
-):
+def test_create_install_symlink_symlink_exists(mock_symlink_to, mock_unlink, mock_exists, tool_paths_instance):
     mock_exists.return_value = True
     tool_paths_instance.create_install_symlink()
 
@@ -213,9 +174,7 @@ def test_entrypoint_shim_templater_get_template_kwargs_returns_correct_dict():
 @patch.object(EntrypointShimTemplater, "render", return_value="rendered_content")
 @patch.object(Path, "touch")
 @patch.object(Path, "write_text")
-def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(
-    mock_write_text, mock_touch, mock_render
-):
+def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch, mock_render):
     tool_paths = MagicMock()
     tool_paths.dev_install_path = Path("/fake/dev/install/path")
     interpreter = "/usr/bin/python3"

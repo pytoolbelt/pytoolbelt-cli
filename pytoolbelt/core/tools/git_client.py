@@ -65,9 +65,7 @@ class GitClient:
 
     def is_release_branch(self) -> bool:
         if not self.repo_config and not self._release_branch:
-            raise PytoolbeltError(
-                "No release branch set. Please provide a release branch in a repo config or pytoolbelt.yml."
-            )
+            raise PytoolbeltError("No release branch set. Please provide a release branch in a repo config or pytoolbelt.yml.")
         return self.current_branch == self.release_branch
 
     def has_untracked_files_in_directory(self, directory: str) -> bool:
@@ -75,37 +73,24 @@ class GitClient:
 
     def raise_if_not_release_branch(self) -> None:
         if not self.is_release_branch():
-            raise PytoolbeltError(
-                f"{self.current_branch} branch is not the configured release branch {self.repo_config.release_branch}"
-            )
+            raise PytoolbeltError(f"{self.current_branch} branch is not the configured release branch {self.repo_config.release_branch}")
 
     def raise_if_untracked_ptvenv(self) -> None:
         if self.has_untracked_files_in_directory("ptvenv"):
-            raise PytoolbeltError(
-                "Repo has untracked files in the ptvenv directory. Please commit your changes before tagging a release."
-            )
+            raise PytoolbeltError("Repo has untracked files in the ptvenv directory. Please commit your changes before tagging a release.")
 
     def raise_if_untracked_tools(self) -> None:
         if self.has_untracked_files_in_directory("tools"):
-            raise PytoolbeltError(
-                "Repo has untracked files in the tools directory. Please commit your changes before tagging a release."
-            )
+            raise PytoolbeltError("Repo has untracked files in the tools directory. Please commit your changes before tagging a release.")
 
     def raise_if_uncommitted_changes(self) -> None:
         if self.repo.is_dirty():
-            raise PytoolbeltError(
-                "Repo has uncommited changes. Please commit your changes before tagging a release."
-            )
+            raise PytoolbeltError("Repo has uncommited changes. Please commit your changes before tagging a release.")
 
     def raise_if_local_and_remote_head_are_different(self) -> None:
         self.repo.remotes.origin.fetch()
-        if (
-            self.repo.head.commit.hexsha
-            != self.repo.commit(f"origin/{self.current_branch}").hexsha
-        ):
-            raise PytoolbeltError(
-                "Local and remote HEAD are different. Please pull / push the latest changes before tagging a release."
-            )
+        if self.repo.head.commit.hexsha != self.repo.commit(f"origin/{self.current_branch}").hexsha:
+            raise PytoolbeltError("Local and remote HEAD are different. Please pull / push the latest changes before tagging a release.")
 
     def raise_on_release_attempt(self) -> None:
         self.raise_if_not_release_branch()
@@ -126,17 +111,13 @@ class GitClient:
     def fetch_remote_tags(self) -> None:
         self.repo.git.fetch("--tags", "origin")
 
-    def ptvenv_releases(
-        self, name: Optional[str] = None, as_names: Optional[bool] = False
-    ) -> Union[List[TagReference], List[str]]:
+    def ptvenv_releases(self, name: Optional[str] = None, as_names: Optional[bool] = False) -> Union[List[TagReference], List[str]]:
         flt = self.get_tag_filter("ptvenv", name)
         if as_names:
             return [tag.name for tag in self.repo.tags if tag.name.startswith(flt)]
         return [tag for tag in self.repo.tags if tag.name.startswith(flt)]
 
-    def tool_releases(
-        self, name: Optional[str] = None, as_names: Optional[bool] = False
-    ) -> Union[List[TagReference], List[str]]:
+    def tool_releases(self, name: Optional[str] = None, as_names: Optional[bool] = False) -> Union[List[TagReference], List[str]]:
         flt = self.get_tag_filter("tool", name)
         if as_names:
             return [tag.name for tag in self.repo.tags if tag.name.startswith(flt)]

@@ -14,6 +14,7 @@ class PytoolbeltConfig(BaseModel):
     bump: str
     envfile: str
     release_branch: str
+    test_image: str
 
     @classmethod
     def load(cls, root_path: Path) -> "PytoolbeltConfig":
