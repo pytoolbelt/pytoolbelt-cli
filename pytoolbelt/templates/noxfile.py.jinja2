@@ -2,8 +2,8 @@ import nox
 
 
 {% for ptvenv, config in ptvenvs.items() %}
-
 @nox.session(python=["{{config["config"].python_version}}"])
+{% if config["tools"] %}
 @nox.parametrize("tool", [
     {% for tool in config["tools"] %}
     nox.param("{{tool.name}}", id="{{tool.name}}"){% if not loop.last %},
@@ -12,7 +12,14 @@ import nox
 
 ])
 def {{ config["config"].name }}(session, tool):
+{% else %}
+def {{ config["config"].name }}(session):
+{% endif %}
     session.install("pytest")
     session.install(*{{ config["config"].requirements }})
+    {% if config["tools"] %}
     session.run("python", "-m", "pytest", f"tools/{tool}/tests")
+    {% endif %}
+
+
 {% endfor %}

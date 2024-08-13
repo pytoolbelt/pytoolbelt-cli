@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from pytoolbelt.cli.controllers.test_controller import TestController
 from pytoolbelt.cli.entrypoints.bases.base_parameters import BaseEntrypointParameters
 from pytoolbelt.core.data_classes.pytoolbelt_config import (
     PytoolbeltConfig,
     pytoolbelt_config,
 )
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
-from pytoolbelt.cli.controllers.test_controller import TestController
 
 
 @dataclass
@@ -27,6 +27,13 @@ def run(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: TestParameters)
     print(params)
     test_controller = TestController(ptc, toolbelt)
     test_controller.run()
+    return 0
+
+
+@pytoolbelt_config(provide_ptc=True)
+def list(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: TestParameters) -> int:
+    test_controller = TestController(ptc, toolbelt)
+    test_controller.list()
     return 0
 
 
@@ -58,5 +65,9 @@ ACTIONS = {
     "render": {
         "func": render,
         "help": "Render noxfile.py for a given toolbelt.",
+    },
+    "list": {
+        "func": list,
+        "help": "List the available nox sessions for a given toolbelt.",
     },
 }

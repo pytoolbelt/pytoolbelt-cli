@@ -1,14 +1,14 @@
 import docker
 from docker.errors import DockerException
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.environment.config import get_logger
+
 from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
 from pytoolbelt.core.data_classes.toolbelt_config import ToolbeltConfig
 from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
-from pytoolbelt.core.project.ptvenv_components import PtVenvConfig, PtVenvPaths
-from pytoolbelt.core.tools.noxtemplating import NoxfileTemplater
+from pytoolbelt.core.project.ptvenv_components import PtVenvConfig
 from pytoolbelt.core.project.tool_components import ToolConfig
-
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
+from pytoolbelt.core.tools.noxtemplating import NoxfileTemplater
+from pytoolbelt.environment.config import get_logger
 
 logger = get_logger(__name__)
 
@@ -24,17 +24,25 @@ class TestController:
         try:
             logger.info(f"Pulling image {self.ptc.test_image}...")
             _ = docker_client.images.pull(self.ptc.test_image)
-        except DockerException as e:
+        except DockerException:
             raise PytoolbeltError(f"Failed to pull image {self.ptc.test_image}")
 
         logger.info(f"Successfully pulled image {self.ptc.test_image}")
         return 0
 
+    def list(self) -> None:
+        docker_client = docker.from_env()
+
+        container = docker_client.containers.run(
+            image=self.ptc.test_image, command="nox --list -f /code/noxfile.py", volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/code", "mode": "rw"}}
+        )
+        logger.info(f"Container output: {container.decode()}")
+
     def run(self) -> int:
         logger.info("Running test command")
         docker_client = docker.from_env()
         container = docker_client.containers.run(
-            image=self.ptc.test_image, command="ls app", volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/app", "mode": "rw"}}
+            image=self.ptc.test_image, command="ls app", volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/code", "mode": "rw"}}
         )
         logger.info(f"Container output: {container.decode()}")
         return 0
@@ -53,14 +61,9 @@ class TestController:
             if config.ptvenv.name in ptvenv_configs:
                 ptvenv_configs[config.ptvenv.name]["tools"].append(config)
 
-        noxpath = self.toolbelt_paths.toolbelt_dir / "noxfile_testing.py"
-        noxpath.touch(exist_ok=True)
-
-        # import pdb; pdb.set_trace()
+        self.toolbelt_paths.noxfile.touch(exist_ok=True)
 
         templater = NoxfileTemplater()
         noxfile = templater.render_noxfile(ptvenv_configs)
-        noxpath.write_text(noxfile)
-
-        # print(ptvenv_configs)
+        self.toolbelt_paths.noxfile.write_text(noxfile)
         return 0

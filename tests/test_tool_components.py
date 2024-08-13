@@ -114,6 +114,7 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
         tool_paths_instance.tool_dir,
         tool_paths_instance.tool_code_dir,
         tool_paths_instance.cli_dir,
+        tool_paths_instance.tests_dir,
     ]
     assert tool_paths_instance.new_files == [
         tool_paths_instance.tool_config_file,
@@ -122,6 +123,7 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
         tool_paths_instance.package_init_file,
         tool_paths_instance.dunder_cli_init_file,
         tool_paths_instance.cli_entrypoints_file,
+        tool_paths_instance.tests_init_file
     ]
 
 

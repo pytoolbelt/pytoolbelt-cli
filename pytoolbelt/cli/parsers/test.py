@@ -1,5 +1,6 @@
 from argparse import Namespace
 from typing import Any
+
 from pytoolbelt.cli.entrypoints import test_entrypoints
 from pytoolbelt.core.error_handling.error_handler import handle_cli_errors
 from pytoolbelt.core.tools import build_entrypoint_parsers
