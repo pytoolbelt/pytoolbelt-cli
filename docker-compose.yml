@@ -1,9 +1,10 @@
 x-base-service: &base-service
-  image: thekevjames/nox
+  image: foo:bar #thekevjames/nox
   volumes:
-    - .:/app
-  working_dir: /app
-
+    - .:/code
+  working_dir: /code
+  environment:
+      - PYTHONPATH=/code
 services:
   nox:
     <<: *base-service

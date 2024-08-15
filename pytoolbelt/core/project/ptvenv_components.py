@@ -51,17 +51,13 @@ class IndentedSafeDumper(yaml.SafeDumper):
 
 
 class PtVenvPaths(BasePaths):
-    def __init__(
-        self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths"
-    ) -> None:
+    def __init__(self, meta: ComponentMetadata, toolbelt_paths: "ToolbeltPaths") -> None:
         self._meta = meta
         self._toolbelt_paths = toolbelt_paths
         super().__init__(toolbelt_paths.root_path)
 
     @classmethod
-    def from_tool_config(
-        cls, tool_config: "ToolConfig", toolbelt_paths: "ToolbeltPaths"
-    ) -> "PtVenvPaths":
+    def from_tool_config(cls, tool_config: "ToolConfig", toolbelt_paths: "ToolbeltPaths") -> "PtVenvPaths":
         return cls(
             ComponentMetadata(
                 name=tool_config.ptvenv.name,
@@ -145,9 +141,7 @@ class PtVenvPaths(BasePaths):
 
     def raise_if_ptvenv_is_not_installed(self) -> None:
         if not self.install_dir.exists():
-            raise PytoolbeltError(
-                f"ptvenv {self.meta.name} version {self.meta.version} is not installed."
-            )
+            raise PytoolbeltError(f"ptvenv {self.meta.name} version {self.meta.version} is not installed.")
 
     def copy_config_to_install_dir(self) -> None:
         destination = self.install_version_dir / f"{self.meta.name}.yml"
@@ -156,11 +150,7 @@ class PtVenvPaths(BasePaths):
     def list_installed_versions(self) -> List[Version]:
         if not self.install_root_dir.exists():
             return []
-        versions = [
-            Version.parse(d.name)
-            for d in self.install_root_dir.iterdir()
-            if Version.is_valid(d.name)
-        ]
+        versions = [Version.parse(d.name) for d in self.install_root_dir.iterdir() if Version.is_valid(d.name)]
         return sorted(versions, reverse=True)
 
     def get_latest_installed_version(self) -> Optional[Version]:
@@ -225,9 +215,7 @@ class PtVenvBuilder:
 
         if result.returncode != 0:
             self.remove_build_on_failure()
-            raise PythonEnvBuildError(
-                f"Failed to install requirements for python environment {self.ptvenv.name}"
-            )
+            raise PythonEnvBuildError(f"Failed to install requirements for python environment {self.ptvenv.name}")
 
     def remove_build_on_failure(self) -> None:
         if self.paths.install_version_dir.exists():
@@ -240,9 +228,7 @@ class PtVenvBuilder:
 
         if result.returncode != 0:
             self.remove_build_on_failure()
-            raise PythonEnvBuildError(
-                f"Failed to create the python virtual environment {self.ptvenv.name}"
-            )
+            raise PythonEnvBuildError(f"Failed to create the python virtual environment {self.ptvenv.name}")
 
         if self.ptvenv.requirements:
             self.install_requirements()

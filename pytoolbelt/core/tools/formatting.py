@@ -18,9 +18,7 @@ class BaseRuffFormatter(Popen):
 
         if self.returncode != 0:
             error_message = error.decode() if error else "Unknown error"
-            raise PytoolbeltError(
-                f"Error while running ruff: {error_message} (Exit code: {self.returncode})"
-            )
+            raise PytoolbeltError(f"Error while running ruff: {error_message} (Exit code: {self.returncode})")
 
         for line in output.decode().splitlines():
             print(line)

@@ -35,9 +35,7 @@ def test_component_metadata_from_string_raises_exception_with_invalid_version():
 
 def test_component_metadata_raise_if_forbidden_char_in_name_raises_exception():
     with pytest.raises(CliArgumentError):
-        ComponentMetadata(
-            "test@component", "1.0.0", "tool"
-        ).raise_if_forbidden_char_in_name()
+        ComponentMetadata("test@component", "1.0.0", "tool").raise_if_forbidden_char_in_name()
 
 
 def test_component_metadata_is_not_prerelease_returns_correct_value():

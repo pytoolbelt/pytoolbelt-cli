@@ -31,14 +31,6 @@ class ToolbeltConfig(BaseModel):
             path = PYTOOLBELT_TOOLBELT_INSTALL_DIR / parsed_url.name
         return cls(url=url, owner=parsed_url.owner, name=parsed_url.name, path=path)
 
-    @classmethod
-    def from_name_owner(cls, name: str, owner: str) -> "ToolbeltConfig":
-        return cls(
-            url=f"git@github.com:{owner}/{name}.git",
-            owner=owner,
-            name=name,
-        )
-
     def to_dict(self) -> Dict[str, str]:
         return {
             "url": self.url,
@@ -66,9 +58,7 @@ class ToolbeltConfigs(BaseModel):
         try:
             return self.repos[key]
         except KeyError:
-            raise PytoolbeltError(
-                f"Directory {key} not in toolbelts.yml file. Did you provide the --toolbelt flag?"
-            )
+            raise PytoolbeltError(f"Directory {key} not in toolbelts.yml file. Did you provide the --toolbelt flag?")
 
     def add(self, repo: ToolbeltConfig) -> None:
         self.repos[repo.name] = repo

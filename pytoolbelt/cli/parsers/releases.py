@@ -14,9 +14,7 @@ from pytoolbelt.core.tools import build_entrypoint_parsers
 def entrypoint(cliargs: Namespace) -> int:
     params = ReleasesParameters.from_cliargs(cliargs)
     controller = ReleasesController(toolbelt=params.toolbelt)
-    return controller.releases(
-        ptvenv=params.ptvenv, tools=params.tools, _all=params.all
-    )
+    return controller.releases(ptvenv=params.ptvenv, tools=params.tools, _all=params.all)
 
 
 def configure_parser(subparser: Any) -> None:

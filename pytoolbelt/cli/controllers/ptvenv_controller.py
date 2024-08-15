@@ -27,9 +27,7 @@ logger = get_logger(__name__)
 
 
 class PtVenvController:
-    def __init__(
-        self, meta: ComponentMetadata, toolbelt: ToolbeltConfig, **kwargs
-    ) -> None:
+    def __init__(self, meta: ComponentMetadata, toolbelt: ToolbeltConfig, **kwargs) -> None:
         self.meta = meta
         self.toolbelt = toolbelt
         self.toolbelt_paths = kwargs.get("toolbelt_paths", ToolbeltPaths(toolbelt.path))
@@ -39,9 +37,7 @@ class PtVenvController:
     def for_creation(cls, string: str, toolbelt: ToolbeltConfig) -> "PtVenvController":
         version = Version.parse("0.0.1")
         meta = ComponentMetadata.as_ptvenv(string, version)
-        logger.debug(
-            f"Creating ptvenv controller for_creation for {meta.name} with version {meta.version}."
-        )
+        logger.debug(f"Creating ptvenv controller for_creation for {meta.name} with version {meta.version}.")
         return cls(meta, toolbelt)
 
     @classmethod
@@ -50,16 +46,12 @@ class PtVenvController:
         inst = cls(meta, toolbelt)
 
         if not inst.meta.is_latest_version:
-            logger.debug(
-                f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}."
-            )
+            logger.debug(f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}.")
             return inst
 
         latest_version = inst.ptvenv_paths.get_latest_installed_version()
         inst.meta.version = latest_version
-        logger.debug(
-            f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}."
-        )
+        logger.debug(f"Creating ptvenv controller for_deletion of ptvenv {inst.meta.name} version {inst.meta.version}.")
         return inst
 
     @classmethod
@@ -70,16 +62,12 @@ class PtVenvController:
         # we passed in some type of version in the format name==version and this
         # is not allowed, when making a release.
         if isinstance(meta.version, Version):
-            raise PytoolbeltError(
-                "Setting a version number is not allowed when releasing a ptvenv."
-            )
+            raise PytoolbeltError("Setting a version number is not allowed when releasing a ptvenv.")
 
         # otherwise get the latest version number from the config file
         config = PtVenvConfig.from_file(inst.ptvenv_paths.ptvenv_config_file)
         inst.meta.version = config.version
-        logger.debug(
-            f"Creating ptvenv controller for_release of ptvenv {inst.meta.name} version {inst.meta.version}."
-        )
+        logger.debug(f"Creating ptvenv controller for_release of ptvenv {inst.meta.name} version {inst.meta.version}.")
         return inst
 
     @classmethod
@@ -89,17 +77,13 @@ class PtVenvController:
 
         # this means we passed in some version number in the format name==version
         if isinstance(meta.version, Version):
-            logger.debug(
-                f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} passed in version {inst.meta.version}."
-            )
+            logger.debug(f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} passed in version {inst.meta.version}.")
             return inst
 
         # this means we are building, or releasing a new / latest version,
         config = PtVenvConfig.from_file(inst.ptvenv_paths.ptvenv_config_file)
         inst.meta.version = config.version
-        logger.debug(
-            f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} version {inst.meta.version}."
-        )
+        logger.debug(f"Creating ptvenv controller for_build of ptvenv {inst.meta.name} version {inst.meta.version}.")
         return inst
 
     def get_templater(self) -> PtVenvTemplater:
@@ -113,17 +97,13 @@ class PtVenvController:
         self.ptvenv_paths.raise_if_exists()
         self.ptvenv_paths.create()
         self.get_templater().template_new_venvdef_file(ptc=ptc)
-        logger.info(
-            f"Ptvenv {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.ptvenv_paths.ptvenv_dir}."
-        )
+        logger.info(f"Ptvenv {self.meta.name} created in toolbelt {self.toolbelt.name} at {self.ptvenv_paths.ptvenv_dir}.")
         return 0
 
     def build(self, force: bool, from_config: bool) -> int:
         # TODO: This can be DRYed out with the tool controller...
 
-        logger.info(
-            f"Building {self.meta.name} version {self.meta.version} in {self.toolbelt.name}."
-        )
+        logger.info(f"Building {self.meta.name} version {self.meta.version} in {self.toolbelt.name}.")
 
         with TemporaryGitClient(self.toolbelt.path, self.toolbelt.name) as (
             repo_path,
@@ -140,9 +120,7 @@ class PtVenvController:
             if from_config:
                 # only check the config / installed hash if we are not forcing the build
                 if not force:
-                    ptvenv_config = PtVenvConfig.from_file(
-                        self.ptvenv_paths.ptvenv_config_file
-                    )
+                    ptvenv_config = PtVenvConfig.from_file(self.ptvenv_paths.ptvenv_config_file)
                     self._installation_can_proceed(ptvenv_config)
 
                 # run the builder for this ptvenv
@@ -165,9 +143,7 @@ class PtVenvController:
             try:
                 tag_reference = git_client.get_tag_reference(latest_meta.release_tag)
             except IndexError:
-                raise PytoolbeltError(
-                    f"Version {self.meta.version} not found in the repository."
-                )
+                raise PytoolbeltError(f"Version {self.meta.version} not found in the repository.")
 
             # check out from the release tag in the temp repo
             logger.debug(f"Checking out tag {tag_reference}")
@@ -182,13 +158,9 @@ class PtVenvController:
                 self._installation_can_proceed(tmp_ptvenv_config)
 
             tmp_builder = PtVenvBuilder(tmp_paths)
-            logger.info(
-                f"Building {latest_meta.name} version {latest_meta.version} in {self.toolbelt.name}."
-            )
+            logger.info(f"Building {latest_meta.name} version {latest_meta.version} in {self.toolbelt.name}.")
             tmp_builder.build()
-            logger.info(
-                f"Built {latest_meta.name} version {latest_meta.version} in {self.toolbelt.name} successfully."
-            )
+            logger.info(f"Built {latest_meta.name} version {latest_meta.version} in {self.toolbelt.name} successfully.")
             return 0
 
     def _installation_can_proceed(self, current_config: PtVenvConfig) -> None:
@@ -196,9 +168,7 @@ class PtVenvController:
         # if it has, we need to warn the user that the environment definition has changed, however
         # the version has not been updated. This could lead to unexpected behavior.
         if self.ptvenv_paths.install_dir.exists():
-            installed_config = PtVenvConfig.from_file(
-                self.ptvenv_paths.installed_config_file
-            )
+            installed_config = PtVenvConfig.from_file(self.ptvenv_paths.installed_config_file)
 
             hashed_current_config = hash_config(current_config)
             hashed_installed_config = hash_config(installed_config)
@@ -219,9 +189,7 @@ class PtVenvController:
                 )
 
             if hashed_current_config == hashed_installed_config:
-                raise PytoolbeltError(
-                    f"Python environment {self.meta.name} version {self.meta.version} is already up to date."
-                )
+                raise PytoolbeltError(f"Python environment {self.meta.name} version {self.meta.version} is already up to date.")
 
     def delete(self, _all: bool) -> int:
         if self.ptvenv_paths.install_dir.exists():
@@ -229,20 +197,14 @@ class PtVenvController:
                 logger.info(f"Deleting all ptvenv installations for {self.meta.name}.")
                 shutil.rmtree(self.ptvenv_paths.install_root_dir)
             else:
-                logger.info(
-                    f"Deleting ptvenv {self.meta.name} version {self.meta.version}."
-                )
+                logger.info(f"Deleting ptvenv {self.meta.name} version {self.meta.version}.")
                 shutil.rmtree(self.ptvenv_paths.install_dir.parent)
             return 0
         else:
-            raise PytoolbeltError(
-                f"ptvenv {self.meta.name} version {self.meta.version} is not installed."
-            )
+            raise PytoolbeltError(f"ptvenv {self.meta.name} version {self.meta.version} is not installed.")
 
     def bump(self, ptc: PytoolbeltConfig, part: str) -> int:
-        logger.info(
-            f"Bumping version of ptvenv {self.meta.name} in toolbelt {self.toolbelt.name}."
-        )
+        logger.info(f"Bumping version of ptvenv {self.meta.name} in toolbelt {self.toolbelt.name}.")
         if part == "config":
             part = ptc.bump
 
@@ -254,9 +216,7 @@ class PtVenvController:
         return 0
 
     def release(self, ptc: PytoolbeltConfig) -> int:
-        logger.info(
-            f"Releasing ptvenv {self.meta.name} in toolbelt {self.toolbelt.name}."
-        )
+        logger.info(f"Releasing ptvenv {self.meta.name} in toolbelt {self.toolbelt.name}.")
         return release(
             ptc=ptc,
             toolbelt_paths=self.toolbelt_paths,

@@ -30,9 +30,7 @@ class ToolbeltController:
         toolbelt_config = ToolbeltConfig.from_url(repo.remotes.origin.url)
         self.toolbelt_configs.add(toolbelt_config)
         self.toolbelt_configs.save()
-        logger.info(
-            f"Toolbelt {toolbelt_config.name} added to toolbelt.yml with url {toolbelt_config.url}."
-        )
+        logger.info(f"Toolbelt {toolbelt_config.name} added to toolbelt.yml with url {toolbelt_config.url}.")
         return 0
 
     def create(self, url: str) -> int:
@@ -71,9 +69,7 @@ class ToolbeltController:
         toolbelt = ToolbeltConfig.from_url(url)
         self.toolbelt_configs.add(toolbelt)
         self.toolbelt_configs.save()
-        logger.info(
-            f"Toolbelt {toolbelt.name} added to toolbelt.yml config file with url {toolbelt.url}."
-        )
+        logger.info(f"Toolbelt {toolbelt.name} added to toolbelt.yml config file with url {toolbelt.url}.")
         return 0
 
     def remove(self, toolbelt: str) -> int:
