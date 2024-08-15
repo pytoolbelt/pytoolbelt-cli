@@ -219,7 +219,6 @@ class ToolInstaller:
         self.paths = paths
 
     def install(self, interpreter: str) -> int:
-
         with self.paths.zipapp_path.open("wb") as target:
             zipapp.create_archive(
                 source=self.paths.tool_dir,

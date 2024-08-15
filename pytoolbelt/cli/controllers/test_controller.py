@@ -49,7 +49,6 @@ class TestController:
                 volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/code", "mode": "rw"}},
                 detach=True,
                 working_dir="/code",
-
             )
 
             for log in container.logs(stream=True):

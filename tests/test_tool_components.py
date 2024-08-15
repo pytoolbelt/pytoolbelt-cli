@@ -9,9 +9,9 @@ from pytoolbelt.core.project.tool_components import (
     EntrypointShimTemplater,
     PtVenv,
     ToolConfig,
+    ToolInstaller,
     ToolPaths,
     ToolTemplater,
-    ToolInstaller,
 )
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
@@ -109,8 +109,7 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
     assert tool_paths_instance.cli_entrypoints_file == tool_paths_instance.cli_dir / "entrypoints.py"
     assert tool_paths_instance.install_path == Path.home() / ".pytoolbelt" / "tools" / mock_component_metadata.name
     assert tool_paths_instance.display_install_path == f"~/.pytoolbelt/tools/{mock_component_metadata.name}"
-    assert tool_paths_instance.zipapp_path == Path(
-        f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
+    assert tool_paths_instance.zipapp_path == Path(f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
     assert tool_paths_instance.dev_install_path == Path(f"{tool_paths_instance.install_path.as_posix()}-dev")
     assert tool_paths_instance.dev_symlink_path == tool_paths_instance.install_path
     assert tool_paths_instance.new_directories == [
@@ -126,7 +125,7 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
         tool_paths_instance.package_init_file,
         tool_paths_instance.dunder_cli_init_file,
         tool_paths_instance.cli_entrypoints_file,
-        tool_paths_instance.tests_init_file
+        tool_paths_instance.tests_init_file,
     ]
 
 
@@ -179,8 +178,7 @@ def test_entrypoint_shim_templater_get_template_kwargs_returns_correct_dict():
 @patch.object(EntrypointShimTemplater, "render", return_value="rendered_content")
 @patch.object(Path, "touch")
 @patch.object(Path, "write_text")
-def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch,
-                                                                                mock_render):
+def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch, mock_render):
     tool_paths = MagicMock()
     tool_paths.dev_install_path = Path("/fake/dev/install/path")
     interpreter = "/usr/bin/python3"
@@ -205,7 +203,7 @@ def tool_templater(mock_tool_paths):
     return ToolTemplater(paths=mock_tool_paths)
 
 
-@patch.object(ToolTemplater, 'render', return_value="rendered_content")
+@patch.object(ToolTemplater, "render", return_value="rendered_content")
 @patch("pathlib.Path.write_text")
 def test_template_new_tool_files(mock_write_text, mock_render, tool_templater, mock_tool_paths):
     tool_templater.template_new_tool_files()
@@ -231,10 +229,7 @@ def test_install(mock_symlink_to, mock_chmod, mock_open, mock_create_archive, to
     result = tool_installer.install(interpreter)
 
     mock_create_archive.assert_called_once_with(
-        source=mock_tool_paths.tool_dir,
-        target=mock_open.return_value.__enter__.return_value,
-        interpreter=interpreter,
-        main="mock_tool.__main__:main"
+        source=mock_tool_paths.tool_dir, target=mock_open.return_value.__enter__.return_value, interpreter=interpreter, main="mock_tool.__main__:main"
     )
     mock_symlink_to.assert_called_once()
     mock_chmod.assert_called_once_with(0o755)

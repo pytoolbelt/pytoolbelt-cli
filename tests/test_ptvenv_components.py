@@ -1,14 +1,11 @@
-# tests/test_ptvenv_components.py
+from unittest.mock import MagicMock, patch
 
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
-from pytoolbelt.core.project.ptvenv_components import PtVenvConfig, PtVenvPaths, PtVenvTemplater, PtVenvBuilder
-from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
-from pytoolbelt.core.data_classes.pytoolbelt_config import PytoolbeltConfig
-from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.project.tool_components import ToolConfig
 from semver import Version
+
+from pytoolbelt.core.data_classes.component_metadata import ComponentMetadata
+from pytoolbelt.core.project.ptvenv_components import PtVenvBuilder, PtVenvConfig, PtVenvPaths, PtVenvTemplater
+from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
 
 @pytest.fixture
@@ -28,8 +25,7 @@ def mock_ptvenv_paths(mock_meta, mock_toolbelt_paths):
 
 @pytest.fixture
 def mock_ptvenv_config():
-    return PtVenvConfig(name="mock_ptvenv", version=Version.parse("1.0.0"), python_version="3.10",
-                        requirements=["pytest"])
+    return PtVenvConfig(name="mock_ptvenv", version=Version.parse("1.0.0"), python_version="3.10", requirements=["pytest"])
 
 
 @pytest.fixture

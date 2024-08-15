@@ -34,13 +34,7 @@ class ToolbeltPaths(BasePaths):
 
     @property
     def new_directories(self) -> List[Path]:
-        return [
-            self.ptvenvs_dir,
-            self.tools_dir,
-            self.venv_install_dir,
-            self.toolbelt_install_dir,
-            self.tool_install_dir
-        ]
+        return [self.ptvenvs_dir, self.tools_dir, self.venv_install_dir, self.toolbelt_install_dir, self.tool_install_dir]
 
     @property
     def new_files(self) -> List[Path]:
