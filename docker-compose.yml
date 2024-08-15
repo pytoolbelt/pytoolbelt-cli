@@ -1,5 +1,5 @@
 x-base-service: &base-service
-  image: foo:bar #thekevjames/nox
+  image: pytoolbelt/nox-test-runner
   volumes:
     - .:/code
   working_dir: /code
