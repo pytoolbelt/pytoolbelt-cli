@@ -15,13 +15,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Pull Docker Image
-        run: docker-compose pull nox
+        run: docker compose pull nox
 
       - name: Run Formatting Checks
-        run: docker-compose run nox-check-formatting
+        run: docker compose run nox-check-formatting
 
       - name: Run Tests
-        run: docker-compose run nox-tests-all
+        run: docker compose run nox-tests-all
 
   release:
     runs-on: ubuntu-latest
