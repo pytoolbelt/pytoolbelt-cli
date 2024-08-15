@@ -24,7 +24,6 @@ def pull(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: TestParameters
 
 @pytoolbelt_config(provide_ptc=True)
 def run(ptc: PytoolbeltConfig, toolbelt: ToolbeltConfig, params: TestParameters) -> int:
-    print(params)
     test_controller = TestController(ptc, toolbelt)
     test_controller.run()
     return 0

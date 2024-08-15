@@ -39,12 +39,12 @@ class ToolbeltPaths(BasePaths):
             self.tools_dir,
             self.venv_install_dir,
             self.toolbelt_install_dir,
-            self.tool_install_dir,
+            self.tool_install_dir
         ]
 
     @property
     def new_files(self) -> List[Path]:
-        new_files = [self.gitignore, self.pytoolbelt_config, self.global_config_file, self.noxfile]
+        new_files = [self.gitignore, self.pytoolbelt_config, self.global_config_file, self.noxfile, self.pytest_ini]
 
         if self.dir_empty(self.ptvenvs_dir):
             new_files.append(self.ptvenvs_dir / ".gitkeep")
@@ -69,6 +69,10 @@ class ToolbeltPaths(BasePaths):
     @property
     def noxfile(self) -> Path:
         return self.toolbelt_dir / "noxfile.py"
+
+    @property
+    def pytest_ini(self) -> Path:
+        return self.toolbelt_dir / "pytest.ini"
 
     @property
     def git_dir(self) -> Path:

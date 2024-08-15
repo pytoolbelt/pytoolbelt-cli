@@ -219,6 +219,7 @@ class ToolInstaller:
         self.paths = paths
 
     def install(self, interpreter: str) -> int:
+
         with self.paths.zipapp_path.open("wb") as target:
             zipapp.create_archive(
                 source=self.paths.tool_dir,
@@ -226,6 +227,7 @@ class ToolInstaller:
                 interpreter=interpreter,
                 main=self.paths.meta.name + ".__main__:main",
             )
+
         self.paths.create_install_symlink()
         self.paths.zipapp_path.chmod(0o755)
         return 0

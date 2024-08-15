@@ -10,6 +10,8 @@ from pytoolbelt.core.project.tool_components import (
     PtVenv,
     ToolConfig,
     ToolPaths,
+    ToolTemplater,
+    ToolInstaller,
 )
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
 
@@ -107,7 +109,8 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
     assert tool_paths_instance.cli_entrypoints_file == tool_paths_instance.cli_dir / "entrypoints.py"
     assert tool_paths_instance.install_path == Path.home() / ".pytoolbelt" / "tools" / mock_component_metadata.name
     assert tool_paths_instance.display_install_path == f"~/.pytoolbelt/tools/{mock_component_metadata.name}"
-    assert tool_paths_instance.zipapp_path == Path(f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
+    assert tool_paths_instance.zipapp_path == Path(
+        f"{tool_paths_instance.install_path.as_posix()}=={str(mock_component_metadata.version)}")
     assert tool_paths_instance.dev_install_path == Path(f"{tool_paths_instance.install_path.as_posix()}-dev")
     assert tool_paths_instance.dev_symlink_path == tool_paths_instance.install_path
     assert tool_paths_instance.new_directories == [
@@ -176,15 +179,80 @@ def test_entrypoint_shim_templater_get_template_kwargs_returns_correct_dict():
 @patch.object(EntrypointShimTemplater, "render", return_value="rendered_content")
 @patch.object(Path, "touch")
 @patch.object(Path, "write_text")
-def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch, mock_render):
+def test_entrypoint_shim_templater_write_entrypoint_shim_writes_correct_content(mock_write_text, mock_touch,
+                                                                                mock_render):
     tool_paths = MagicMock()
     tool_paths.dev_install_path = Path("/fake/dev/install/path")
     interpreter = "/usr/bin/python3"
     templater = EntrypointShimTemplater(tool_paths, interpreter)
 
     templater.write_entrypoint_shim()
-
-    # mock_render.assert_called_once_with("entrypoint-shim.py.jinja2", python_executable=interpreter,
-    #                                     tool_path="/fake/tool/dir", tool_name="fake_tool")
     mock_touch.assert_called_once_with(exist_ok=True)
     mock_write_text.assert_called_once_with("rendered_content")
+
+
+@pytest.fixture
+def mock_tool_paths():
+    mock_meta = MagicMock(spec=ComponentMetadata)
+    mock_meta.name = "mock_tool"
+    mock_toolbelt_paths = MagicMock(spec=ToolbeltPaths)
+    mock_toolbelt_paths.tools_dir = Path("/fake/tools/dir")
+    return ToolPaths(meta=mock_meta, toolbelt_paths=mock_toolbelt_paths)
+
+
+@pytest.fixture
+def tool_templater(mock_tool_paths):
+    return ToolTemplater(paths=mock_tool_paths)
+
+
+@patch.object(ToolTemplater, 'render', return_value="rendered_content")
+@patch("pathlib.Path.write_text")
+def test_template_new_tool_files(mock_write_text, mock_render, tool_templater, mock_tool_paths):
+    tool_templater.template_new_tool_files()
+
+    assert mock_render.call_count == 5  # __init__.py files should be skipped
+    assert mock_write_text.call_count == 5
+    mock_write_text.assert_any_call("rendered_content")
+
+
+@pytest.fixture
+def tool_installer(mock_tool_paths):
+    return ToolInstaller(paths=mock_tool_paths)
+
+
+@patch("zipapp.create_archive")
+@patch("pathlib.Path.open")
+@patch("pathlib.Path.chmod")
+@patch("pathlib.Path.symlink_to")
+def test_install(mock_symlink_to, mock_chmod, mock_open, mock_create_archive, tool_installer, mock_tool_paths):
+    mock_open.return_value.__enter__.return_value = MagicMock()
+    interpreter = "/usr/bin/python3"
+
+    result = tool_installer.install(interpreter)
+
+    mock_create_archive.assert_called_once_with(
+        source=mock_tool_paths.tool_dir,
+        target=mock_open.return_value.__enter__.return_value,
+        interpreter=interpreter,
+        main="mock_tool.__main__:main"
+    )
+    mock_symlink_to.assert_called_once()
+    mock_chmod.assert_called_once_with(0o755)
+    assert result == 0
+
+
+@patch("pathlib.Path.exists")
+@patch("pathlib.Path.unlink")
+@patch("pathlib.Path.symlink_to")
+@patch("pathlib.Path.chmod")
+def test_install_shim(mock_chmod, mock_symlink_to, mock_unlink, mock_exists, tool_installer, mock_tool_paths):
+    mock_exists.return_value = True  # Simulate that the symlink already exists
+    interpreter = "/usr/bin/python3"
+
+    result = tool_installer.install_shim(interpreter)
+
+    mock_unlink.assert_called_once()  # Ensure the existing symlink is removed
+    mock_symlink_to.assert_called_once()
+    mock_chmod.assert_called_once_with(0o755)
+
+    assert result == 0

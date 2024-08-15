@@ -7,7 +7,7 @@ from pytoolbelt.core.error_handling.exceptions import PytoolbeltError
 from pytoolbelt.core.project.ptvenv_components import PtVenvConfig
 from pytoolbelt.core.project.tool_components import ToolConfig
 from pytoolbelt.core.project.toolbelt_components import ToolbeltPaths
-from pytoolbelt.core.tools.noxtemplating import NoxfileTemplater
+from pytoolbelt.core.tools.noxtemplating import NoxfileTemplater, PytestIniTemplater
 from pytoolbelt.environment.config import get_logger
 
 logger = get_logger(__name__)
@@ -41,10 +41,23 @@ class TestController:
     def run(self) -> int:
         logger.info("Running test command")
         docker_client = docker.from_env()
-        container = docker_client.containers.run(
-            image=self.ptc.test_image, command="ls app", volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/code", "mode": "rw"}}
-        )
-        logger.info(f"Container output: {container.decode()}")
+
+        try:
+            container = docker_client.containers.run(
+                image=self.ptc.test_image,
+                command="nox",
+                volumes={self.toolbelt_paths.toolbelt_dir: {"bind": "/code", "mode": "rw"}},
+                detach=True,
+                working_dir="/code",
+
+            )
+
+            for log in container.logs(stream=True):
+                logger.info(log.decode().strip())
+            container.wait()
+
+        except DockerException:
+            raise PytoolbeltError("Failed to run test command")
         return 0
 
     def render(self) -> int:
@@ -62,8 +75,16 @@ class TestController:
                 ptvenv_configs[config.ptvenv.name]["tools"].append(config)
 
         self.toolbelt_paths.noxfile.touch(exist_ok=True)
+        self.toolbelt_paths.pytest_ini.touch(exist_ok=True)
 
-        templater = NoxfileTemplater()
-        noxfile = templater.render_noxfile(ptvenv_configs)
+        nox_templater = NoxfileTemplater()
+        noxfile = nox_templater.render_noxfile(ptvenv_configs)
         self.toolbelt_paths.noxfile.write_text(noxfile)
+
+        logger.info("Rendering pytest.ini")
+        pytest_templater = PytestIniTemplater()
+        tools = [t.name for t in self.toolbelt_paths.tools_dir.iterdir() if t.is_dir()]
+        pytest_ini = pytest_templater.render_pytest_ini(tools=tools)
+        self.toolbelt_paths.pytest_ini.write_text(pytest_ini)
+
         return 0
