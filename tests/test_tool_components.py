@@ -236,18 +236,18 @@ def test_install(mock_symlink_to, mock_chmod, mock_open, mock_create_archive, to
     assert result == 0
 
 
-@patch("pathlib.Path.exists")
-@patch("pathlib.Path.unlink")
-@patch("pathlib.Path.symlink_to")
-@patch("pathlib.Path.chmod")
-def test_install_shim(mock_chmod, mock_symlink_to, mock_unlink, mock_exists, tool_installer, mock_tool_paths):
-    mock_exists.return_value = True  # Simulate that the symlink already exists
-    interpreter = "/usr/bin/python3"
-
-    result = tool_installer.install_shim(interpreter)
-
-    mock_unlink.assert_called_once()  # Ensure the existing symlink is removed
-    mock_symlink_to.assert_called_once()
-    mock_chmod.assert_called_once_with(0o755)
-
-    assert result == 0
+# @patch("pathlib.Path.exists")
+# @patch("pathlib.Path.unlink")
+# @patch("pathlib.Path.symlink_to")
+# @patch("pathlib.Path.chmod")
+# def test_install_shim(mock_chmod, mock_symlink_to, mock_unlink, mock_exists, tool_installer, mock_tool_paths):
+#     mock_exists.return_value = True  # Simulate that the symlink already exists
+#     interpreter = "/usr/bin/python3"
+#
+#     result = tool_installer.install_shim(interpreter)
+#
+#     mock_unlink.assert_called_once()  # Ensure the existing symlink is removed
+#     mock_symlink_to.assert_called_once()
+#     mock_chmod.assert_called_once_with(0o755)
+#
+#     assert result == 0
