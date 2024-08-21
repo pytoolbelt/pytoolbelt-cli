@@ -2,7 +2,7 @@ import argparse
 
 from pytoolbelt.cli.parsers import format, init, installed, ptvenv, release, releases, test, tool, toolbelt
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 
 def parse_args():
