@@ -22,6 +22,7 @@ This directory contains all the tools that are part of your toolbelt. Each tool 
 ### The pytoolbelt.yml File
 This file contains the configuration for the toolbelt and has the following structure.
 
+
 ```yaml
 project-config:
     python: "3.10"
