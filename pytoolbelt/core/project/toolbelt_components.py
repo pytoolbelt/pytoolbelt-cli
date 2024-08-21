@@ -148,6 +148,11 @@ class ToolbeltTemplater(BaseTemplater):
 
     def template_new_toolbelt_files(self) -> None:
         for file in self.paths.new_files:
+            # Skip the noxfile.py, it's a special case because a new toolbelt will have nothing
+            # to test or template tests for.
+            if file.name == "noxfile.py":
+                continue
+
             if file.exists():
                 if file.stat().st_size == 0:
                     self.write_template(file)
