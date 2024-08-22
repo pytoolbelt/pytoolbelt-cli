@@ -1,0 +1,656 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../install_dirs/">
+      
+      
+        <link rel="next" href="../commands/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
+    
+    
+      
+        <title>Toolbelt - Pytoolbelt Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#toolbelt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pytoolbelt Documentation" class="md-header__button md-logo" aria-label="Pytoolbelt Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pytoolbelt Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Toolbelt
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pytoolbelt Documentation" class="md-nav__button md-logo" aria-label="Pytoolbelt Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Pytoolbelt Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install_dirs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Initialize Pytoolbelt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Toolbelt
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Toolbelt
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is a Toolbelt?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is a Toolbelt?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-ptvenv-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ptvenv Directory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-tools-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      The tools Directory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pytoolbeltyml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The pytoolbelt.yml File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a new Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetch-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetch a Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#display-configured-toolbelts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Display Configured Toolbelts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ptvenv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ptvenv
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tools
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is a Toolbelt?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is a Toolbelt?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-ptvenv-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ptvenv Directory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-tools-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      The tools Directory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pytoolbeltyml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The pytoolbelt.yml File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a new Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetch-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetch a Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#display-configured-toolbelts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Display Configured Toolbelts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-toolbelt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a Toolbelt
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<p><a href="https://www.fontspace.com/category/blueprint"><img alt="Blueprint fonts" src="https://see.fontimg.com/api/renderfont4/BWWo5/eyJyIjoiZnMiLCJoIjo4NywidyI6MTAwMCwiZnMiOjg3LCJmZ2MiOiIjMUNBN0ZGIiwiYmdjIjoiI0ZGRkZGRiIsInQiOjF9/UHl0b29sYmVsdA/typo-draft-demo.png" /></a></p>
+<h1 id="toolbelt">Toolbelt</h1>
+<h2 id="what-is-a-toolbelt">What is a Toolbelt?</h2>
+<p>A toolbelt is simply a git repo with an opinionated directory structure that <code>pytoolbelt</code> uses to manage 
+the development and installation of tools from a central location. A <code>toolbelt</code> can be considered a mono-repo and has the following structure.</p>
+<pre><code>ptvenv           -- This is where your venv definitions live
+tools            -- This is where your tools live
+.gitignore       -- standard gitignore file
+pytoolbelt.yml   -- The pytoolbelt configuration file for this toolbelt
+noxfile.py       -- The nox configuration file for this toolbelt. Nox is testing is optional
+pytest.ini       -- The pytest configuration file for this toolbelt. Pytest is optional. 
+</code></pre>
+<h3 id="the-ptvenv-directory">The ptvenv Directory</h3>
+<p>This directory contains all the venv definitions for your tools, referred to as a <code>ptvenv</code>. Each <code>ptvenv</code> is given a name, and a version as well as the python version required for it to work, 
+and the requirements that are needed for the venv.</p>
+<h3 id="the-tools-directory">The tools Directory</h3>
+<p>This directory contains all the tools that are part of your toolbelt. Each tool is given a name, and a version as well as the ptvenv required for it to work.</p>
+<h3 id="the-pytoolbeltyml-file">The pytoolbelt.yml File</h3>
+<p>This file contains the configuration for the toolbelt and has the following structure.</p>
+<pre><code class="language-yaml">project-config:
+    python: &quot;3.10&quot;
+    bump: &quot;minor&quot;
+    envfile: &quot;.env&quot;
+    release_branch: &quot;main&quot;
+    test_image: &quot;pytoolbelt/nox-test-runner:0.0.1&quot;
+</code></pre>
+<p>Each key in the <code>yml</code> file has the following meaning
+- <code>python (string)</code> The version of python used to create new <code>ptvenv</code>s. (must be quoted)
+- <code>bump (string)</code> The default bump level for the <code>bump</code> command. (must be quoted)
+- <code>envfile (string)</code> The path of the <code>.env</code> file that will be used to store environment variables. (must be quoted)
+- <code>release_branch (string)</code> The branch that will be used to create new releases. (must be quoted)'
+- <code>test_image (string)</code> The docker image that will be used to run tests. (must be quoted)</p>
+<h2 id="create-a-new-toolbelt">Create a new Toolbelt</h2>
+<p>To create a new toolbelt, simply run the following command </p>
+<pre><code class="language-bash">pytoolbelt toolbelt new --url &lt;git-repo-url&gt;
+</code></pre>
+<p>Pytoolbelt needs to be linked to a remote git repo to manage the repo as a "toolbelt". The <code>--url</code> flag is required to link the toolbelt to the remote repo.
+It is advised to first create the remote repo in your github (or other git provider) account before running this command. It is however not required.</p>
+<p>This created a new toolbelt repo at the location <code>~/pytoolbelt/toolbelts/&lt;toolbelt-name&gt;</code>. A git repo was initiallized automatically at this location.</p>
+<h2 id="fetch-a-toolbelt">Fetch a Toolbelt</h2>
+<p>To fetch a toolbelt first add the URL to the pytoolbelt config with the following command</p>
+<pre><code class="language-bash">pytoolbelt toolbelt add --url &lt;git-repo-url&gt;
+</code></pre>
+<p>Once the toolbelt has been added to the config, it can be fetch with the following command</p>
+<pre><code class="language-bash">pytoolbelt toolbelt fetch --name &lt;toolbelt-name&gt;
+</code></pre>
+<h2 id="display-configured-toolbelts">Display Configured Toolbelts</h2>
+<p>To display the configured toolbelts, run the following command</p>
+<pre><code class="language-bash">pytoolbelt toolbelt show
+</code></pre>
+<h2 id="remove-a-toolbelt">Remove a Toolbelt</h2>
+<p>To remove a toolbelt from the configuration, run the following command</p>
+<pre><code class="language-bash">pytoolbelt toolbelt remove --name &lt;toolbelt-name&gt;
+</code></pre>
+<p>The delete the repo from your machine</p>
+<pre><code class="language-bash">rm -rf ~/pytoolbelt/toolbelts/&lt;toolbelt-name&gt;
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      
+    
+  </body>
+</html>
