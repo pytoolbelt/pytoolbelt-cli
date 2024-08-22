@@ -16,6 +16,10 @@ or to have a private package server (aka artifact repo), which is not always des
 Pytoolbelt aims to simplify this process by treating a git repo as a `toolbelt`. Installation is a simple as cloning the repo and running 
 `pytoolbelt tool install --name <toolname>`, and the tool is installed as a zipapp, which can be run globally from your terminal.
 
+## Documentation
+Check out the full documentation at github pages [here](https://pytoolbelt.github.io/pytoolbelt-cli/)
+
+
 ## Getting Started
 pytoolbelt can be installed via pip (venv creation recommended):
 ```bash
