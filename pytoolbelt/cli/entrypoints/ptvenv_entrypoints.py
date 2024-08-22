@@ -32,8 +32,9 @@ def install(toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
     return ptvenv.build(force=params.force, from_config=params.from_config)
 
 
-def remove(params: PtVenvParameters) -> int:
-    ptvenv = PtVenvController.for_deletion(params.name)
+@pytoolbelt_config()
+def remove(toolbelt: ToolbeltConfig, params: PtVenvParameters) -> int:
+    ptvenv = PtVenvController.for_deletion(params.name, toolbelt)
     return ptvenv.delete(params.all)
 
 
