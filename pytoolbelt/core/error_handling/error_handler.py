@@ -53,4 +53,7 @@ def handle_cli_errors(func):
         except exceptions.PytoolbeltError as e:
             return error_handler.handle(e)
 
+        except exceptions.CliArgumentError as e:
+            return error_handler.handle(e)
+
     return wrapper
