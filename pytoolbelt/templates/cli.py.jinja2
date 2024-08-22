@@ -1,0 +1,52 @@
+from argparse import ArgumentParser, Namespace
+
+# add your entrypoints here. They can then be linked to subparsers in the parse_args function.
+# you can get the arguments from the cli by using the args: Namespace object.
+# for well-behaved terminal applications, you should return 0 on success and 1 on failure.
+# see the main entrypoint in the __main__.py file for an example.
+
+def entrypoint_root(cliargs: Namespace) -> int:
+    print("root entrypoint")
+    print(cliargs)
+    return 0
+
+def entrypoint_foo(cliargs: Namespace) -> int:
+    print("foo entrypoint")
+    print(cliargs)
+    return 0
+
+def entrypoint_bar(cliargs: Namespace) -> int:
+    print("bar entrypoint")
+    print(cliargs)
+    return 0
+
+
+
+def parse_args() -> Namespace:
+    root_parser = ArgumentParser()
+
+    # set this to True if you want to require a subparser.
+    # this gives you the option to have a command tree and not allow just calling the base command.
+    # all subparsers will have there values automatically mapped to an attribute in the Namespace object called command.
+    sub_parsers = root_parser.add_subparsers(dest="command")
+    sub_parsers.required = False
+
+    # Add subparsers here, these would be for the example commands of foo and bar
+    # add your own entrypoints and subparsers here.
+
+    # example foo parser which would be "mytool foo"
+    foo_parser = sub_parsers.add_parser("foo")
+    foo_parser.set_defaults(command=entrypoint_foo)
+
+    # example bar parser which would be "mytool bar --flag"
+    bar_parser = sub_parsers.add_parser("bar")
+    bar_parser.add_argument("--flag", "-f", default=False, action="store_true", help="example flag argument --flag")
+    bar_parser.set_defaults(command=entrypoint_bar)
+
+    cliargs = root_parser.parse_args()
+
+    # required if sub_parsers.required is False this will set the default command to the root entrypoint
+    # so the user can call the tool without a subparser. eg. "mytool"
+    if not cliargs.command:
+        cliargs.command = entrypoint_root
+    return cliargs

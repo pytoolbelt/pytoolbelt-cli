@@ -1,11 +1,30 @@
+"""
+This is the main entrypoint for your tool, and MUST be present for the tool to work correctly. pytoolbelt will install
+your tool on the path as a python zip app, therefore the location of this file must stay the same.
+for a simple script, you can simply add all your code to this file if you like. Otherwise it is recommended to use
+the cli.py file to define your entrypoints and subparsers, and then call them from this file to keep things clean.
+"""
 from {{name}}.cli import parse_args
 
 
-def main() -> None:
+def main() -> int:
+    """
+    the parse_args function is generated in the cli.py file and is used to parse the arguments for your tool.
+    it is up to you to decide what your entrypoints are and how they are called. This is a simple pattern
+    and works well for building small and medium-sized tools.
+    all entrypoints are mapped to an attribute in the namespace argument called command, and the resulting
+    arguments are passed to the entrypoint function as an argument called cliargs.
+    """
+
     cliargs = parse_args()
     command = cliargs.command(cliargs=cliargs)
-    command()
+    return command()
 
 
 if __name__ == "__main__":
-    main()
+    """
+    All of your entrypoints should return 0 on success and 1 on failure. This is a well-behaved pattern for terminal
+    applications and is recommended for consistency. This is the main entrypoint for your tool, and MUST be present.
+    """
+    return_code = main()
+    exit(return_code)

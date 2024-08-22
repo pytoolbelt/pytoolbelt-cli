@@ -115,7 +115,6 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
     assert tool_paths_instance.new_directories == [
         tool_paths_instance.tool_dir,
         tool_paths_instance.tool_code_dir,
-        tool_paths_instance.cli_dir,
         tool_paths_instance.tests_dir,
     ]
     assert tool_paths_instance.new_files == [
@@ -123,8 +122,7 @@ def test_tool_paths_properties(tool_paths_instance, mock_component_metadata, moc
         tool_paths_instance.readme_md_file,
         tool_paths_instance.dunder_main_file,
         tool_paths_instance.package_init_file,
-        tool_paths_instance.dunder_cli_init_file,
-        tool_paths_instance.cli_entrypoints_file,
+        tool_paths_instance.cli_file,
         tool_paths_instance.tests_init_file,
     ]
 
@@ -208,8 +206,8 @@ def tool_templater(mock_tool_paths):
 def test_template_new_tool_files(mock_write_text, mock_render, tool_templater, mock_tool_paths):
     tool_templater.template_new_tool_files()
 
-    assert mock_render.call_count == 5  # __init__.py files should be skipped
-    assert mock_write_text.call_count == 5
+    assert mock_render.call_count == 4  # __init__.py files should be skipped
+    assert mock_write_text.call_count == 4
     mock_write_text.assert_any_call("rendered_content")
 
 

@@ -105,6 +105,10 @@ class ToolPaths(BasePaths):
         return self.cli_dir / "entrypoints.py"
 
     @property
+    def cli_file(self) -> Path:
+        return self.tool_code_dir / "cli.py"
+
+    @property
     def tests_init_file(self) -> Path:
         return self.tests_dir / "__init__.py"
 
@@ -130,7 +134,7 @@ class ToolPaths(BasePaths):
 
     @property
     def new_directories(self) -> List[Path]:
-        return [self.tool_dir, self.tool_code_dir, self.cli_dir, self.tests_dir]
+        return [self.tool_dir, self.tool_code_dir, self.tests_dir]
 
     @property
     def new_files(self) -> List[Path]:
@@ -139,8 +143,7 @@ class ToolPaths(BasePaths):
             self.readme_md_file,
             self.dunder_main_file,
             self.package_init_file,
-            self.dunder_cli_init_file,
-            self.cli_entrypoints_file,
+            self.cli_file,
             self.tests_init_file,
         ]
 
