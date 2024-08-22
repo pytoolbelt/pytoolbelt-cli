@@ -47,17 +47,45 @@ Each key in the `yml` file has the following meaning
 
 The requirements section is optional. If your tools do not require any additional dependencies to operate, then leave this list empty.
 
-## Installing the ptvenv
-To build and install a `ptvenv`, simply cd to the directory containing the `ptvenv` definition and run
+## Installing a ptvenv
+
+### From a released ptvenv
+If a specific version of a `ptvenv` has been released in the repo, you can specify the version to install using the == syntax
+```bash
+pytoolbelt ptvenv install --name my_ptvenv==1.22.3
+```
+
+or otherwise if you want to install the latest version of a `ptvenv` you can simply run
 ```bash
 pytoolbelt ptvenv install --name my_ptvenv
 ```
-Or from any directory by specifying the toolbelt to find the definition in
+
+These command however both require that a ptvenv has been released in the toolbelt. If you just want to install
+whatever the state of the current config file is it is possible as described below.
+
+### From ptvenv definition
+
+To build and install a `ptvenv` directly from the definition file, you can run the following command
 ```bash
-pytoolbelt ptvenv install --toolbelt my-toolbelt --name my_ptvenv
+pytoolbelt ptvenv install --name my_ptvenv --from-config
 ```
 
-If a specific version of a `ptvenv` has been released in the repo, you can specify the version to install using the == syntax
+Or from any directory by specifying the toolbelt to find the definition in
 ```bash
-pytoolbelt ptvenv install --toolbelt my-toolbelt --name my_ptvenv==1.22.3
+pytoolbelt ptvenv install --toolbelt my-toolbelt --name my_ptvenv --from-config
+```
+
+## See installed ptvenvs
+To see a list of installed `ptvenvs` you can run the following command
+```bash
+pytoolbelt installed --ptvenv
+```
+This will display a table of installed `ptvenvs` and their versions.
+``` bash
+                                Installed PtVenvs
+┏━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃   Name ┃ Version ┃ Path                                                       ┃
+┡━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ ptbase │  0.0.1  │ ~/.pytoolbelt/environments/ptbase/0.0.1/venv               │
+└────────┴─────────┴────────────────────────────────────────────────────────────┘
 ```

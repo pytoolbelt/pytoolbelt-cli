@@ -69,3 +69,13 @@ To display the configured toolbelts, run the following command
 ```bash
 pytoolbelt toolbelt show
 ```
+
+## Remove a Toolbelt
+To remove a toolbelt from the configuration, run the following command
+```bash
+pytoolbelt toolbelt remove --name <toolbelt-name>
+```
+The delete the repo from your machine
+```bash
+rm -rf ~/pytoolbelt/toolbelts/<toolbelt-name>
+```
