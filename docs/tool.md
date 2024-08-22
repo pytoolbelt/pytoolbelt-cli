@@ -25,9 +25,7 @@ tools
 │   ├── mytool
 │   │   ├── __init__.py
 │   │   ├── __main__.py
-│   │   ├── cli
-│   │   │  ├── __init__.py
-│   │   │  ├── entrypoints.py
+│   │   ├── cli.py
 │   ├── config.yml
 │   └── README.md
 ```
@@ -56,3 +54,29 @@ tool:
     name: "my_ptvenv"
     version: "0.0.1"
 ```
+
+## Installing a tool
+Tools can be installed globally from your toolbelt. To install a tool, the required `ptvenv` must be installed first.
+If it is not found, pytoolbelt will simply exit with an error message stating that the `ptvenv` is not found.
+
+### From a released tool
+If a specific version of a `tool` has been released in the repo, you can specify the version to install using the == syntax
+```bash
+pytoolbelt tool install --name mytool==1.22.3
+```
+
+or otherwise if you want to install the latest version of a `tool` you can simply run
+```bash
+pytoolbelt tool install --name mytool
+```
+
+These command however both require that a tool has been released in the toolbelt. If you just want to install
+the current version of what is in the tool directory, you can install the tool in development mode. 
+
+### Install in development mode
+To install a tool in development mode, simply run the following command
+```bash
+pytoolbelt tool install --name mytool --dev-mode
+```
+This will install whatever is currently in the tool directory, as well as making the tool editable. This installation 
+is simply a symlink to the tool's entrypoint in the toolbelt. This behavior is similar to `pip install -e .` in a python project.
